@@ -1,5 +1,5 @@
 // Diamantjakten: sparar spelet i webbläsaren så att det fungerar utan internet
-const CACHE = 'diamantjakten-e6a91eaae8';
+const CACHE = 'diamantjakten-275ee7e4ca';
 const CORE = ['./', './index.html', './kontroll.html', './manifest.webmanifest', './icon-192.png', './icon-512.png', './apple-touch-icon.png', './favicon-32.png'];
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(async c => {
@@ -14,6 +14,7 @@ self.addEventListener('fetch', e => {
   const req = e.request;
   if (req.method !== 'GET') return;
   const url = new URL(req.url);
+  if (req.headers.has('range')) return;   // ljudfiler hämtas i bitar av webbläsaren själv
   if (url.origin === self.location.origin) {
     e.respondWith(fetch(req).then(res => {
       if (res.ok) { const copy = res.clone(); caches.open(CACHE).then(c => c.put(req, copy)); }

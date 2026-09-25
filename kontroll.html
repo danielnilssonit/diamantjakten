@@ -243,6 +243,36 @@ html,body{background:radial-gradient(120% 70% at 50% 0%,#23525e 0%,#0c242c 55%,#
 .die-tilt,.die{display:block}
 .die-area .die-hint{margin-top:16px}
 .die-area{gap:14px}
+.mm-box{border-radius:18px;overflow:hidden;box-shadow:0 0 0 2.5px var(--ink),0 0 0 5px #fff3d0,0 0 0 7.5px var(--ink),0 8px 18px rgba(0,0,0,.25);background:#2c6f86}
+.minimap{display:block;width:100%;height:auto;aspect-ratio:4/3;touch-action:manipulation}
+.mm-opt{cursor:pointer}
+.mm-opt.sel circle:first-child{fill:rgba(255,214,90,.8);stroke-width:1.2%}
+.mm-name{font-family:var(--body);font-weight:900;fill:#1d2b33;stroke:#fff;stroke-width:.35%;paint-order:stroke}
+.tipbox{background:linear-gradient(180deg,#fff8d6,#ffe7a0)!important;animation:flipin .45s cubic-bezier(.3,1.4,.5,1)}
+.tip-opts{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.tip-opts .choice{justify-content:center;text-align:center;font-size:16px;padding:12px 8px}
+.mission{background:linear-gradient(180deg,#f3ecff,#e4d6ff)!important}
+.mission.done{background:linear-gradient(180deg,#e2fbe9,#bdf0cd)!important}
+.mission-text{font-family:var(--display);font-weight:400;font-size:21px;line-height:1.15}
+.progress{height:14px;border-radius:999px;background:#fff;box-shadow:0 0 0 2.5px var(--ink);overflow:hidden}
+.progress i{display:block;height:100%;background:linear-gradient(180deg,#b890f0,#7f47d6)}
+.draw-box{position:relative;width:100%;aspect-ratio:1;border-radius:18px;overflow:hidden;background:#fff;background-image:linear-gradient(45deg,#f1ece0 25%,transparent 25%),linear-gradient(-45deg,#f1ece0 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#f1ece0 75%),linear-gradient(-45deg,transparent 75%,#f1ece0 75%);background-size:28px 28px;background-position:0 0,0 14px,14px -14px,-14px 0;box-shadow:0 0 0 2.5px var(--ink);touch-action:none}
+.draw-box canvas{width:100%;height:100%;display:block;touch-action:none}
+.d-eyes{position:absolute;inset:0;pointer-events:none}
+.d-eyes .eye{position:absolute;aspect-ratio:1;border-radius:50%;background:#fff;border:3px solid #111;transform:translate(-50%,-50%);pointer-events:auto;touch-action:none}
+.d-eyes .eye::after{content:"";position:absolute;left:30%;top:34%;width:40%;height:40%;border-radius:50%;background:#111}
+.d-colors{display:flex;flex-wrap:wrap;gap:8px}
+.sw{width:36px;height:36px;border-radius:50%;border:0;box-shadow:0 0 0 2.5px var(--ink);padding:0}
+.sw.on{box-shadow:0 0 0 2.5px var(--ink),0 0 0 5px #fff,0 0 0 7.5px var(--sky)}
+.d-row{display:flex;flex-wrap:wrap;gap:8px}
+.tbtn{width:46px;height:46px;border-radius:12px;border:0;background:linear-gradient(180deg,#fff,#f1e6c9);box-shadow:0 0 0 2.5px var(--ink),0 3px 0 2.5px var(--ink);display:grid;place-items:center;padding:0;color:var(--ink)}
+.tbtn svg{width:24px;height:24px}
+.tbtn.on{background:linear-gradient(180deg,#ffe992,#f0a61a)}
+.file-btn{position:relative;overflow:hidden;align-self:flex-start}
+.file-btn input{position:absolute;inset:0;opacity:0}
+.field input[type=range]{width:100%;accent-color:var(--gold)}
+.postcard{display:grid;gap:10px;width:100%}
+.postcard img{width:100%;height:auto;border-radius:12px;box-shadow:0 0 0 2.5px var(--ink)}
 @media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -293,10 +323,27 @@ html,body{background:radial-gradient(120% 70% at 50% 0%,#23525e 0%,#0c242c 55%,#
       <input id="nameInput" class="name-input" maxlength="14" placeholder="Skriv ditt namn" autocomplete="off" aria-label="Namn">
       <h2>Välj pjäs</h2>
       <div id="pieceGrid" class="pieces"></div>
+      <div id="accRow" hidden><h2>Tillbehör</h2><div class="toggles" id="accList"></div></div>
       <h2>Frågesport</h2>
       <div class="seg" id="quizSeg" role="group" aria-label="Frågor"><button type="button" data-v="easy">Lätta frågor</button><button type="button" data-v="hard">Svåra frågor</button></div>
+      <button id="bDrawOpen" class="btn blue wide" type="button">Rita eller fota en egen pjäs</button>
       <button id="bJoin" class="btn big primary wide" type="button">Gå med!</button>
       <p class="err" id="joinErr"></p>
+    </section>
+
+    <section id="vDraw" class="view" hidden>
+      <h1>Rita din pjäs</h1>
+      <p class="sub">Rita en figur med tjocka streck och fyll i den. Den blir en uppblåst 3D-pjäs på den stora skärmen.</p>
+      <div class="draw-box" id="dBox"><canvas id="dCanvas" width="600" height="600" aria-label="Rityta"></canvas><div class="d-eyes" id="dEyes"></div></div>
+      <div class="d-colors" id="dColors"></div>
+      <div class="d-row" id="dTools"></div>
+      <label class="btn small file-btn">Fota en teckning<input type="file" id="dPhoto" accept="image/*" capture="environment"></label>
+      <div class="field" id="dTolRow" hidden><span>Ta bort bakgrund</span><input type="range" id="dTol" min="10" max="90" value="42"></div>
+      <h2>Färg på foten</h2>
+      <div class="d-colors" id="dBase"></div>
+      <p class="err" id="drawErr"></p>
+      <button id="dDone" class="btn big primary wide" type="button">Använd pjäsen!</button>
+      <button id="dCancel" class="btn wide" type="button">Tillbaka</button>
     </section>
 
     <section id="vLobby" class="view" hidden>
@@ -334,6 +381,8 @@ html,body{background:radial-gradient(120% 70% at 50% 0%,#23525e 0%,#0c242c 55%,#
       <div class="talk"><p class="prompt" id="gPrompt"></p><p class="sub" id="gSub"></p></div>
       <div class="panel" id="gPanel" hidden></div>
       <div class="idle" id="gIdle">
+        <div class="box tipbox" id="tipBox" hidden></div>
+        <div class="box mission" id="missionBox" hidden></div>
         <div class="reacts" id="reacts"></div>
         <div class="box" id="secrets" hidden></div>
         <div class="box" id="stamps" hidden></div>
@@ -346,6 +395,7 @@ html,body{background:radial-gradient(120% 70% at 50% 0%,#23525e 0%,#0c242c 55%,#
       <h1 id="overTitle"></h1>
       <p id="overText"></p>
       <div id="overDiary" class="diary"></div>
+      <div id="overPostcard" class="postcard" hidden></div>
       <div id="overLeader" class="stack" hidden>
         <button id="bAgain" class="btn big primary" type="button">Spela igen</button>
         <button id="bReplay" class="btn big" type="button">Visa resan på TV:n</button>
@@ -408,16 +458,22 @@ html,body{background:radial-gradient(120% 70% at 50% 0%,#23525e 0%,#0c242c 55%,#
   const dev = store.get('dev') || (() => { const id = 'd' + Math.random().toString(36).slice(2, 12); store.set('dev', id); return id; })();
   let code = parseCode();
   let peer = null, conn = null, connected = false, retryT = 0, openT = 0, lastMsg = 0;
-  let st = null, offer = null, thumbs = {}, known = [], stamps = [], profile = store.get('profile', {name: '', piece: null, quiz: 'easy'});
+  let st = null, offer = null, thumbs = {}, known = [], stamps = [], profile = store.get('profile', {name: '', piece: null, quiz: 'easy'}), boardMap = null;
+  let tip = null, tipTimer = 0, pendingAcc, postcard = null;
   let editing = false, joinedOnce = false, dieBusy = false, armed = null, selected = null, quizPicked = null, bidTimer = 0, pendingPiece = null, pendingQuiz = null, pendingName = null;
 
+  // Adressen kan ha en TURN-server efter ~ (om värden har en inställd)
+  let turn = null;
+  try { const t = location.hash.split('~')[1]; if (t) turn = JSON.parse(decodeURIComponent(escape(atob(t)))); } catch (e) { turn = null; }
+  const iceServers = () => [{urls: 'stun:stun.l.google.com:19302'}, {urls: 'stun:stun.cloudflare.com:3478'}].concat(turn && turn.url ? [{urls: turn.url, username: turn.user || undefined, credential: turn.pass || undefined}] : []);
   function parseCode() {
-    const m = (location.hash.slice(1) || new URLSearchParams(location.search).get('kod') || store.get('code') || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
+    const m = (location.hash.slice(1).split('~')[0] || new URLSearchParams(location.search).get('kod') || store.get('code') || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
     return m.length >= 4 ? m.slice(0, 8) : null;
   }
 
   /* ---------- Vyer ---------- */
-  const VIEWS = ['vConnect', 'vCode', 'vJoin', 'vLobby', 'vClaim', 'vWait', 'vGame', 'vOver'];
+  const VIEWS = ['vConnect', 'vCode', 'vJoin', 'vLobby', 'vClaim', 'vWait', 'vGame', 'vOver', 'vDraw'];
+  let drawing = false;
   let view = '';
   function show(id) { if (view === id) return; view = id; VIEWS.forEach(v => { $(v).hidden = v !== id; }); window.scrollTo(0, 0); }
 
@@ -433,7 +489,7 @@ html,body{background:radial-gradient(120% 70% at 50% 0%,#23525e 0%,#0c242c 55%,#
     if (!window.Peer) { setConn('off', 'Kunde inte ladda anslutningen. Kontrollera internet och ladda om sidan.'); return; }
     setConn('connecting', st ? 'Ansluter igen …' : 'Ansluter till spelet …');
     if (!peer || peer.destroyed) {
-      peer = new window.Peer({debug: 0});
+      peer = new window.Peer({debug: 0, config: {iceServers: iceServers()}});
       peer.on('open', openConn);
       peer.on('disconnected', () => { try { if (!peer.destroyed) peer.reconnect(); } catch (e) { /* försöker igen */ } });
       peer.on('error', e => {
@@ -489,8 +545,25 @@ html,body{background:radial-gradient(120% 70% at 50% 0%,#23525e 0%,#0c242c 55%,#
         }
         break;
       case 'known': known = m.list || []; renderIdle(); break;
+      case 'map': boardMap = {id: m.id, src: m.src, W: m.W, H: m.H}; break;
+      case 'postcard': postcard = m.src; render(); break;
+      case 'tip': tip = {id: m.id, q: m.q, options: m.options, ms: m.ms, t0: performance.now(), picked: null, result: null}; renderTip(); buzz(30); break;
+      case 'tipRes':
+        if (tip && tip.id === m.id) {
+          if (m.cancel || !m.answered) { tip = null; renderTip(); break; }
+          tip.result = m; renderTip();
+          buzz(m.ok ? [40, 40, 40] : 90);
+          clearTimeout(tipTimer);
+          tipTimer = setTimeout(() => { tip = null; renderTip(); }, 3200);
+        }
+        break;
       case 'event': onEvent(m); break;
-      case 'error': toast(m.text); $('joinErr').textContent = m.text; break;
+      case 'error': toast(m.text); $('joinErr').textContent = m.text; $('drawErr').textContent = m.text; $('dDone').disabled = false; break;
+      case 'drawnOk':
+        // Pjäsen är redan vald åt spelaren på den stora skärmen
+        drawing = false; editing = false; pendingPiece = null; $('dDone').disabled = false;
+        profile.piece = pieceRef(m.key); store.set('profile', profile);
+        toast('Din pjäs är klar!', 'Den finns nu på den stora skärmen.'); render(); break;
       case 'kicked': toast(m.text || 'Du är inte med i spelet längre.'); editing = false; break;
     }
   }
@@ -501,12 +574,15 @@ html,body{background:radial-gradient(120% 70% at 50% 0%,#23525e 0%,#0c242c 55%,#
     else if (e.kind === 'stamp') { stamps.unshift({city: e.city, svg: e.svg}); toast(`Ny stämpel: ${e.city}!`, e.fact, e.svg); renderIdle(); buzz(40); }
     else if (e.kind === 'robbed') { toast(`${e.by} skickade rövaren till dig!`, e.amount ? `Den tog ${kr(e.amount)}.` : 'Men du hade inga pengar. Puh!'); buzz([200, 80, 200]); }
     else if (e.kind === 'quiz') showQuizResult(e);
+    else if (e.kind === 'badge') { toast(`Nytt märke: ${e.name}!`, e.text); buzz([60, 40, 60]); }
+    else if (e.kind === 'mission') { toast('Uppdraget är klart!', `${e.text}. Du får ${e.reward}.`); buzz([100, 50, 100, 50, 200]); ding(); }
   }
 
   /* ---------- Rita upp rätt vy ---------- */
   function render(soft) {
     if (!st) return;
     renderBar();
+    if (st.phase === 'lobby' && drawing) { show('vDraw'); return; }
     if (st.phase === 'lobby') {
       const lob = st.lobby, mine = lob.seats.find(s => s.me);
       if (!mine || editing) {
@@ -536,7 +612,7 @@ html,body{background:radial-gradient(120% 70% at 50% 0%,#23525e 0%,#0c242c 55%,#
       document.documentElement.style.setProperty('--pc', me.color);
       $('barAv').replaceWith(Object.assign(avatar('player:' + me.i, me.color), {id: 'barAv'}));
       $('barName').textContent = me.name;
-      $('barSub').textContent = me.stuck ? 'sitter fast' : me.skip ? 'står över' : me.dbl ? 'snabba skor!' : me.free ? 'har flygbiljett' : g.map;
+      $('barSub').textContent = (me.stuck ? 'sitter fast' : me.skip ? 'står över' : me.dbl ? 'snabba skor!' : me.free ? 'har flygbiljett' : g.map) + (me.stars ? ` · ⭐ ${me.stars}` : '');
       $('barMoney').textContent = kr(me.money);
       const items = $('barItems');
       items.innerHTML = '';
@@ -577,6 +653,11 @@ html,body{background:radial-gradient(120% 70% at 50% 0%,#23525e 0%,#0c242c 55%,#
     });
     grid.dataset.key = chosen || '';
     $('quizSeg').hidden = !lob.quiz;
+    const accs = lob.accs || [], accList = $('accList');
+    $('accRow').hidden = !accs.length;
+    accList.innerHTML = '';
+    const curAcc = pendingAcc !== undefined ? pendingAcc : mine ? mine.acc : null;
+    [{id: null, name: 'Inget'}].concat(accs).forEach(a => accList.append(h('button', {class: 'toggle', type: 'button', 'aria-pressed': String((curAcc || null) === a.id), text: a.name, onclick: () => { pendingAcc = a.id; tap(); render(true); }})));
     setSeg($('quizSeg'), pendingQuiz || (mine && mine.quiz) || profile.quiz || 'easy');
     $('bJoin').textContent = mine ? 'Spara' : 'Gå med!';
     $('bJoin').disabled = lob.full;
@@ -590,11 +671,178 @@ html,body{background:radial-gradient(120% 70% at 50% 0%,#23525e 0%,#0c242c 55%,#
     profile = {name: $('nameInput').value.trim().slice(0, 14), piece: key ? pieceRef(key) : null, quiz: q ? q.dataset.v : 'easy'};
     store.set('profile', profile);
     joinedOnce = true; editing = false; pendingPiece = null; pendingQuiz = null; pendingName = null;
-    send({t: 'join', name: profile.name, piece: profile.piece, quiz: profile.quiz});
+    send(Object.assign({t: 'join', name: profile.name, piece: profile.piece, quiz: profile.quiz}, pendingAcc !== undefined ? {acc: pendingAcc} : {}));
+    pendingAcc = undefined;
     wake();
   };
   $('bEdit').onclick = () => { editing = true; render(); };
   $('nameInput').addEventListener('input', () => { pendingName = $('nameInput').value; });
+
+  /* ---------- Rita en egen pjäs (samma sätt som i Pjäsverkstaden) ---------- */
+  const DCOLS = ['#1d2b33', '#e5484d', '#ff8a1f', '#f2b705', '#25a466', '#1fb5c9', '#3b7ce0', '#9b5de5', '#ff5fa2', '#8a5a28', '#f1c9a0', '#ffffff'];
+  const BASES = ['#e5484d', '#3b7ce0', '#25a466', '#f2b705', '#9b5de5', '#ff8a1f', '#ff5fa2', '#1fb5c9'];
+  const cv = $('dCanvas'), g = cv.getContext('2d', {willReadFrequently: true});
+  g.lineCap = g.lineJoin = 'round';
+  let dColor = DCOLS[1], dSize = 18, dMode = 'brush', dUndo = [], dEyes = [], dBase = BASES[0], photo = null;
+  const I = {
+    s1: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3" fill="currentColor"/></svg>',
+    s2: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="6" fill="currentColor"/></svg>',
+    s3: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.5" fill="currentColor"/></svg>',
+    fill: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M5 13l7-8 7 8-7 7z"/><path d="M19 17c0 1.5 1 2.5 2 2.5s1-1 1-2.5-1.5-3-1.5-3-1.5 1.5-1.5 3z" fill="currentColor"/></svg>',
+    eraser: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M3 17l8-8 7 7-4 4H7z"/><path d="M11 9l4-4 6 6-4 4"/></svg>',
+    eyes: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="8" cy="12" r="4.5"/><circle cx="16" cy="12" r="4.5"/><circle cx="9" cy="12.5" r="1.7" fill="currentColor"/><circle cx="17" cy="12.5" r="1.7" fill="currentColor"/></svg>',
+    undo: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14L4 9l5-5"/><path d="M4 9h11a5 5 0 010 10h-3"/></svg>',
+    trash: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/></svg>'
+  };
+  function drawUI() {
+    const cols = $('dColors'); cols.innerHTML = '';
+    DCOLS.forEach(c => cols.append(h('button', {class: 'sw' + (c === dColor ? ' on' : ''), type: 'button', style: {background: c}, 'aria-label': 'Färg', onclick: () => { dColor = c; if (dMode === 'eraser') dMode = 'brush'; drawUI(); }})));
+    const tools = $('dTools'); tools.innerHTML = '';
+    const tb = (key, label, on, fn) => tools.append(h('button', {class: 'tbtn' + (on ? ' on' : ''), type: 'button', 'aria-label': label, html: I[key], onclick: () => { fn(); drawUI(); tap(); }}));
+    tb('s1', 'Tunn pensel', dMode === 'brush' && dSize === 8, () => { dSize = 8; dMode = 'brush'; });
+    tb('s2', 'Mellan pensel', dMode === 'brush' && dSize === 18, () => { dSize = 18; dMode = 'brush'; });
+    tb('s3', 'Tjock pensel', dMode === 'brush' && dSize === 34, () => { dSize = 34; dMode = 'brush'; });
+    tb('fill', 'Fyll', dMode === 'fill', () => { dMode = dMode === 'fill' ? 'brush' : 'fill'; });
+    tb('eraser', 'Sudd', dMode === 'eraser', () => { dMode = dMode === 'eraser' ? 'brush' : 'eraser'; });
+    tb('eyes', 'Lägg till ögon', false, addEyes);
+    tb('undo', 'Ångra', false, () => { if (dUndo.length) g.putImageData(dUndo.pop(), 0, 0); });
+    tb('trash', 'Börja om', false, () => { pushUndo(); g.clearRect(0, 0, cv.width, cv.height); dEyes = []; renderEyes(); });
+    const base = $('dBase'); base.innerHTML = '';
+    BASES.forEach(c => base.append(h('button', {class: 'sw' + (c === dBase ? ' on' : ''), type: 'button', style: {background: c}, 'aria-label': 'Färg på foten', onclick: () => { dBase = c; drawUI(); }})));
+  }
+  function pushUndo() { dUndo.push(g.getImageData(0, 0, cv.width, cv.height)); if (dUndo.length > 15) dUndo.shift(); }
+  const cpos = e => { const r = cv.getBoundingClientRect(); return [(e.clientX - r.left) * cv.width / r.width, (e.clientY - r.top) * cv.height / r.height]; };
+  {
+    let down = false, last = null;
+    cv.addEventListener('pointerdown', e => {
+      e.preventDefault();
+      try { cv.setPointerCapture(e.pointerId); } catch (err) { /* ignorera */ }
+      const p = cpos(e);
+      pushUndo();
+      if (dMode === 'fill') { flood(Math.round(p[0]), Math.round(p[1]), dColor); return; }
+      down = true; last = p; stroke(p, p);
+    });
+    cv.addEventListener('pointermove', e => { if (!down) return; const evs = e.getCoalescedEvents ? e.getCoalescedEvents() : []; (evs.length ? evs : [e]).forEach(ev => { const p = cpos(ev); stroke(last, p); last = p; }); });
+    const up = () => { down = false; };
+    cv.addEventListener('pointerup', up); cv.addEventListener('pointercancel', up);
+  }
+  function stroke(a, b) {
+    g.globalCompositeOperation = dMode === 'eraser' ? 'destination-out' : 'source-over';
+    g.strokeStyle = dColor; g.lineWidth = dSize;
+    g.beginPath(); g.moveTo(a[0], a[1]); g.lineTo(b[0] + .01, b[1]); g.stroke();
+    g.globalCompositeOperation = 'source-over';
+  }
+  function flood(x, y, hex) {
+    const w = cv.width, hh = cv.height, img = g.getImageData(0, 0, w, hh), d = img.data;
+    const n = parseInt(hex.slice(1), 16), fr = n >> 16, fg = (n >> 8) & 255, fb = n & 255;
+    const i0 = (y * w + x) * 4, t = [d[i0], d[i0 + 1], d[i0 + 2], d[i0 + 3]];
+    const same = i => Math.abs(d[i] - t[0]) + Math.abs(d[i + 1] - t[1]) + Math.abs(d[i + 2] - t[2]) + Math.abs(d[i + 3] - t[3]) * 1.5 < 80;
+    if (t[0] === fr && t[1] === fg && t[2] === fb && t[3] === 255) return;
+    const seen = new Uint8Array(w * hh), stack = [[x, y]];
+    while (stack.length) {
+      let [cx, cy] = stack.pop();
+      while (cy >= 0 && same((cy * w + cx) * 4) && !seen[cy * w + cx]) cy--;
+      cy++;
+      let left = false, right = false;
+      while (cy < hh && !seen[cy * w + cx] && same((cy * w + cx) * 4)) {
+        const i = (cy * w + cx) * 4;
+        seen[cy * w + cx] = 1; d[i] = fr; d[i + 1] = fg; d[i + 2] = fb; d[i + 3] = 255;
+        if (cx > 0) { const l = cy * w + cx - 1; if (!seen[l] && same(l * 4)) { if (!left) { stack.push([cx - 1, cy]); left = true; } } else left = false; }
+        if (cx < w - 1) { const r = cy * w + cx + 1; if (!seen[r] && same(r * 4)) { if (!right) { stack.push([cx + 1, cy]); right = true; } } else right = false; }
+        cy++;
+      }
+    }
+    g.putImageData(img, 0, 0);
+  }
+  function bbox() {
+    const d = g.getImageData(0, 0, cv.width, cv.height).data;
+    let x0 = cv.width, y0 = cv.height, x1 = -1, y1 = -1;
+    for (let y = 0; y < cv.height; y += 2) for (let x = 0; x < cv.width; x += 2) if (d[(y * cv.width + x) * 4 + 3] > 40) { if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y; }
+    return x1 < 0 ? null : {x0, y0, x1, y1};
+  }
+  function addEyes() {
+    const b = bbox();
+    const cx = b ? (b.x0 + b.x1) / 2 / cv.width : .5, cy = b ? (b.y0 + (b.y1 - b.y0) * .22) / cv.height : .3;
+    dEyes.push({x: cx - .05, y: cy, r: .06}, {x: cx + .05, y: cy, r: .06});
+    renderEyes();
+  }
+  function renderEyes() {
+    const layer = $('dEyes');
+    layer.innerHTML = '';
+    dEyes.forEach((e, i) => {
+      const el = h('div', {class: 'eye', style: {left: e.x * 100 + '%', top: e.y * 100 + '%', width: e.r * 200 + '%'}});
+      let drag = false, lastTap = 0;
+      el.addEventListener('pointerdown', ev => { ev.stopPropagation(); try { el.setPointerCapture(ev.pointerId); } catch (err) { /* ignorera */ } drag = true; const now = Date.now(); if (now - lastTap < 350) { dEyes.splice(i, 1); renderEyes(); } lastTap = now; });
+      el.addEventListener('pointermove', ev => { if (!drag) return; const r = $('dBox').getBoundingClientRect(); e.x = Math.min(1, Math.max(0, (ev.clientX - r.left) / r.width)); e.y = Math.min(1, Math.max(0, (ev.clientY - r.top) / r.height)); el.style.left = e.x * 100 + '%'; el.style.top = e.y * 100 + '%'; });
+      el.addEventListener('pointerup', () => { drag = false; });
+      layer.append(el);
+    });
+  }
+  // Foto av en teckning: pappret klipps bort (fyll från kanterna genom allt som liknar papper)
+  $('dPhoto').onchange = e => {
+    const f = e.target.files && e.target.files[0];
+    e.target.value = '';
+    if (!f) return;
+    const img = new Image();
+    img.onload = () => { photo = img; $('dTolRow').hidden = false; applyPhoto(); };
+    img.src = URL.createObjectURL(f);
+  };
+  $('dTol').oninput = () => { if (photo) applyPhoto(); };
+  function applyPhoto() {
+    const img = photo, k = Math.min(1, 700 / Math.max(img.width, img.height));
+    const w = Math.round(img.width * k), hh = Math.round(img.height * k);
+    const c = document.createElement('canvas'); c.width = w; c.height = hh;
+    const cg = c.getContext('2d', {willReadFrequently: true});
+    cg.drawImage(img, 0, 0, w, hh);
+    const id = cg.getImageData(0, 0, w, hh), d = id.data, border = [];
+    for (let x = 0; x < w; x += 3) border.push(x, x + (hh - 1) * w);
+    for (let y = 0; y < hh; y += 3) border.push(y * w, y * w + w - 1);
+    const med = ch => { const v = border.map(i => d[i * 4 + ch]).sort((a, b) => a - b); return v[v.length >> 1]; };
+    const paper = [med(0), med(1), med(2)], tol = +$('dTol').value, dist = new Float32Array(w * hh);
+    for (let i = 0; i < w * hh; i++) { const r = d[i * 4], gg = d[i * 4 + 1], b = d[i * 4 + 2]; dist[i] = Math.hypot(r - paper[0], gg - paper[1], b - paper[2]) + Math.max(0, (paper[0] + paper[1] + paper[2]) / 3 - (r + gg + b) / 3) * .6; }
+    const bg = new Uint8Array(w * hh), q = [];
+    const push = i => { if (!bg[i] && dist[i] < tol) { bg[i] = 1; q.push(i); } };
+    for (let x = 0; x < w; x++) { push(x); push(x + (hh - 1) * w); }
+    for (let y = 0; y < hh; y++) { push(y * w); push(y * w + w - 1); }
+    while (q.length) { const i = q.pop(), x = i % w, y = (i / w) | 0; if (x > 0) push(i - 1); if (x < w - 1) push(i + 1); if (y > 0) push(i - w); if (y < hh - 1) push(i + w); }
+    for (let i = 0; i < w * hh; i++) if (bg[i]) d[i * 4 + 3] = 0;
+    cg.putImageData(id, 0, 0);
+    pushUndo();
+    g.clearRect(0, 0, cv.width, cv.height);
+    const s = Math.min(cv.width * .9 / w, cv.height * .9 / hh);
+    g.drawImage(c, (cv.width - w * s) / 2, (cv.height - hh * s) / 2, w * s, hh * s);
+  }
+  // Som klistermärke: vit kant och mörk kontur runt teckningen
+  function sticker() {
+    const b = bbox();
+    if (!b) return null;
+    const pad = 24, R = 11, w = b.x1 - b.x0 + pad * 2, hh = b.y1 - b.y0 + pad * 2;
+    const src = document.createElement('canvas'); src.width = w; src.height = hh;
+    src.getContext('2d').drawImage(cv, b.x0 - pad, b.y0 - pad, w, hh, 0, 0, w, hh);
+    const out = document.createElement('canvas'); out.width = w; out.height = hh;
+    const og = out.getContext('2d');
+    const ring = (r, col) => {
+      const t = document.createElement('canvas'); t.width = w; t.height = hh;
+      const tg = t.getContext('2d');
+      for (let a = 0; a < 24; a++) tg.drawImage(src, Math.cos(a / 24 * Math.PI * 2) * r, Math.sin(a / 24 * Math.PI * 2) * r);
+      tg.globalCompositeOperation = 'source-in'; tg.fillStyle = col; tg.fillRect(0, 0, w, hh);
+      og.drawImage(t, 0, 0);
+    };
+    ring(R + 3, 'rgba(29,43,51,.9)'); ring(R, '#ffffff'); og.drawImage(src, 0, 0);
+    const k = Math.min(1, 384 / Math.max(w, hh));
+    const fin = document.createElement('canvas'); fin.width = Math.round(w * k); fin.height = Math.round(hh * k);
+    fin.getContext('2d').drawImage(out, 0, 0, fin.width, fin.height);
+    const eyes = dEyes.map(e => ({x: (e.x * cv.width - (b.x0 - pad)) / w, y: (e.y * cv.height - (b.y0 - pad)) / hh, r: e.r * cv.width / w}));
+    return {data: fin.toDataURL('image/png'), eyes};
+  }
+  $('bDrawOpen').onclick = () => { drawing = true; $('drawErr').textContent = ''; drawUI(); show('vDraw'); tap(); };
+  $('dCancel').onclick = () => { drawing = false; render(); };
+  $('dDone').onclick = () => {
+    const s = sticker();
+    if (!s) { $('drawErr').textContent = 'Rita något först!'; return; }
+    $('dDone').disabled = true;
+    send({t: 'drawn', data: s.data, eyes: s.eyes, name: ($('nameInput').value.trim() || profile.name || 'Min figur').slice(0, 14), color: dBase});
+  };
 
   /* ---------- Lobbyn ---------- */
   function renderLobby(lob, mine) {
@@ -654,9 +902,45 @@ html,body{background:radial-gradient(120% 70% at 50% 0%,#23525e 0%,#0c242c 55%,#
     renderIdle();
     if (!offer && !dieBusy) renderOffer();
   }
+  // Tippa medan någon annan spelar
+  function renderTip() {
+    const box = $('tipBox');
+    clearInterval(renderTip.bar);
+    if (!tip) { box.hidden = true; box.innerHTML = ''; return; }
+    box.hidden = false;
+    box.innerHTML = '';
+    box.append(h('h3', {text: 'Tippa! ⭐'}), h('p', {class: 'quizq', text: tip.q}));
+    const row = h('div', {class: 'tip-opts'});
+    tip.options.forEach((o, k) => {
+      const b = h('button', {class: 'choice', type: 'button', 'aria-pressed': String(tip.picked === k), disabled: tip.picked != null || !!tip.result, text: o});
+      if (tip.result) { if (o === tip.result.answer) b.classList.add('right'); else if (tip.picked === k) b.classList.add('wrong'); }
+      b.onclick = () => { if (tip.picked != null) return; tip.picked = k; send({t: 'tipAns', id: tip.id, k}); tap(); renderTip(); };
+      row.append(b);
+    });
+    box.append(row);
+    if (tip.result) box.append(h('p', {class: 'result ' + (tip.result.ok ? 'ok' : 'no'), text: tip.result.ok ? 'Rätt! Du får en stjärna ⭐' : `Inte den här gången. ${tip.result.text || ''}`}));
+    else if (tip.picked != null) box.append(h('p', {class: 'sub', text: 'Du har gissat. Vänta och se!'}));
+    if (tip.ms && !tip.result) {
+      const bar = h('div', {class: 'timebar'}, h('i'));
+      box.append(bar);
+      renderTip.bar = setInterval(() => { const k = Math.max(0, 1 - (performance.now() - tip.t0) / tip.ms); bar.firstChild.style.transform = `scaleX(${k})`; if (k <= 0) clearInterval(renderTip.bar); }, 100);
+    }
+  }
+  function renderMission(g) {
+    const box = $('missionBox'), mi = g.mine && g.mine.mission;
+    box.hidden = !mi;
+    if (!mi) return;
+    box.innerHTML = '';
+    box.classList.toggle('done', !!mi.done);
+    box.append(h('h3', {text: mi.done ? 'Uppdraget är klart! ✓' : 'Ditt hemliga uppdrag'}), h('p', {class: 'mission-text', text: mi.text}));
+    if (!mi.done && mi.target > 1) box.append(h('div', {class: 'progress'}, h('i', {style: {width: Math.round(mi.progress / mi.target * 100) + '%'}})), h('p', {class: 'sub', text: `${mi.progress} av ${mi.target}`}));
+    if (mi.done) box.append(h('p', {class: 'sub', text: 'Du fick 3 000 kr. Bra jobbat!'}));
+    else box.append(h('p', {class: 'sub', text: 'Visa inte de andra! Klarar du det får du 3 000 kr.'}));
+  }
   function renderIdle() {
     const g = st && st.game;
     if (!g) return;
+    renderMission(g);
     const re = $('reacts');
     if (!re.childElementCount) {
       [['cheer', '👏'], ['joy', '🎉'], ['laugh', '😂'], ['wow', '😱'], ['sad', '😢'], ['dance', '💃']].forEach(([k, e]) => {
@@ -714,6 +998,8 @@ html,body{background:radial-gradient(120% 70% at 50% 0%,#23525e 0%,#0c242c 55%,#
     } else if (s.type === 'choose') {
       box.append(h('h2', {text: s.title}));
       if (s.sub) box.append(h('p', {class: 'sub', text: s.sub}));
+      const map = miniMap(s.map, k => { tap(); pickOffer(k); });
+      if (map) box.append(h('div', {class: 'mm-box'}, map));
       const list = h('div', {class: 'choices'});
       s.options.forEach(o => list.append(h('button', {class: 'choice' + (o.primary ? ' city' : ''), type: 'button', onclick: () => { tap(); pickOffer(o.k); }}, h('span', {text: o.label}), o.sub ? h('em', {text: o.sub}) : '')));
       box.append(list);
@@ -795,16 +1081,57 @@ html,body{background:radial-gradient(120% 70% at 50% 0%,#23525e 0%,#0c242c 55%,#
     setTimeout(() => { if (!offer) renderOffer(); }, 2400);
   }
 
-  // Vart man ska gå: välj i listan (vägen visas på skärmen) och bekräfta
+  // Liten karta: resmålen som ringar. Ett tryck väljer (vägen syns både här och på den stora skärmen).
+  const SVGNS = 'http://www.w3.org/2000/svg';
+  const sv = (tag, attrs) => { const e = document.createElementNS(SVGNS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); return e; };
+  function miniMap(m, onPick) {
+    if (!m || !boardMap) return null;
+    const pts = [m.me].concat(...m.opts.map(o => o.path && o.path.length ? o.path : [[o.x, o.y]]));
+    let x0 = Math.min(...pts.map(p => p[0])), x1 = Math.max(...pts.map(p => p[0])), y0 = Math.min(...pts.map(p => p[1])), y1 = Math.max(...pts.map(p => p[1]));
+    const W = boardMap.W, H = boardMap.H, minW = Math.max(W, H) * .16;
+    let w = Math.max(x1 - x0, minW) * 1.3, hh = Math.max(y1 - y0, minW * .8) * 1.3;
+    if (w / hh < 1.1) w = hh * 1.1; else hh = Math.max(hh, w / 1.5);
+    let cx = (x0 + x1) / 2, cy = (y0 + y1) / 2;
+    w = Math.min(w, W); hh = Math.min(hh, H);
+    cx = Math.min(Math.max(cx, w / 2), W - w / 2); cy = Math.min(Math.max(cy, hh / 2), H - hh / 2);
+    const R = w / 24, svg = sv('svg', {viewBox: `${cx - w / 2} ${cy - hh / 2} ${w} ${hh}`, class: 'minimap', role: 'img', 'aria-label': 'Karta med resmålen'});
+    svg.append(sv('image', {href: boardMap.src, x: 0, y: 0, width: W, height: H, preserveAspectRatio: 'none'}));
+    const paths = sv('g', {class: 'mm-paths'}), rings = sv('g', {});
+    const line = pts2 => pts2.map(p => p.join(',')).join(' ');
+    const paint = k => {
+      paths.innerHTML = '';
+      m.opts.forEach(o => { if (o.k === k && o.path && o.path.length > 1) paths.append(sv('polyline', {points: line(o.path), fill: 'none', stroke: m.color, 'stroke-width': R * .55, 'stroke-linecap': 'round', 'stroke-linejoin': 'round', opacity: .95})); });
+      rings.querySelectorAll('[data-k]').forEach(g => g.classList.toggle('sel', g.dataset.k === String(k)));
+    };
+    m.others.forEach(o => svg.append(sv('circle', {cx: o[0], cy: o[1], r: R * .45, fill: o[2], stroke: '#1d2b33', 'stroke-width': R * .14})));
+    svg.append(paths);
+    m.opts.forEach(o => {
+      const g = sv('g', {'data-k': String(o.k), class: 'mm-opt'});
+      g.append(sv('circle', {cx: o.x, cy: o.y, r: R * (o.city ? 1.25 : .95), fill: 'rgba(255,255,255,.35)', stroke: m.color, 'stroke-width': R * .32}));
+      g.append(sv('circle', {cx: o.x, cy: o.y, r: R * 1.9, fill: 'transparent'}));
+      g.addEventListener('click', () => onPick(o.k));
+      rings.append(g);
+    });
+    svg.append(rings);
+    svg.append(sv('circle', {cx: m.me[0], cy: m.me[1], r: R * .7, fill: m.color, stroke: '#fff', 'stroke-width': R * .25}));
+    svg.paint = paint;
+    return svg;
+  }
+
+  // Vart man ska gå: tryck på kartan eller i listan (vägen visas på skärmen) och bekräfta
   function renderDest(box, s) {
     box.append(h('h2', {text: s.title}));
-    box.append(h('p', {class: 'sub', text: 'Tryck på ett mål så syns vägen på den stora skärmen.'}));
+    box.append(h('p', {class: 'sub', text: s.map && boardMap ? 'Tryck på en ring på kartan eller ett mål i listan.' : 'Tryck på ett mål så syns vägen på den stora skärmen.'}));
+    let map = null;
+    const choose = k => { const b = list.querySelector(`[data-k="${CSS.escape(String(k))}"]`); if (b) b.click(); };
+    map = miniMap(s.map, choose);
+    if (map) box.append(h('div', {class: 'mm-box'}, map));
     const list = h('div', {class: 'choices'});
     const go = h('button', {class: 'btn big primary wide', type: 'button', text: 'Gå hit!', disabled: selected == null, onclick: () => { if (selected != null) { tap(); pickOffer(selected); } }});
     s.opts.forEach(o => {
       if (o.back) return;
       const b = h('button', {class: 'choice' + (o.city ? ' city' : ''), type: 'button', 'aria-pressed': String(selected === o.k)}, h('span', {text: o.label}), o.extra ? h('em', {text: o.extra}) : '');
-      b.onclick = () => { selected = o.k; list.querySelectorAll('.choice').forEach(x => x.setAttribute('aria-pressed', String(x === b))); go.disabled = false; send({t: 'hover', id: offer.id, k: o.k}); tap(); };
+      b.onclick = () => { selected = o.k; list.querySelectorAll('.choice').forEach(x => x.setAttribute('aria-pressed', String(x === b))); go.disabled = false; send({t: 'hover', id: offer.id, k: o.k}); tap(); if (map) map.paint(o.k); };
       b.dataset.k = o.k;
       list.append(b);
     });
@@ -865,12 +1192,31 @@ html,body{background:radial-gradient(120% 70% at 50% 0%,#23525e 0%,#0c242c 55%,#
     const d = $('overDiary');
     d.innerHTML = '';
     (g.diary || []).forEach(r => d.append(h('div', {class: 'prow', style: {'--pc': r.color}}, h('span', {class: 'n', text: r.name + (r.winner ? ' 🏆' : '')}),
-      h('span', {text: `${r.km.toLocaleString('sv-SE')} km · ${r.cities} städer`}))));
+      h('span', {text: `${r.km.toLocaleString('sv-SE')} km · ${r.cities} städer${r.stars ? ' · ⭐ ' + r.stars : ''}`}))));
+    const me = g.me != null && (g.diary || []).find(r => r.name === g.players[g.me].name);
+    if (me && me.mission) d.append(h('p', {class: 'sub', text: `Ditt uppdrag: ${me.mission.text} ${me.mission.done ? '✓ klarat!' : '(inte klart)'}`}));
+    if (me && me.badges && me.badges.length) d.append(h('p', {class: 'sub', text: `Nya märken: ${me.badges.join(', ')}`}));
+    const pc = $('overPostcard');
+    pc.hidden = !postcard;
+    if (postcard && pc.dataset.src !== String(postcard.length)) {
+      pc.dataset.src = String(postcard.length);
+      pc.innerHTML = '';
+      pc.append(h('img', {src: postcard, alt: 'Vykort från resan'}));
+      const share = h('button', {class: 'btn blue wide', type: 'button', text: 'Dela vykortet'});
+      share.onclick = async () => {
+        try {
+          const blob = await (await fetch(postcard)).blob(), file = new File([blob], 'vykort-diamantjakten.jpg', {type: 'image/jpeg'});
+          if (navigator.canShare && navigator.canShare({files: [file]})) await navigator.share({files: [file], title: 'Vykort från Diamantjakten'});
+          else toast('Håll fingret på bilden för att spara den.');
+        } catch (e) { /* avbrutet */ }
+      };
+      pc.append(share, h('p', {class: 'sub', text: 'Du kan också hålla fingret på bilden för att spara den.'}));
+    }
     $('overLeader').hidden = !st.leader;
     $('overWait').hidden = st.leader;
     if (!render.overBuzzed) { render.overBuzzed = true; buzz(g.winner === g.me ? [100, 60, 100, 60, 300] : 80); }
   }
-  $('bAgain').onclick = () => { tap(); render.overBuzzed = false; send({t: 'again'}); };
+  $('bAgain').onclick = () => { tap(); render.overBuzzed = false; postcard = null; send({t: 'again'}); };
   $('bReplay').onclick = () => { tap(); send({t: 'replay'}); };
   $('bToLobby').onclick = () => { tap(); render.overBuzzed = false; send({t: 'menu'}); };
 
@@ -954,7 +1300,7 @@ html,body{background:radial-gradient(120% 70% at 50% 0%,#23525e 0%,#0c242c 55%,#
     buzz(delta > 0 ? 30 : [60, 40, 60]);
   }
 
-  window.DJC = {state: () => st, offer: () => offer, send, dev: () => dev, connected: () => connected, throwDie, pickOffer};
+  window.DJC = {state: () => st, offer: () => offer, tip: () => tip, send, dev: () => dev, connected: () => connected, throwDie, pickOffer, map: () => boardMap};
   connect();
 })();
 </script>
