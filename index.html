@@ -781,6 +781,12 @@ body{background:radial-gradient(120% 90% at 50% 20%,#1d4652 0%,#0c222a 60%,#0613
 @media (max-width:760px){.menu-tiles{grid-template-columns:repeat(3,minmax(0,1fr))}.challenge{grid-template-columns:80px minmax(0,1fr) 40px}}
 @media (prefers-reduced-motion: reduce){.lg-rays,.lg-sweep,.title-glints,.win-rays{animation:none!important}}
 
+/* ---------- Enkel grafik och TV: inga suddiga bakgrunder eller ständiga animationer, som är tunga för en TV-webbläsare ---------- */
+.lite .modal,.tv .modal{backdrop-filter:none;-webkit-backdrop-filter:none;background:rgba(3,12,16,.8)}
+.lite .lg-rays,.lite .lg-sweep,.lite .lg-stars path,.lite .title-glints,.lite .title-glints i,.lite .win-rays,.lite .logo-gem,.lite .intro-gem svg,.lite .load-gem,
+.lite .btn.glint::after,.lite #bStart::after,.tv .lg-rays,.tv .lg-sweep,.tv .lg-stars path,.tv .title-glints i,.tv .win-rays{animation:none!important}
+.lite .title-glints{display:none}
+
 /* ---------- Telefonen som spelskärm ---------- */
 /* Rutor som ska ligga ovanför panelen eller under brickorna följer deras verkliga storlek (mäts i 11-main.js) */
 .stamp-card{bottom:calc(var(--dock-h,190px) + 10px)}
@@ -1159,7 +1165,8 @@ body:not(.table-mode) .storm-badge,body:not(.table-mode) .challenge-badge{top:ca
       <label class="opt switch"><input type="checkbox" id="sDie3d"><span>Kasta tärningen på brädet (3D)</span></label>
       <label class="opt switch"><input type="checkbox" id="sDof"><span>Miniatyrkänsla (oskärpa längre bort)</span></label>
       <label class="opt switch"><input type="checkbox" id="sTable"><span>Bordsläge (stor pekskärm)</span></label>
-      <label class="opt switch"><input type="checkbox" id="sFast"><span>Snabbare grafik (för äldre plattor)</span></label>
+      <label class="opt"><span>Grafik</span><select id="sGfx"><option value="auto">Automatiskt (enkel på TV)</option><option value="3d">3D</option><option value="fast">3D, snabbare (äldre plattor)</option><option value="flat">Enkel 2D (för TV och svaga datorer)</option></select></label>
+      <small class="opt-note" id="gfxNote" hidden></small>
       <label class="opt switch"><input type="checkbox" id="sCoach"><span>Visa tips för nya spelare</span></label>
       <label class="opt"><span>Högtider</span><select id="sXmas"><option value="auto">efter datum</option><option value="jul">jul</option><option value="halloween">halloween</option><option value="off">av</option></select></label>
       <button class="btn small" id="bCoachReset" type="button">Visa guiden igen</button>
@@ -1286,9 +1293,12 @@ const Store = {
 };
 
 const Settings = Object.assign({
-  music: 0.5, sfx: 0.8, voice: false, daynight: true, robber: 'all', speed: 'normal', follow: true, table: false, quality: 'auto', dof: true, coach: true, xmas: 'auto', turn: null, voiceId: null
+  music: 0.5, sfx: 0.8, voice: false, daynight: true, robber: 'all', speed: 'normal', follow: true, table: false, quality: 'auto', gfx: 'auto', dof: true, coach: true, xmas: 'auto', turn: null, voiceId: null
 }, Store.get('settings', {}));
 function saveSettings() { Store.set('settings', Settings); }
+// Enkel grafik (2D): kartan uppifrån som ett tryckt spelbräde, utan skuggor, reflektioner, träd och rörliga detaljer.
+// Väljs automatiskt på TV:n (som har en svag grafikkrets) och kan väljas i inställningarna. Bestäms när sidan laddas.
+const FLAT = /[?&]2d\b/.test(location.search) || Settings.gfx === 'flat' || (Settings.gfx !== '3d' && IS_TV);
 
 // Liten händelsebuss mellan modulerna
 const Bus = {
@@ -3801,30 +3811,32 @@ const S3 = (() => {
   let nightLevel = 0, exposure = 1.05, envDay = null, envNight = null;
 
   /* ---------- Koordinater ---------- */
-  S.heightAt = (bx, by) => {
+  // I enkel grafik (2D) är brädet platt, men land och vatten behövs ändå (broar, båtar)
+  const rawHeight = (bx, by) => {
     if (!heights) return 0;
     const fx = clamp(bx * hw / Wu - .5, 0, hw - 1.001), fy = clamp(by * hh / Hu - .5, 0, hh - 1.001);
     const x0 = Math.floor(fx), y0 = Math.floor(fy), dx = fx - x0, dy = fy - y0, i = y0 * hw + x0;
     const v = heights[i] * (1 - dx) * (1 - dy) + heights[i + 1] * dx * (1 - dy) + heights[i + hw] * (1 - dx) * dy + heights[i + hw + 1] * dx * dy;
     return v * STRENGTH;
   };
+  S.heightAt = (bx, by) => FLAT ? 0 : rawHeight(bx, by);
   S.world = (bx, by, lift = 0) => new THREE.Vector3(bx / 100 - Wb / 2, Math.max(S.heightAt(bx, by), 0) + lift, by / 100 - Hb / 2);
   // Prickar på en landväg ute över vattnet ligger på en bro (se Models.buildDecor)
   S.BRIDGE_Y = .03;
   S.nodePos = (id, lift = 0) => { const n = board.nodes[id]; const v = S.world(n.x, n.y, lift); if (n.kind === 'step' && n.mode === 'sea') v.y = Math.max(v.y, .012) + lift; else if (n.bridge) v.y = Math.max(v.y - lift, S.BRIDGE_Y) + lift; return v; };
-  S.isLand = (bx, by) => S.heightAt(bx, by) > .02;
+  S.isLand = (bx, by) => rawHeight(bx, by) > .02;
   S.boardSize = () => ({W: Wb, H: Hb});
 
   /* ---------- Start ---------- */
   S.init = el => {
     container = el;
-    renderer = new THREE.WebGLRenderer({antialias: true, powerPreference: 'high-performance'});
-    // TV:ns grafikkrets är svag: rita i ungefär 720p och skala upp
-    renderer.setPixelRatio(IS_TV ? Math.min(1, 1280 / Math.max(1, window.innerWidth)) : Math.min(window.devicePixelRatio || 1, Settings.quality === 'low' ? 1 : 2));
+    renderer = new THREE.WebGLRenderer({antialias: !FLAT, powerPreference: 'high-performance'});
+    // TV:ns grafikkrets är svag: rita i ungefär 720p och skala upp (så även i enkel grafik)
+    renderer.setPixelRatio(IS_TV || FLAT ? Math.min(window.devicePixelRatio || 1, 2, Math.max(.5, 1280 / Math.max(1, window.innerWidth))) : Math.min(window.devicePixelRatio || 1, Settings.quality === 'low' ? 1 : 2));
     renderer.outputEncoding = THREE.sRGBEncoding;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 1.05;
-    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.enabled = !FLAT;
     renderer.shadowMap.type = THREE.PCFShadowMap;
     container.appendChild(renderer.domElement);
     Post.init(renderer);
@@ -3835,14 +3847,14 @@ const S3 = (() => {
     hemi = new THREE.HemisphereLight(0xdfefff, 0x6b5a45, .42);
     scene.add(hemi);
     sun = new THREE.DirectionalLight(0xfff2de, 1.3);
-    sun.castShadow = true;
+    sun.castShadow = !FLAT;
     const big = Settings.quality !== 'low' && renderer.capabilities.maxTextureSize >= 8192;
     sun.shadow.mapSize.set(big ? 4096 : 2048, big ? 4096 : 2048);
     sun.shadow.radius = big ? 4 : 2.5;
     sun.shadow.bias = -.0005;
     sun.shadow.normalBias = .02;
-    envDay = buildEnvironment(false);
-    envNight = buildEnvironment(true);
+    envDay = FLAT ? null : buildEnvironment(false);
+    envNight = FLAT ? null : buildEnvironment(true);
     scene.environment = envDay;
     scene.add(sun, sun.target);
     fill = new THREE.DirectionalLight(0x9fc4ff, .18);
@@ -3895,7 +3907,7 @@ const S3 = (() => {
     root = new THREE.Group();
     scene.add(root);
     const A = MAP_ASSETS[b.map.id];
-    const [colorImg, normImg, roughImg, heightImg] = await Promise.all([A.color, A.normal, A.rough, A.height].map(loadImage));
+    const [colorImg, normImg, roughImg, heightImg] = await Promise.all([A.color, FLAT ? null : A.normal, FLAT ? null : A.rough, A.height].map(u => u ? loadImage(u) : null));
     mapImg = colorImg;
     decodeHeights(heightImg);
     // Prickar ute över vattnet på en väg med bro (kartans decor.bridges) ligger uppe på bron
@@ -3905,13 +3917,13 @@ const S3 = (() => {
     const bg = new THREE.Color(look.table === 'birch' ? 0x2b3a3f : 0x2a211b);
     scene.background = bg.clone().convertLinearToSRGB();   // bakgrunden ritas utan omvandling
     scene.fog = new THREE.Fog(bg, 16, 42);
-    buildTerrain(colorImg, normImg, roughImg);
-    buildWater();
+    flatMat = null;
+    if (FLAT) buildFlatTerrain(colorImg); else { buildTerrain(colorImg, normImg, roughImg); buildWater(); }
     buildFrame();
     buildTable(look.table);
-    buildTrees(A.trees);
+    if (!FLAT) buildTrees(A.trees);
     buildMarkers();
-    Models.buildDecor(b, root, api);
+    if (!FLAT) Models.buildDecor(b, root, api);
     Props.build(b, root);
     S.setSeason(typeof Season !== 'undefined' ? Season.now() : null);
     const s = Math.max(Wb, Hb);
@@ -3979,6 +3991,34 @@ const S3 = (() => {
     const m = new THREE.Mesh(geo, mat);
     m.receiveShadow = true;
     m.castShadow = true;
+    root.add(m);
+  }
+  // Enkel grafik: kartan som en platt tryckt bild, med åsar och berg skuggade från höjdkartan. Inget ljus behövs.
+  let flatMat = null;
+  function buildFlatTerrain(colorImg) {
+    const k = Math.min(1, 2048 / Math.max(colorImg.width, colorImg.height)), c = document.createElement('canvas');
+    c.width = Math.round(colorImg.width * k); c.height = Math.round(colorImg.height * k);
+    const g = c.getContext('2d');
+    g.drawImage(colorImg, 0, 0, c.width, c.height);
+    if (heights) {
+      const sh = document.createElement('canvas'); sh.width = hw; sh.height = hh;
+      const sg = sh.getContext('2d'), im = sg.createImageData(hw, hh), H = (x, y) => heights[clamp(y, 0, hh - 1) * hw + clamp(x, 0, hw - 1)];
+      for (let y = 0; y < hh; y++) for (let x = 0; x < hw; x++) {
+        // ljuset kommer från nordväst: sluttningar mot nordväst blir ljusare, mot sydost mörkare
+        const v = clamp(.5 + (H(x - 1, y) - H(x + 1, y) + H(x, y - 1) - H(x, y + 1)) * 14, 0, 1) * 255, i = (y * hw + x) * 4;
+        im.data[i] = im.data[i + 1] = im.data[i + 2] = v; im.data[i + 3] = 255;
+      }
+      sg.putImageData(im, 0, 0);
+      g.globalCompositeOperation = 'soft-light'; g.globalAlpha = .7;
+      g.drawImage(sh, 0, 0, c.width, c.height);
+      g.globalCompositeOperation = 'source-over'; g.globalAlpha = 1;
+    }
+    const t = new THREE.CanvasTexture(c);
+    t.encoding = THREE.sRGBEncoding;
+    t.anisotropy = Math.min(4, renderer.capabilities.getMaxAnisotropy());
+    flatMat = new THREE.MeshBasicMaterial({map: t});
+    const m = new THREE.Mesh(new THREE.PlaneGeometry(Wb, Hb), flatMat);
+    m.rotation.x = -Math.PI / 2;
     root.add(m);
   }
   function rippleTexture() {
@@ -4210,6 +4250,7 @@ const S3 = (() => {
     Object.keys(sp.double).forEach(id => badge(id, '×2', '#ffe08a', '#6b4300'));
     Object.entries(sp.bonus).forEach(([id, b]) => badge(id, '+' + (b.amount / 1000) + ' 000', '#f7c948', '#5a3a00'));
     Object.keys(sp.extra).forEach(id => badge(id, 'Extra tur', '#7fd1ff', '#0b3a5a'));
+    if (FLAT) return;   // enkel grafik: märkena står still och inget norrsken
     tickers.add((dt, t) => badgeSprites.forEach((s, i) => { s.position.y = s.userData.baseY + Math.sin(t * 2 + i) * .012; }));
     // Norrsken på de nordiska kartorna
     if (board.map.decor && board.map.decor.aurora) buildAurora(board.map.decor.aurora);
@@ -4463,7 +4504,7 @@ const S3 = (() => {
   /* ---------- Storm till sjöss: mörkt och krusigt vatten, regn och blixtar ---------- */
   let stormK = 0, stormTo = 0, rain = null, flashT = 0, flash = 0;
   const waterBase = new THREE.Color(.8, .93, .97), STORM_COL = new THREE.Color().setRGB(.1, .14, .19);
-  S.setStorm = on => { stormTo = on ? 1 : 0; if (on && !rain && root) buildRain(); flashT = 2.5; };
+  S.setStorm = on => { stormTo = on ? 1 : 0; if (on && !rain && root && !FLAT) buildRain(); flashT = 2.5; };
   function applyStorm() {
     if (!waterMat) return;
     waterMat.color.copy(waterBase).lerp(STORM_COL, stormK * .75);
@@ -4532,6 +4573,7 @@ const S3 = (() => {
   /* ---------- Halloween: lysande pumpor vid några städer och fladdermöss i luften ---------- */
   let spooky = null, pumpkinMat = null;
   S.setSeason = season => {
+    if (FLAT) return;   // enkel grafik: ingen snö, pumpor eller fladdermöss
     S.setSnow(season === 'jul');
     if (!root) return;
     if (season !== 'halloween') { if (spooky) spooky.visible = false; return; }
@@ -4717,11 +4759,12 @@ const S3 = (() => {
     scene.environment = n > .5 ? envNight : envDay;
     cityGlows.forEach(g => { g.material.opacity = n * (Post.enabled ? .5 : .95); });
     auroras.forEach((a, k) => { a.material.opacity = n * (.55 - k * .12); });
+    if (flatMat) flatMat.color.setRGB(lerp(.46, 1, day), lerp(.52, 1, day), lerp(.72, 1, day));
     if (waterMat) { waterBase.setRGB(lerp(.35, .8, day), lerp(.45, .93, day), lerp(.7, .97, day)); applyStorm(); }
   };
 
   /* ---------- Bildloop ---------- */
-  let lastT = 0, slowFrames = 0;
+  let lastT = 0, slowFrames = 0, slowHinted = false, lastRender = 0, camSig = '';
   const FOCUS = new THREE.Vector3();
   function frame(now) {
     requestAnimationFrame(frame);
@@ -4740,6 +4783,14 @@ const S3 = (() => {
     });
     for (const o of overlays) { if (now > o.until) { overlays.delete(o); o.el.remove(); } else o.place(); }
     Bus.emit('frame', dt, t);
+    if (FLAT) {
+      // Enkel grafik: rita om högst 30 gånger i sekunden när något rör sig, annars fyra gånger i sekunden
+      const cp = camera.position, sig = cp.x.toFixed(4) + ',' + cp.y.toFixed(4) + ',' + cp.z.toFixed(4) + ',' + Cam.lensY;
+      const busy = sig !== camSig || Anim.list.size > 0 || !!destGroup || !!flyStop || FX.busy();
+      camSig = sig;
+      if (now - lastRender < (busy ? 32 : 250)) return;
+      lastRender = now;
+    }
     if (Post.enabled) {
       // skärpezonen ligger där kameran tittar; utzoomat blir oskärpan svagare, i bordsläget ingen alls
       FOCUS.set(Cam.tx, S.heightAt((Cam.tx + Wb / 2) * 100, (Cam.tz + Hb / 2) * 100), Cam.tz).project(camera);
@@ -4753,6 +4804,7 @@ const S3 = (() => {
         slowFrames = 0;
         if (renderer.getPixelRatio() > 1) { renderer.setPixelRatio(1); resize(); }
         else if (Post.enabled && !Post.cheap) Post.cheap = true;
+        else if (!slowHinted && !FLAT) { slowHinted = true; Bus.emit('slow'); }
       }
     } else slowFrames = Math.max(0, slowFrames - 1);
   }
@@ -4762,7 +4814,7 @@ const S3 = (() => {
     tx: 0, tz: 0, d: 12, dMin: 1.4, dMax: 14, dFit: 12, dRef: 12, anim: null, userT: 0, followFn: null, attract: false, table: false,
     // iT/iB: hur stor del av skärmen spelarnas brickor (uppe) och panelen (nere) täcker; gT/gB är målet de glider mot
     iT: 0, iB: 0, gT: 0, gB: 0, lensY: 0, tMin: .6,
-    tilt() { if (this.table) return Math.PI / 2 - .0001; const k = clamp((this.d - this.dMin) / (this.dMax - this.dMin), 0, 1); return lerp(this.tMin, 1.25, Math.pow(k, .8)); },
+    tilt() { if (this.table || FLAT) return Math.PI / 2 - .0001; const k = clamp((this.d - this.dMin) / (this.dMax - this.dMin), 0, 1); return lerp(this.tMin, 1.25, Math.pow(k, .8)); },
     limits() {
       if (!camera) return;
       // I bordsläget vrids en hög karta (Sverige) så att den fyller en liggande skärm
@@ -4831,7 +4883,7 @@ const S3 = (() => {
       } else if (this.followFn && performance.now() - this.userT > 2500) {
         const f = this.followFn();
         if (f) { const k = 1 - Math.exp(-dt * 3.2); this.tx += (f.x - this.tx) * k; this.tz += (f.z - this.tz) * k; if (f.d) this.d += (f.d - this.d) * k; }
-      } else if (this.attract && performance.now() - this.userT > 4000) {
+      } else if (this.attract && !FLAT && performance.now() - this.userT > 4000) {
         const t = performance.now() / 1000;
         this.tx = Math.sin(t * .05) * Wb * .22; this.tz = Math.cos(t * .037) * Hb * .18; this.d = this.dRef * (.55 + Math.sin(t * .07) * .12);
       }
@@ -4859,7 +4911,7 @@ const S3 = (() => {
   };
   S.overview = ms => Cam.overview(ms);
   S.follow = fn => { Cam.followFn = fn; };
-  S.setAttract = on => { Cam.attract = on; };
+  S.setAttract = on => { Cam.attract = on; if (on && FLAT) Cam.overview(800); };
   S.setTableMode = on => { Cam.table = on; Cam.limits(); Cam.overview(600); };
   S.userMoved = () => { Cam.userT = performance.now(); Cam.stop(); };
   S.camera = () => camera;
@@ -5026,7 +5078,7 @@ const Post = (() => {
       const gl = r.getContext();
       const isGL2 = r.capabilities.isWebGL2;
       const halfOk = isGL2 ? !!(gl.getExtension('EXT_color_buffer_float') || gl.getExtension('EXT_color_buffer_half_float')) : !!(r.extensions.get('OES_texture_half_float') && r.extensions.get('EXT_color_buffer_half_float'));
-      if (!halfOk || Settings.quality === 'low') return false;
+      if (!halfOk || Settings.quality === 'low' || FLAT) return false;
       msaa = isGL2 && !!THREE.WebGLMultisampleRenderTarget;
       rtScene = msaa ? target(4, 4, 4) : (() => { const t = target(4, 4, 0); t.depthBuffer = true; return t; })();
       rtHalf = target(2, 2); rtQ = target(2, 2); rtE = target(2, 2);
@@ -5485,6 +5537,17 @@ const Pieces = (() => {
     return m;
   }
 
+  // Enkel grafik: pjäsen är samma bild som i panelen, och den vänder sig alltid mot kameran
+  function flatPiece(player, spec) {
+    const tex = new THREE.TextureLoader().load(P.thumb(Object.assign({}, spec, {acc: player.acc || spec.acc || null}), player.color));
+    tex.encoding = THREE.sRGBEncoding;
+    const sp = new THREE.Sprite(new THREE.SpriteMaterial({map: tex, transparent: true, depthWrite: false}));
+    sp.center.set(.5, .08);
+    const g = new THREE.Group();
+    g.add(sp);
+    return {model: g, height: 1, standee: true, eyes: null};
+  }
+
   /* ---------- En pjäs på brädet ---------- */
   // spec: {type:'char', id} eller {type:'custom', piece}
   P.create = (player, spec) => {
@@ -5493,8 +5556,8 @@ const Pieces = (() => {
     const face = new THREE.Group();           // riktning
     outer.add(hop); hop.add(face);
     const ch = CHARACTERS.find(c => c.id === spec.id) || CHARACTERS[0];
-    const built = spec.type === 'custom' ? safePuffy(spec.piece, player.color) : (buildPawnLib(ch, player.color) || buildPawn(ch));
-    dress(built, player.acc, spec.type, typeof Birthday !== 'undefined' && Birthday.is(player.name));
+    const built = FLAT ? flatPiece(player, spec) : spec.type === 'custom' ? safePuffy(spec.piece, player.color) : (buildPawnLib(ch, player.color) || buildPawn(ch));
+    if (!FLAT) dress(built, player.acc, spec.type, typeof Birthday !== 'undefined' && Birthday.is(player.name));
     const scale = .38 / built.height;
     face.add(built.model);
     built.model.scale.setScalar(scale);
@@ -5584,6 +5647,7 @@ const Pieces = (() => {
       },
       look(x) { if (this.eyes) this.eyes.pupils.position.x = clamp(x, -1, 1) * (this.eyes.flat ? .06 : .05); },
       update(dt, t) {
+        if (FLAT) return;   // enkel grafik: inga små rörelser i vila, så att bilden inte behöver ritas om hela tiden
         if (!this.standee && !this.emoting) face.rotation.y += ((this.yaw - face.rotation.y + Math.PI * 3) % (Math.PI * 2) - Math.PI) * Math.min(1, dt * 8);
         if (this.vehicle === 'walk' && !this.moving) hop.position.y = Math.max(0, Math.sin(t * 2.4 + this.bobPhase)) * .006;
         if (this.carry) { this.carry.rotation.y += dt * 1.6; this.carry.position.y = .48 + Math.sin(t * 2.6) * .012; }
@@ -6085,7 +6149,7 @@ const Dice = (() => {
   let obj = null, sim = null, fade = null;
   const tmp = new THREE.Vector3(), r = new THREE.Vector3(), vc = new THREE.Vector3(), nrm = new THREE.Vector3(), t1 = new THREE.Vector3(), rn = new THREE.Vector3();
 
-  D.available = () => !!S3.root();
+  D.available = () => !FLAT && !!S3.root();
   function model() {
     const g = new THREE.Group();
     const lib = ModelLib.ok() && ModelLib.create('die');
@@ -6325,6 +6389,7 @@ const FX = (() => {
     w.t = 0; w.size = size; w.live = true;
     w.m.visible = true;
   };
+  F.busy = () => live.size > 0 || tickers.size > 0 || wakes.some(w => w.live);
   F.clearWakes = () => { wakes.forEach(w => { w.live = false; w.m.visible = false; }); };
   Bus.on('frame', dt => {
     for (const w of wakes) {
@@ -6968,7 +7033,11 @@ const UI = (() => {
   U.settings = () => {
     $('sMusic').value = Settings.music; $('sSfx').value = Settings.sfx;
     $('sVoice').checked = Settings.voice; $('sDaynight').checked = Settings.daynight; $('sFollow').checked = Settings.follow;
-    $('sTable').checked = Settings.table; $('sFast').checked = Settings.quality === 'low';
+    $('sTable').checked = Settings.table;
+    $('sGfx').value = Settings.gfx === 'flat' ? 'flat' : Settings.gfx === '3d' ? (Settings.quality === 'low' ? 'fast' : '3d') : 'auto';
+    $('gfxNote').hidden = true;
+    // Tärning i 3D och oskärpa finns inte i enkel grafik
+    $('sDie3d').closest('label').hidden = FLAT; $('sDof').closest('label').hidden = FLAT;
     $('sDie3d').checked = Settings.die3d !== false; $('sDof').checked = Settings.dof !== false;
     $('sCoach').checked = Settings.coach !== false; $('sXmas').value = Settings.xmas === 'on' ? 'jul' : Settings.xmas || 'auto';
     fillVoices();
@@ -7001,7 +7070,6 @@ const UI = (() => {
       const voiceOn = !Settings.voice && $('sVoice').checked;
       Settings.voice = $('sVoice').checked; Settings.daynight = $('sDaynight').checked; Settings.follow = $('sFollow').checked;
       if (voiceOn) Sound.speak('Nu läser jag upp vad som händer.', 'happy');
-      Settings.quality = $('sFast').checked ? 'low' : 'auto';
       Settings.die3d = $('sDie3d').checked; Settings.dof = $('sDof').checked;
       Settings.coach = $('sCoach').checked; Settings.xmas = $('sXmas').value; Settings.voiceId = $('sVoiceId').value || null;
       const tu = $('sTurnUrl').value.trim();
@@ -7013,8 +7081,20 @@ const UI = (() => {
       if (t !== Settings.table) { Settings.table = t; Bus.emit('tableMode', t); }
       saveSettings(); Sound.setVolumes(); U.soundIcon();
     };
-    ['sMusic', 'sSfx', 'sVoice', 'sDaynight', 'sFollow', 'sTable', 'sFast', 'sDie3d', 'sDof', 'sCoach', 'sXmas', 'sVoiceId', 'sTurnUrl', 'sTurnUser', 'sTurnPass'].forEach(id => $(id).addEventListener('input', upd));
+    ['sMusic', 'sSfx', 'sVoice', 'sDaynight', 'sFollow', 'sTable', 'sDie3d', 'sDof', 'sCoach', 'sXmas', 'sVoiceId', 'sTurnUrl', 'sTurnUser', 'sTurnPass'].forEach(id => $(id).addEventListener('input', upd));
     $('bVoiceTest').onclick = () => Sound.testVoice();
+    // Byte av grafik gäller när spelet startar om (partiet sparas efter varje tur och kan fortsätta)
+    $('sGfx').addEventListener('change', async () => {
+      const v = $('sGfx').value;
+      Settings.gfx = v === 'fast' ? '3d' : v;
+      Settings.quality = v === 'fast' ? 'low' : IS_TV ? Settings.quality : 'auto';
+      saveSettings();
+      const flat = Settings.gfx === 'flat' || (Settings.gfx !== '3d' && IS_TV);
+      $('gfxNote').hidden = flat === FLAT && v !== 'fast';
+      $('gfxNote').textContent = 'Den nya grafiken används när spelet startar om.';
+      if (flat === FLAT && v !== 'fast') return;
+      if (await U.confirm('Byta grafik nu?', 'Spelet startar om. Pågående parti är sparat, så ni kan fortsätta där ni var.')) location.reload();
+    });
     $('bdayAdd').onclick = () => {
       if (!Birthday.add($('bdayName').value, +$('bdayDay').value, +$('bdayMonth').value)) { UI.toast(null, 'Skriv ett namn och välj dag och månad.'); return; }
       Sound.play('click');
@@ -7660,7 +7740,7 @@ const Game = (() => {
       p.spec = await specFor(p, saved);
       if (Birthday.is(p.name)) p.spec.party = true;
       const pc = Pieces.create(p, p.spec);
-      pc.outer.scale.setScalar(G.options.table ? 1.35 : 1);   // uppifrån syns pjäserna sämre
+      pc.outer.scale.setScalar(G.options.table ? 1.35 : FLAT ? 1.7 : 1);   // uppifrån syns pjäserna sämre
       S3.root().add(pc.outer);
       pieces[p.i] = pc;
       thumbs[p.i] = Pieces.thumb(p.spec, p.color);
@@ -10489,7 +10569,7 @@ const ScreenCheck = (() => {
     const f = await fps(2500);
     if (my !== run) return;
     const st = f >= 45 ? 'ok' : f >= 25 ? 'warn' : 'bad';
-    fr.replaceWith(row(st, 'Bildfrekvens', f >= 45 ? `${f} bilder per sekund. Flyter fint!` : f >= 25 ? `${f} bilder per sekund. Går att spela. Slå på Snabbare grafik om det hackar.` : `${f} bilder per sekund. Slå på Snabbare grafik under Inställningar.`));
+    fr.replaceWith(row(st, 'Bildfrekvens', f >= 45 ? `${f} bilder per sekund. Flyter fint!` : f >= 25 ? `${f} bilder per sekund. Går att spela. Välj Enkel 2D under Inställningar → Grafik om det hackar.` : `${f} bilder per sekund. Välj Enkel 2D under Inställningar → Grafik.`));
     rows[rows.length - 1] = st;
     $('checkLead').textContent = rows.includes('bad') ? 'Något fungerar inte här, se det röda nedan.' : rows.includes('warn') ? 'Spelet fungerar! Det gula kan bli bättre.' : 'Allt fungerar som det ska. Mycket nöje!';
   };
@@ -10819,6 +10899,8 @@ async function boot(hot) {
     return;
   }
   // På TV:n: lättare grafik och lobbyn med QR-koden direkt
+  document.body.classList.toggle('lite', FLAT);
+  Bus.on('slow', () => UI.toast(null, 'Spelet går trögt här. Välj Enkel 2D under Inställningar → Grafik, så går det lättare.'));
   if (IS_TV) {
     document.body.classList.add('tv');
     if (Store.get('settings', {}).quality === undefined) Settings.quality = 'low';
