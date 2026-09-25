@@ -1,0 +1,34 @@
+{
+  "name": "Diamantjakten",
+  "short_name": "Diamantjakten",
+  "description": "Familjespelet om den försvunna diamanten i 3D, med kartor över Afrika, Sverige och Skandinavien.",
+  "lang": "sv",
+  "start_url": "./",
+  "scope": "./",
+  "display": "fullscreen",
+  "display_override": [
+    "fullscreen",
+    "standalone"
+  ],
+  "orientation": "any",
+  "background_color": "#1b2a30",
+  "theme_color": "#1b2a30",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
