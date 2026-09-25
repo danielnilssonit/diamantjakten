@@ -102,6 +102,19 @@ button{cursor:pointer}
 .opt.switch input{width:26px;height:26px;accent-color:var(--leaf)}
 .opt input[type=range]{accent-color:var(--sun);width:100%}
 .opt.grow{flex:1}
+.voice-row{display:flex;gap:8px;align-items:center}
+.voice-row select{flex:1;min-width:0}
+.opt-note{font-weight:700;font-size:13px;color:var(--ink-soft);line-height:1.35}
+.check-list{display:grid;gap:8px;margin:10px 0 14px}
+.check-row{display:grid;grid-template-columns:34px minmax(0,1fr);gap:10px;align-items:start;padding:8px 10px;border-radius:14px;background:#fffdf7;box-shadow:0 0 0 2px rgba(29,43,51,.18)}
+.check-row b{display:block;font-size:16px}
+.check-row span{font-weight:700;font-size:14px;color:var(--ink-soft)}
+.check-mark{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font-weight:900;font-size:17px;color:#fff;box-shadow:0 0 0 2px var(--ink)}
+.check-row.ok .check-mark{background:#2fb56a}
+.check-row.warn .check-mark{background:#f2a516}
+.check-row.bad .check-mark{background:#e5484d}
+.check-row.wait .check-mark{background:#8aa0a8}
+.check-sheet .sheet-foot{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
 @media (max-width:900px){.maps{grid-template-columns:1fr}.seats{grid-template-columns:repeat(2,minmax(0,1fr))}}
 
 /* ---------- Spelets panel ---------- */
@@ -332,6 +345,13 @@ button{cursor:pointer}
 .remote-err{margin:0;font-weight:900;color:#c62f3d}
 .remote-steps{margin:0;padding-left:20px;font-weight:700;font-size:14px;color:var(--ink-soft);display:grid;gap:3px}
 .remote-list{display:grid;gap:6px}
+.remote-fans,.diary-fans{display:flex;align-items:center;gap:8px;margin:0;font-weight:800;font-size:14px}
+.remote-fans svg,.diary-fans svg{width:20px;height:20px;flex:none}
+.fan-pop{position:fixed;bottom:130px;z-index:14;display:grid;justify-items:center;gap:2px;pointer-events:none;animation:fanup 3.3s ease-out forwards}
+.fan-emo{font-size:56px;line-height:1;filter:drop-shadow(0 4px 6px rgba(0,0,0,.35))}
+.fan-pop small{font:900 15px var(--body);color:#fff6e4;background:rgba(10,28,34,.88);padding:3px 11px;border-radius:999px;box-shadow:0 0 0 2px rgba(242,191,63,.75)}
+@keyframes fanup{0%{transform:translateY(40px) scale(.6);opacity:0}12%{transform:translateY(0) scale(1.12);opacity:1}78%{opacity:1}100%{transform:translateY(-280px) scale(1);opacity:0}}
+@media (prefers-reduced-motion: reduce){.fan-pop{animation-duration:2.4s}}
 .remote-row{display:flex;gap:10px;align-items:center;border-left:8px solid var(--pc);padding:4px 8px;background:#fbf7ee;border-radius:10px;font-weight:800;font-size:14px}
 .remote-row span{flex:1;color:var(--ink-soft)}
 .remote-sheet{width:min(820px,100%);max-height:100%;overflow:auto}
@@ -670,6 +690,8 @@ body{background:radial-gradient(120% 90% at 50% 20%,#1d4652 0%,#0c222a 60%,#0613
 .badge.got .medal{background:radial-gradient(circle at 35% 30%,#fff3bd,#f2bf3f 50%,#c98a14);color:var(--gold-ink);box-shadow:0 0 0 2.5px var(--ink)}
 .lg-santa{display:none}
 .xmas .lg-santa{display:inline}
+.lg-witch{display:none}
+.halloween .lg-witch{display:inline}
 .menu-tiles{grid-template-columns:repeat(5,minmax(0,1fr));gap:10px}
 .tile .lbl{font-size:13px}
 .challenge-badge{position:absolute;left:50%;top:calc(max(12px,env(safe-area-inset-top)) + 86px);transform:translateX(-50%);display:flex;gap:10px;align-items:center;color:var(--gold-ink);background:linear-gradient(180deg,#fff3bd,#f2bf3f);box-shadow:0 0 0 2.5px var(--ink),0 4px 0 2.5px var(--ink);border-radius:999px;padding:6px 16px 6px 10px;font-weight:900;font-size:14px;pointer-events:none;z-index:4}
@@ -695,6 +717,11 @@ body{background:radial-gradient(120% 90% at 50% 20%,#1d4652 0%,#0c222a 60%,#0613
 .ch-txt small{font-weight:800;color:var(--ink-soft)}
 .ch-medal{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;background:#e8e0cc;box-shadow:0 0 0 2.5px var(--ink)}
 .challenge.done .ch-medal{background:radial-gradient(circle at 35% 30%,#fff3bd,#f2bf3f 50%,#c98a14)}
+.challenge.daily{background:linear-gradient(180deg,#fff6d8,#ffe29a);box-shadow:0 0 0 2.5px var(--ink),0 0 0 5px rgba(242,191,63,.85),0 6px 0 rgba(0,0,0,.25)}
+.ch-kicker{text-transform:uppercase;letter-spacing:.06em;font-size:12px!important;color:#9a5b00!important}
+.ch-head{margin:8px 0 0;font-family:var(--display);font-weight:400;font-size:20px}
+.tile{position:relative}
+.tile.has-new::after{content:"";position:absolute;top:6px;right:calc(50% - 30px);width:14px;height:14px;border-radius:50%;background:#ff5a4e;box-shadow:0 0 0 2.5px #fff6e4,0 0 0 4px var(--ink)}
 @media (max-width:760px){.menu-tiles{grid-template-columns:repeat(3,minmax(0,1fr))}.challenge{grid-template-columns:80px minmax(0,1fr) 40px}}
 @media (prefers-reduced-motion: reduce){.lg-rays,.lg-sweep,.title-glints,.win-rays{animation:none!important}}
 </style>
@@ -735,6 +762,12 @@ body{background:radial-gradient(120% 90% at 50% 20%,#1d4652 0%,#0c222a 60%,#0613
             <path d="M-38,40C-30,6 -4,-18 22,-24C30,-10 26,18 38,40Z" fill="#d6283b" stroke="#1d2b33" stroke-width="7" stroke-linejoin="round"/>
             <rect x="-46" y="34" width="92" height="24" rx="12" fill="#fff" stroke="#1d2b33" stroke-width="7"/>
             <circle cx="24" cy="-26" r="14" fill="#fff" stroke="#1d2b33" stroke-width="7"/>
+          </g>
+          <g class="lg-witch" transform="translate(530 20) rotate(14)">
+            <ellipse cx="0" cy="46" rx="58" ry="12" fill="#2a2238" stroke="#1d2b33" stroke-width="7"/>
+            <path d="M-31,44L2,-34Q12,-58 40,-50Q18,-40 14,-22L31,44Z" fill="#2a2238" stroke="#1d2b33" stroke-width="7" stroke-linejoin="round"/>
+            <path d="M-27,33Q0,27 27,33L30,43Q0,37 -30,43Z" fill="#9b5de5"/>
+            <rect x="-7" y="30" width="14" height="12" rx="2" fill="#f2bf3f"/>
           </g>
           <g class="lg-stars" fill="#fff6c2">
             <path class="st1" d="M400,60l5,15l15,5l-15,5l-5,15l-5,-15l-15,-5l15,-5z"/>
@@ -928,6 +961,7 @@ body{background:radial-gradient(120% 90% at 50% 20%,#1d4652 0%,#0c222a 60%,#0613
       <label class="opt"><span>Musik</span><input type="range" id="sMusic" min="0" max="1" step="0.05"></label>
       <label class="opt"><span>Ljudeffekter</span><input type="range" id="sSfx" min="0" max="1" step="0.05"></label>
       <label class="opt switch"><input type="checkbox" id="sVoice"><span>Läs upp vad som händer</span></label>
+      <div class="opt voice-opt"><span>Berättarröst</span><div class="voice-row"><select id="sVoiceId"></select><button class="btn small" id="bVoiceTest" type="button">Testa</button></div><small class="opt-note" id="voiceNote" hidden></small></div>
       <label class="opt switch"><input type="checkbox" id="sDaynight"><span>Dag och natt under spelet</span></label>
       <label class="opt switch"><input type="checkbox" id="sFollow"><span>Kameran följer pjäserna</span></label>
       <label class="opt switch"><input type="checkbox" id="sDie3d"><span>Kasta tärningen på brädet (3D)</span></label>
@@ -935,8 +969,9 @@ body{background:radial-gradient(120% 90% at 50% 20%,#1d4652 0%,#0c222a 60%,#0613
       <label class="opt switch"><input type="checkbox" id="sTable"><span>Bordsläge (stor pekskärm)</span></label>
       <label class="opt switch"><input type="checkbox" id="sFast"><span>Snabbare grafik (för äldre plattor)</span></label>
       <label class="opt switch"><input type="checkbox" id="sCoach"><span>Visa tips för nya spelare</span></label>
-      <label class="opt"><span>Jultema</span><select id="sXmas"><option value="auto">i december</option><option value="on">alltid</option><option value="off">aldrig</option></select></label>
+      <label class="opt"><span>Högtider</span><select id="sXmas"><option value="auto">efter datum</option><option value="jul">jul</option><option value="halloween">halloween</option><option value="off">av</option></select></label>
       <button class="btn small" id="bCoachReset" type="button">Visa guiden igen</button>
+      <button class="btn small" id="bCheck" type="button">Testa skärmen</button>
       <details class="more"><summary>Avancerat: server för mobiler på krångliga nät</summary>
         <p class="note">Behövs bara om mobilerna inte får kontakt, till exempel på gästnät. Fyll i en egen TURN-server (från till exempel Metered eller Twilio). Uppgifterna följer med i QR-koden.</p>
         <label class="opt"><span>TURN-adress</span><input type="text" id="sTurnUrl" placeholder="turn:server:3478" autocomplete="off"></label>
@@ -974,6 +1009,11 @@ body{background:radial-gradient(120% 90% at 50% 20%,#1d4652 0%,#0c222a 60%,#0613
     <p class="auction-text" id="auctionText"></p>
     <div class="bid-now"><span>Högsta bud</span><b id="auctionHigh">inget än</b></div>
     <div class="bidders" id="auctionRows"></div>
+  </div></div>
+  <div id="dlgCheck" class="modal" hidden><div class="sheet check-sheet"><header class="sheet-head"><h2>Skärmtest</h2><button class="btn icon" id="bCheckClose" type="button" aria-label="Stäng"></button></header>
+    <p class="note" id="checkLead">Testar vad den här skärmen klarar …</p>
+    <div class="check-list" id="checkList"></div>
+    <div class="sheet-foot center"><button class="btn" id="bCheckSound" type="button">Spela ett ljud</button><button class="btn" id="bCheckVoice" type="button">Testa rösten</button><button class="btn primary" id="bCheckAgain" type="button">Testa igen</button></div>
   </div></div>
   <div id="dlgTop" class="modal" hidden><div class="sheet top-sheet"><header class="sheet-head"><h2>Familjens topplista</h2><button class="btn icon" id="bTopClose" type="button" aria-label="Stäng"></button></header><div class="top-body" id="topBody"></div></div></div>
   <div id="dlgRemote" class="modal" hidden><div class="sheet remote-sheet"><header class="sheet-head"><h2>Spelarnas mobiler</h2><button class="btn icon" id="bRemoteClose" type="button" aria-label="Stäng"></button></header>
@@ -1049,7 +1089,7 @@ const Store = {
 };
 
 const Settings = Object.assign({
-  music: 0.5, sfx: 0.8, voice: false, daynight: true, robber: 'all', speed: 'normal', follow: true, table: false, quality: 'auto', dof: true, coach: true, xmas: 'auto', turn: null
+  music: 0.5, sfx: 0.8, voice: false, daynight: true, robber: 'all', speed: 'normal', follow: true, table: false, quality: 'auto', dof: true, coach: true, xmas: 'auto', turn: null, voiceId: null
 }, Store.get('settings', {}));
 function saveSettings() { Store.set('settings', Settings); }
 
@@ -1125,28 +1165,28 @@ const TOKEN_KINDS = ['star', 'gem1', 'gem2', 'gem3', 'pass', 'thief', 'blank'];
 const THEMES = {
   afrika: {
     star: {name: 'Afrikas stjärna', short: 'diamanten', effect: 'Målet! Ta den till en startstad.'},
-    gem1: {name: 'Rubin', value: 5000, effect: 'Säljs direkt för 5 000 kr.'},
-    gem2: {name: 'Smaragd', value: 4000, effect: 'Säljs direkt för 4 000 kr.'},
-    gem3: {name: 'Topas', value: 3000, effect: 'Säljs direkt för 3 000 kr.'},
-    pass: {name: 'Visum', effect: 'Räcker för att vinna när diamanten är hittad.'},
+    gem1: {name: 'Rubin', a: 'en rubin', value: 5000, effect: 'Säljs direkt för 5 000 kr.'},
+    gem2: {name: 'Smaragd', a: 'en smaragd', value: 4000, effect: 'Säljs direkt för 4 000 kr.'},
+    gem3: {name: 'Topas', a: 'en topas', value: 3000, effect: 'Säljs direkt för 3 000 kr.'},
+    pass: {name: 'Visum', a: 'ett visum', effect: 'Räcker för att vinna när diamanten är hittad.'},
     thief: {name: 'Rövare', the: 'Rövaren', effect: 'Tar alla dina pengar.'},
     blank: {name: 'Tom bricka', effect: 'Ingenting händer.'}
   },
   nordic: {
     star: {name: 'Kungadiamanten', short: 'diamanten', effect: 'Målet! Ta den till en startstad.'},
-    gem1: {name: 'Guldklimp', value: 5000, effect: 'Säljs direkt för 5 000 kr.'},
-    gem2: {name: 'Vikingasilver', value: 4000, effect: 'Säljs direkt för 4 000 kr.'},
-    gem3: {name: 'Bärnsten', value: 3000, effect: 'Säljs direkt för 3 000 kr.'},
-    pass: {name: 'Visum', effect: 'Räcker för att vinna när diamanten är hittad.'},
+    gem1: {name: 'Guldklimp', a: 'en guldklimp', value: 5000, effect: 'Säljs direkt för 5 000 kr.'},
+    gem2: {name: 'Vikingasilver', a: 'vikingasilver', value: 4000, effect: 'Säljs direkt för 4 000 kr.'},
+    gem3: {name: 'Bärnsten', a: 'en bärnsten', value: 3000, effect: 'Säljs direkt för 3 000 kr.'},
+    pass: {name: 'Visum', a: 'ett visum', effect: 'Räcker för att vinna när diamanten är hittad.'},
     thief: {name: 'Troll', the: 'Trollet', effect: 'Trollet tar alla dina pengar.'},
     blank: {name: 'Tom bricka', effect: 'Ingenting händer.'}
   },
   europa: {
     star: {name: 'Den blå diamanten', short: 'diamanten', effect: 'Målet! Ta den till en startstad.'},
-    gem1: {name: 'Rubin', value: 5000, effect: 'Säljs direkt för 5 000 kr.'},
-    gem2: {name: 'Smaragd', value: 4000, effect: 'Säljs direkt för 4 000 kr.'},
-    gem3: {name: 'Topas', value: 3000, effect: 'Säljs direkt för 3 000 kr.'},
-    pass: {name: 'Visum', effect: 'Räcker för att vinna när diamanten är hittad.'},
+    gem1: {name: 'Rubin', a: 'en rubin', value: 5000, effect: 'Säljs direkt för 5 000 kr.'},
+    gem2: {name: 'Smaragd', a: 'en smaragd', value: 4000, effect: 'Säljs direkt för 4 000 kr.'},
+    gem3: {name: 'Topas', a: 'en topas', value: 3000, effect: 'Säljs direkt för 3 000 kr.'},
+    pass: {name: 'Visum', a: 'ett visum', effect: 'Räcker för att vinna när diamanten är hittad.'},
     thief: {name: 'Ficktjuv', the: 'Ficktjuven', effect: 'Tar alla dina pengar.'},
     blank: {name: 'Tom bricka', effect: 'Ingenting händer.'}
   }
@@ -1188,7 +1228,8 @@ const ACCESSORIES = [
   {id: 'backpack', name: 'Ryggsäck', badge: 'stamps25'},
   {id: 'monocle', name: 'Monokel', badge: 'tips5'},
   {id: 'cape', name: 'Mantel', badge: 'treasure'},
-  {id: 'santa', name: 'Tomteluva', badge: 'xmas'}
+  {id: 'santa', name: 'Tomteluva', badge: 'xmas'},
+  {id: 'witch', name: 'Häxhatt', badge: 'halloween'}
 ];
 // Färger att välja på för egna pjäser
 const PIECE_COLORS = ['#e5484d', '#3b7ce0', '#25a466', '#f2b705', '#9b5de5', '#ff8a1f', '#ff5fa2', '#1fb5c9'];
@@ -2059,7 +2100,14 @@ function placeLabels(board) {
 
 /* ---- 03-rules.js ---- */
 /* ================= Regler: spelets tillstånd, drag och datorspelare ================= */
-const themeOf = board => THEMES[board.map.theme];
+// På halloween är rövaren ett spöke (samma regel, bara en annan figur)
+const GHOST = {name: 'Spöke', the: 'Spöket', effect: 'Skrämmer dig så att du tappar alla pengar.'};
+const spookyThemes = {};
+const themeOf = board => {
+  const th = THEMES[board.map.theme];
+  if (typeof Halloween === 'undefined' || !Halloween.on()) return th;
+  return spookyThemes[board.map.theme] || (spookyThemes[board.map.theme] = Object.assign({}, th, {thief: Object.assign({}, th.thief, GHOST)}));
+};
 const starName = board => board.map.treasure || themeOf(board).star.name;
 const starShort = board => board.map.treasureShort || themeOf(board).star.short;
 const startNames = board => board.startIds.map(id => board.cityById[id].name).join(' eller ');
@@ -2562,29 +2610,46 @@ const Sound = (() => {
   };
 
   /* ---------- Uppläsning ---------- */
+  // Enhetens bästa svenska röst väljs först: naturliga röster (Edge), premium och förbättrade (iPhone, iPad och Mac) och Googles
+  // går före de äldre rösterna. Inställningen kan välja en annan. Tonläget följer det som händer: gladare vid fynd, lugnare vid otur.
+  const hasSpeech = 'speechSynthesis' in window;
+  const NATURAL = /natural|neural|online|premium|enhanced|förbättrad/i;
+  const voiceScore = v => (/natural|neural|online/i.test(v.name) ? 8 : 0) + (/premium/i.test(v.name) ? 7 : 0) + (/enhanced|förbättrad/i.test(v.name) ? 5 : 0)
+    + (/google/i.test(v.name) ? 3 : 0) + (/compact|kompakt/i.test(v.name) ? -3 : 0) + (/bengt/i.test(v.name) ? -2 : 0) + (v.default ? .5 : 0);
+  let voices = [];
+  function loadVoices() {
+    try { voices = speechSynthesis.getVoices().filter(v => /^sv/i.test(v.lang)).sort((a, b) => voiceScore(b) - voiceScore(a)); } catch (e) { voices = []; }
+  }
+  if (hasSpeech) { loadVoices(); try { speechSynthesis.addEventListener('voiceschanged', loadVoices); } catch (e) { speechSynthesis.onvoiceschanged = loadVoices; } }
+  const niceName = n => n.replace(/^Microsoft\s+/i, '').replace(/\s*[-–]\s*(Swedish|svenska).*$/i, '').replace(/\s*\((Swedish|svenska)[^)]*\)/i, '')
+    .replace(/\s*Online\s*\(Natural\)/i, ' (naturlig)').replace(/\(Enhanced\)/i, '(förbättrad)').replace(/\(Premium\)/i, '(premium)').trim();
+  A.voices = () => voices.map(v => ({id: v.voiceURI, name: niceName(v.name), natural: NATURAL.test(v.name)}));
+  const voiceOf = () => voices.find(v => v.voiceURI === Settings.voiceId) || voices[0] || null;
+  A.naturalVoice = () => { const v = voiceOf(); return !!(v && NATURAL.test(v.name)); };
+  const MOODS = {happy: [1.06, 1.16], sad: [.9, .9], calm: [.97, 1.03], normal: [1.02, 1.08]};
+  const spoken = s => String(s || '')
+    .replace(/(\d)\s?kr\b/g, '$1 kronor').replace(/\bkr\b/g, 'kronor')
+    .replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{2B50}\u{FE0F}]/gu, '')
+    .replace(/\s+/g, ' ').trim();
+  function utter(text, mood) {
+    const t = spoken(text);
+    if (!hasSpeech || !t) return;
+    try {
+      speechSynthesis.cancel();
+      const u = new SpeechSynthesisUtterance(t), v = voiceOf(), [rate, pitch] = MOODS[mood] || MOODS.normal;
+      u.lang = v ? v.lang : 'sv-SE';
+      if (v) u.voice = v;
+      // De naturliga rösterna har redan liv i sig, där räcker en liten ändring av tempo och ton
+      const k = v && NATURAL.test(v.name) ? .45 : 1;
+      u.rate = 1 + (rate - 1) * k; u.pitch = 1 + (pitch - 1) * k;
+      speechSynthesis.speak(u);
+    } catch (e) { /* uppläsning är valfri */ }
+  }
   // Läser upp oavsett inställning (när man trycker på en uppläsningsknapp)
-  A.speak = text => {
-    if (!('speechSynthesis' in window)) return;
-    try {
-      speechSynthesis.cancel();
-      const u = new SpeechSynthesisUtterance(text);
-      u.lang = 'sv-SE'; u.rate = .98; u.pitch = 1.05;
-      const v = speechSynthesis.getVoices().find(x => /^sv/i.test(x.lang));
-      if (v) u.voice = v;
-      speechSynthesis.speak(u);
-    } catch (e) { /* uppläsning är valfri */ }
-  };
-  A.say = text => {
-    if (!Settings.voice || !('speechSynthesis' in window)) return;
-    try {
-      speechSynthesis.cancel();
-      const u = new SpeechSynthesisUtterance(text);
-      u.lang = 'sv-SE'; u.rate = 1.02; u.pitch = 1.05;
-      const v = speechSynthesis.getVoices().find(x => /^sv/i.test(x.lang));
-      if (v) u.voice = v;
-      speechSynthesis.speak(u);
-    } catch (e) { /* uppläsning är valfri */ }
-  };
+  A.speak = (text, mood = 'calm') => utter(text, mood);
+  // Berättaren i spelet, bara när uppläsningen är påslagen
+  A.say = (text, mood) => { if (Settings.voice) utter(text, mood); };
+  A.testVoice = () => utter(pick(['Hej! Jag är er berättare. Nu jagar vi diamanten!', 'Hallå där, äventyrare! Är ni redo att resa?', 'Wow, titta! En rubin! Den är värd fem tusen kronor!']), 'happy');
   A._dbg = () => ({ctx, master, musicBus});
   return A;
 })();
@@ -2766,6 +2831,7 @@ const TOKEN_ART = {
   emerald: `${disc('ta-em', '#f3fff9', '#bfead6', '#12885f')}<path d="M-15,-25H15L22,-18V18L15,25H-15L-22,18V-18Z" fill="#1a9e6c" stroke="#0b5a3c" stroke-width="2.5" stroke-linejoin="round"/><path d="M-8,-15H8L12,-11V11L8,15H-8L-12,11V-11Z" fill="#45c892"/><path d="M-15,-25L-8,-15M15,-25L8,-15M22,-18L12,-11M22,18L12,11M15,25L8,15M-15,25L-8,15M-22,18L-12,11M-22,-18L-12,-11" stroke="#0b5a3c" stroke-width="1.6"/><path d="M-6,-11H2L-4,-4Z" fill="#fff" opacity=".6"/>`,
   topaz: `${disc('ta-to', '#fffaf0', '#fbe0a6', '#dd900b')}<ellipse rx="25" ry="20" fill="#f2a516" stroke="#9a5d00" stroke-width="2.5"/><ellipse rx="12.5" ry="9.5" fill="#ffd25e"/><path d="M-25,0H-12.5M25,0H12.5M0,-20V-9.5M0,20V9.5M-17.7,-14.1L-8.8,-6.7M17.7,-14.1L8.8,-6.7M-17.7,14.1L-8.8,6.7M17.7,14.1L8.8,6.7" stroke="#9a5d00" stroke-width="1.6"/><ellipse cx="-4" cy="-4" rx="4" ry="2.4" fill="#fff" opacity=".7"/>`,
   robber: `${disc('ta-rb', '#4a505c', '#1b1e25', '#6d7480')}<circle cx="-17" cy="-11" r="7" fill="#8e97a3"/><circle cx="17" cy="-11" r="7" fill="#8e97a3"/><circle cy="5" r="23" fill="#a9b2bd"/><path d="M-24,0C-12,-6 12,-6 24,0L22,10C10,6 -10,6 -22,10Z" fill="#1c1f25"/><circle cx="-9" cy="3" r="4" fill="#fff"/><circle cx="9" cy="3" r="4" fill="#fff"/><circle cx="-8" cy="3.5" r="2" fill="#1c1f25"/><circle cx="10" cy="3.5" r="2" fill="#1c1f25"/><ellipse cy="16" rx="4.5" ry="3" fill="#3a3f48"/><path d="M-7,22Q0,26 7,22" stroke="#3a3f48" stroke-width="2.2" fill="none" stroke-linecap="round"/><path d="M-27,-14H27L21,-18H-21Z" fill="#23262d"/><path d="M-16,-18C-15,-32 15,-32 16,-18Z" fill="#2c3039"/><path d="M-16,-20H16" stroke="#c42f4a" stroke-width="3"/>`,
+  ghost: `${disc('ta-gh', '#6b4fa3', '#2a1a4a', '#a58ae0')}<path d="M-22,26V-6C-22,-22 -12,-32 0,-32C12,-32 22,-22 22,-6V26L15,19L8,26L0,19L-8,26L-15,19Z" fill="#f7f4ff" stroke="#3a2a5c" stroke-width="2.5" stroke-linejoin="round"/><ellipse cx="-8" cy="-10" rx="4" ry="6" fill="#2a1a4a"/><ellipse cx="8" cy="-10" rx="4" ry="6" fill="#2a1a4a"/><ellipse cy="5" rx="5" ry="6.5" fill="#2a1a4a"/><path d="M-22,2C-30,-2 -34,-10 -32,-16M22,2C30,-2 34,-10 32,-16" stroke="#f7f4ff" stroke-width="5" stroke-linecap="round" fill="none"/>`,
   visum: `${disc('ta-vi', '#fffdf5', '#efdcae', '#b98a2e')}<rect x="-21" y="-27" width="42" height="54" rx="4" fill="#fbf1d8" stroke="#b98a2e" stroke-width="2.5"/><path d="M-13,-17H13M-13,-10H8M-13,-3H11" stroke="#caa962" stroke-width="2.4" stroke-linecap="round"/><g transform="translate(4,11) rotate(-14)"><circle r="14" fill="none" stroke="#d23c3c" stroke-width="3"/><circle r="10" fill="none" stroke="#d23c3c" stroke-width="1.2"/><text y="3.2" text-anchor="middle" font-family="Arial, sans-serif" font-weight="900" font-size="8.5" fill="#d23c3c">VISUM</text></g>`,
   blank: `<defs>${rg('ta-bl', '#3a414b', '#171a1f')}</defs><circle r="46" fill="url(#ta-bl)" stroke="#59616c" stroke-width="5"/><circle r="30" fill="none" stroke="#fff" stroke-opacity=".07" stroke-width="3"/>`,
   blank_nordic: `<defs>${rg('ta-bn', '#2f4a66', '#141f2c')}</defs><circle r="46" fill="url(#ta-bn)" stroke="#5a6f86" stroke-width="5"/><circle r="30" fill="none" stroke="#fff" stroke-opacity=".08" stroke-width="3"/>`,
@@ -2780,6 +2846,7 @@ function tokenArtKey(board, kind) {
   const nordic = board.map.theme === 'nordic';
   if (kind === 'back') return nordic ? 'back_nordic' : 'back_afrika';
   if (kind === 'star') return 'diamond';
+  if (kind === 'thief' && typeof Halloween !== 'undefined' && Halloween.on()) return 'ghost';
   if (!nordic) return {gem1: 'ruby', gem2: 'emerald', gem3: 'topaz', thief: 'robber', pass: 'visum', blank: 'blank'}[kind];
   return {gem1: 'nugget', gem2: 'silver', gem3: 'amber', thief: 'troll', pass: 'visum', blank: 'blank_nordic'}[kind];
 }
@@ -3072,7 +3139,7 @@ const S3 = (() => {
     if (root) { disposeTree(root); scene.remove(root); }
     tickers.clear();
     FX.clearWakes();
-    tokenMeshes = {}; pickables = []; cityGlows = []; auroras = []; badgeSprites = []; cardMarks = {}; trailGroup = null; rain = null; stormK = 0; stormTo = 0; snow = null;
+    tokenMeshes = {}; pickables = []; cityGlows = []; auroras = []; badgeSprites = []; cardMarks = {}; trailGroup = null; rain = null; stormK = 0; stormTo = 0; snow = null; spooky = null; pumpkinMat = null; pumpkinGeo = null;
     root = new THREE.Group();
     scene.add(root);
     const A = MAP_ASSETS[b.map.id];
@@ -3091,7 +3158,7 @@ const S3 = (() => {
     buildMarkers();
     Models.buildDecor(b, root, api);
     Props.build(b, root);
-    S.setSnow(typeof Xmas !== 'undefined' && Xmas.on());
+    S.setSeason(typeof Season !== 'undefined' ? Season.now() : null);
     const s = Math.max(Wb, Hb);
     sun.position.set(-s * .6, s * 1.1, -s * .55);
     sun.target.position.set(0, 0, 0);
@@ -3104,7 +3171,7 @@ const S3 = (() => {
   function disposeTree(o) {
     o.traverse(c => {
       if (c.geometry) c.geometry.dispose();
-      if (c.material) (Array.isArray(c.material) ? c.material : [c.material]).forEach(m => { ['map', 'normalMap', 'roughnessMap', 'alphaMap'].forEach(k => m[k] && m[k].dispose && m[k].dispose()); m.dispose(); });
+      if (c.material) (Array.isArray(c.material) ? c.material : [c.material]).forEach(m => { ['map', 'normalMap', 'roughnessMap', 'alphaMap', 'emissiveMap'].forEach(k => m[k] && m[k].dispose && m[k].dispose()); m.dispose(); });
     });
   }
   function decodeHeights(img) {
@@ -3697,6 +3764,122 @@ const S3 = (() => {
     a.needsUpdate = true;
   });
 
+  /* ---------- Halloween: lysande pumpor vid några städer och fladdermöss i luften ---------- */
+  let spooky = null, pumpkinMat = null;
+  S.setSeason = season => {
+    S.setSnow(season === 'jul');
+    if (!root) return;
+    if (season !== 'halloween') { if (spooky) spooky.visible = false; return; }
+    if (!spooky) buildSpooky();
+    spooky.visible = true;
+  };
+  function pumpkinMaterial() {
+    if (pumpkinMat) return pumpkinMat;
+    // Färg och glöd i samma rutnät som klotets u/v: ansiktet ligger vid u = 0,25, som är mot kameran (+z)
+    const W = 512, H = 256, col = document.createElement('canvas'), glow = document.createElement('canvas');
+    col.width = glow.width = W; col.height = glow.height = H;
+    const g = col.getContext('2d'), e = glow.getContext('2d');
+    const gr = g.createLinearGradient(0, 0, 0, H);
+    gr.addColorStop(0, '#c85a0c'); gr.addColorStop(.45, '#ff8a1f'); gr.addColorStop(1, '#b8500a');
+    g.fillStyle = gr; g.fillRect(0, 0, W, H);
+    g.strokeStyle = 'rgba(120,45,0,.45)'; g.lineWidth = 7;
+    for (let i = 0; i < 8; i++) { const x = (i + .5) * W / 8; g.beginPath(); g.moveTo(x, 0); g.bezierCurveTo(x - 6, H * .35, x + 6, H * .65, x, H); g.stroke(); }
+    e.fillStyle = '#000'; e.fillRect(0, 0, W, H);
+    const face = (ctx, fill) => {
+      ctx.fillStyle = fill;
+      const cx = W * .25, cy = H * .5;
+      [[-1], [1]].forEach(([s]) => { ctx.beginPath(); ctx.moveTo(cx + s * 26, cy - 44); ctx.lineTo(cx + s * 50, cy - 8); ctx.lineTo(cx + s * 6, cy - 12); ctx.closePath(); ctx.fill(); });
+      ctx.beginPath(); ctx.moveTo(cx, cy - 4); ctx.lineTo(cx + 9, cy + 12); ctx.lineTo(cx - 9, cy + 12); ctx.closePath(); ctx.fill();
+      ctx.beginPath(); ctx.moveTo(cx - 58, cy + 18);
+      [[-44, 40], [-32, 30], [-20, 46], [-8, 34], [4, 48], [16, 34], [28, 46], [40, 30], [52, 40], [60, 18]].forEach(([x, y]) => ctx.lineTo(cx + x, cy + y));
+      ctx.quadraticCurveTo(cx, cy + 34, cx - 58, cy + 18); ctx.fill();
+    };
+    face(g, '#3a1600');
+    face(e, '#ffc44d');
+    const tex = c => { const t = new THREE.CanvasTexture(c); t.encoding = THREE.sRGBEncoding; t.anisotropy = 4; return t; };
+    pumpkinMat = new THREE.MeshStandardMaterial({map: tex(col), emissive: new THREE.Color('#ffae33'), emissiveMap: tex(glow), emissiveIntensity: .8, roughness: .55});
+    return pumpkinMat;
+  }
+  let pumpkinGeo = null;
+  function pumpkin(size) {
+    if (!pumpkinGeo) {
+      pumpkinGeo = new THREE.SphereGeometry(1, 32, 20);
+      const p = pumpkinGeo.attributes.position;
+      for (let i = 0; i < p.count; i++) {
+        const x = p.getX(i), y = p.getY(i), z = p.getZ(i), k = 1 - .08 * Math.pow(Math.abs(Math.sin(Math.atan2(z, x) * 4)), .7);
+        p.setXYZ(i, x * k, y * .78, z * k);
+      }
+      pumpkinGeo.computeVertexNormals();
+    }
+    const g = new THREE.Group(), body = new THREE.Mesh(pumpkinGeo, pumpkinMaterial());
+    body.castShadow = true;
+    const stem = new THREE.Mesh(new THREE.CylinderGeometry(.1, .16, .4, 8), new THREE.MeshStandardMaterial({color: '#4f6b2a', roughness: .8}));
+    stem.position.set(.03, .88, 0); stem.rotation.z = -.25;
+    g.add(body, stem);
+    g.scale.setScalar(size);
+    return g;
+  }
+  function batTexture() {
+    const c = document.createElement('canvas'); c.width = 128; c.height = 64;
+    const g = c.getContext('2d');
+    g.fillStyle = '#fff';
+    g.beginPath(); g.moveTo(64, 22);
+    g.quadraticCurveTo(48, 6, 26, 10); g.quadraticCurveTo(10, 14, 2, 30);
+    g.quadraticCurveTo(14, 28, 20, 38); g.quadraticCurveTo(28, 30, 36, 40); g.quadraticCurveTo(44, 32, 54, 42);
+    g.lineTo(60, 44); g.lineTo(64, 52); g.lineTo(68, 44); g.lineTo(74, 42);
+    g.quadraticCurveTo(84, 32, 92, 40); g.quadraticCurveTo(100, 30, 108, 38); g.quadraticCurveTo(114, 28, 126, 30);
+    g.quadraticCurveTo(118, 14, 102, 10); g.quadraticCurveTo(80, 6, 64, 22); g.fill();
+    g.beginPath(); g.moveTo(58, 20); g.lineTo(60, 12); g.lineTo(64, 18); g.lineTo(68, 12); g.lineTo(70, 20); g.fill();
+    return new THREE.CanvasTexture(c);
+  }
+  function buildSpooky() {
+    spooky = new THREE.Group();
+    // Pumporna: ett par städer i taget, sprida över kartan, bredvid staden så att de inte skymmer vägarna
+    const hash = s => { let x = 0; for (const ch of s) x = (x * 31 + ch.charCodeAt(0)) | 0; return x >>> 0; };
+    const cities = board.map.cities.slice().sort((a, b) => hash(a.id) - hash(b.id));
+    const want = clamp(Math.round(cities.length * .28), 6, 12), nodes = Object.values(board.nodes), placed = [];
+    for (const c of cities) {
+      if (placed.length >= want) break;
+      const n = board.cityById[c.id];
+      if (!n || placed.some(q => Math.hypot(q.x - n.x, q.y - n.y) < 90)) continue;
+      for (let k = 0; k < 8; k++) {
+        const a = (k * 45 + 30) * Math.PI / 180, x = n.x + Math.cos(a) * 19, y = n.y + Math.sin(a) * 19;
+        if (!S.isLand(x, y) || nodes.some(o => Math.hypot(o.x - x, o.y - y) < (o.kind === 'city' ? 15 : 11))) continue;
+        const pos = S.world(x, y), big = pumpkin(.05);
+        big.position.copy(pos); big.position.y += .038;
+        big.rotation.y = (hash(c.id) % 100) / 100 - .5;
+        spooky.add(big);
+        const x2 = x + Math.cos(a + 1.3) * 7, y2 = y + Math.sin(a + 1.3) * 7;
+        if (S.isLand(x2, y2)) { const small = pumpkin(.03); small.position.copy(S.world(x2, y2)); small.position.y += .023; small.rotation.y = .6; spooky.add(small); }
+        placed.push({x, y});
+        break;
+      }
+    }
+    // Fladdermössen flyger i ovaler över brädet
+    if (!reduceMotion) {
+      const tex = batTexture(), bats = [];
+      for (let i = 0; i < 7; i++) {
+        const sp = new THREE.Sprite(new THREE.SpriteMaterial({map: tex, color: 0x1a1025, transparent: true, depthWrite: false}));
+        sp.userData = {cx: (Math.random() - .5) * Wb * .7, cz: (Math.random() - .5) * Hb * .7, r: .8 + Math.random() * 1.6, h: .7 + Math.random() * .8, w: (.25 + Math.random() * .3) * (Math.random() < .5 ? -1 : 1), ph: Math.random() * 6.3, a: Math.random() * 6.3};
+        spooky.add(sp);
+        bats.push(sp);
+      }
+      spooky.userData.bats = bats;
+    }
+    root.add(spooky);
+  }
+  Bus.on('frame', (dt, t) => {
+    if (!spooky || !spooky.visible) return;
+    if (pumpkinMat) pumpkinMat.emissiveIntensity = .7 + nightLevel * 2.4 + Math.sin(t * 7) * .06;
+    (spooky.userData.bats || []).forEach(sp => {
+      const u = sp.userData;
+      u.a += u.w * dt;
+      sp.position.set(u.cx + Math.cos(u.a) * u.r, u.h + Math.sin(t * 1.3 + u.ph) * .08, u.cz + Math.sin(u.a) * u.r * .6);
+      const flap = .45 + .55 * Math.abs(Math.sin(t * 13 + u.ph));
+      sp.scale.set(.2, .1 * flap, 1);
+    });
+  });
+
   /* ---------- Resedagbok: allas resvägar och en kameraåkning längs vinnarens väg ---------- */
   let trailGroup = null, flyStop = null;
   function trailPoints(segs, lift) {
@@ -4257,14 +4440,28 @@ const Pieces = (() => {
       g.position.set(.08, top - .12, 0);
       g.rotation.z = -.38;
       return g;
+    },
+    witch(top = 3.15) {
+      const g = new THREE.Group(), black = mat('#2a2238', {roughness: .55}), band = mat('#9b5de5', {roughness: .5}), gold = mat('#f2bf3f', {roughness: .3, metalness: .7});
+      g.add(mesh(new THREE.CylinderGeometry(.66, .66, .05, 32), black, 0, .02, 0));
+      g.add(mesh(new THREE.ConeGeometry(.34, .8, 24), black, 0, .42, 0));
+      const tip = mesh(new THREE.ConeGeometry(.12, .34, 16), black, .1, .88, 0); tip.rotation.z = -.9; g.add(tip);
+      g.add(mesh(new THREE.CylinderGeometry(.29, .325, .11, 24, 1, true), band, 0, .1, 0));
+      g.add(mesh(new THREE.BoxGeometry(.13, .1, .03), gold, 0, .1, .31));
+      g.position.set(0, top - .1, 0);
+      g.rotation.z = -.14;
+      return g;
     }
   };
   P.accessory = (id, top) => ACC[id] ? ACC[id](top) : null;
-  // Tillbehör på pjäsen: valt tillbehör och tomteluva i december
+  // Tillbehör på pjäsen: valt tillbehör, tomteluva i december och häxhatt på halloween
   function dress(built, acc, kind) {
     if (!built || built.standee || kind === 'custom') return;
     if (acc && ACC[acc]) built.model.add(ACC[acc]());
-    if (acc !== 'santa' && typeof Xmas !== 'undefined' && Xmas.on()) built.model.add(ACC.santa());
+    const season = typeof Season !== 'undefined' ? Season.now() : null;
+    if (acc === 'santa' || acc === 'witch') return;
+    if (season === 'jul') built.model.add(ACC.santa());
+    else if (season === 'halloween') built.model.add(ACC.witch());
   }
 
   // En figur ur CHARACTERS. Modellen är ca 3 enheter hög och skalas ner på brädet.
@@ -4642,7 +4839,7 @@ const Pieces = (() => {
   let thumbR = null, thumbScene = null, thumbCam = null;
   const thumbCache = {};
   P.thumb = (spec, color) => {
-    const key = (spec.type === 'char' ? 'c:' + spec.id : 'u:' + spec.piece.id) + ':' + color + ':' + (spec.acc || '') + (typeof Xmas !== 'undefined' && Xmas.on() ? ':jul' : '');
+    const key = (spec.type === 'char' ? 'c:' + spec.id : 'u:' + spec.piece.id) + ':' + color + ':' + (spec.acc || '') + ':' + (typeof Season !== 'undefined' && Season.now() || '');
     if (thumbCache[key]) return thumbCache[key];
     try {
       if (!thumbR) {
@@ -5513,7 +5710,9 @@ Object.assign(ICON_PATHS, {
   card: '<rect x="6" y="3" width="12" height="18" rx="2"/><path d="M12 8l1.2 2.5 2.8.3-2 1.9.5 2.8-2.5-1.4-2.5 1.4.5-2.8-2-1.9 2.8-.3z"/>',
   storm: '<path d="M7 15a4 4 0 010-8 5 5 0 019.5-1A4 4 0 0117 15z"/><path d="M12 13l-2 4h3l-2 4"/>',
   gavel: '<path d="M14 4l6 6M11 7l6 6M12.5 5.5l-5 5 3 3 5-5M9 12l-6 6 2 2 6-6"/>',
-  gem: '<path d="M6 4h12l4 5-10 11L2 9z"/><path d="M2 9h20M8 4l4 16 4-16"/>'
+  gem: '<path d="M6 4h12l4 5-10 11L2 9z"/><path d="M2 9h20M8 4l4 16 4-16"/>',
+  cheer: '<path d="M4 10v4h3l7 4V6L7 10z"/><path d="M17 9a4 4 0 010 6M19.5 7a7 7 0 010 10"/>',
+  pumpkin: '<path d="M12 7C6 7 3 10 3 14s4 6 9 6 9-2 9-6-3-7-9-7z"/><path d="M12 7c-2.5 3-2.5 10 0 13M12 7c2.5 3 2.5 10 0 13M12 7V4.5l2-1.5"/>'
 });
 const UI = (() => {
   const U = {};
@@ -5526,7 +5725,7 @@ const UI = (() => {
     set('bSetupBack', 'back'); set('bWsBack', 'back'); set('tMenu', 'pause'); set('tOverview', 'zoomout'); set('tNight', 'moon');
     set('bFill', 'fill'); set('bEraser', 'eraser'); set('bEyes', 'googly'); set('bEyes2', 'googly'); set('bUndo', 'undo'); set('bClear', 'trash');
     set('bPieceClose', 'close'); set('bSettingsClose', 'close'); set('bRulesClose', 'close'); set('bPassClose', 'close'); set('stampRead', 'voice');
-    set('bTopClose', 'close'); set('bRemoteClose', 'close'); set('bPostcardClose', 'close'); set('bChallengesClose', 'close'); set('tRemote', 'phone'); set('cardRead', 'voice'); set('quizRead', 'voice');
+    set('bTopClose', 'close'); set('bRemoteClose', 'close'); set('bPostcardClose', 'close'); set('bChallengesClose', 'close'); set('bCheckClose', 'close'); set('tRemote', 'phone'); set('cardRead', 'voice'); set('quizRead', 'voice');
     const inv = $('bInvite'); if (inv) inv.innerHTML = icon('phone') + '<span>Bjud in mobiler</span>';
     // Startmenyn: ikoner i knapparna och små guldmynt i rutorna
     const lab = (id, name) => { const e = $(id); if (e) e.innerHTML = icon(name) + `<span>${e.textContent}</span>`; };
@@ -5749,6 +5948,24 @@ const UI = (() => {
     });
   };
 
+  // Hejarklackens stjärnor under resedagboken
+  U.diaryFans = () => {
+    const fans = Remote.fans(true).filter(f => f.stats.stars);
+    if (!fans.length) return;
+    fans.sort((a, b) => b.stats.stars - a.stats.stars);
+    $('winDiary').append(h('p', {class: 'diary-fans', html: icon('cheer') + `<span>Hejarklacken: ${fans.map(f => `${f.name} ⭐ ${f.stats.stars}`).join(' · ')}</span>`}));
+  };
+  // Hejarklackens reaktioner flyger upp från skärmens nederkant
+  const FAN_EMO = {cheer: '👏', joy: '🎉', laugh: '😂', wow: '😱', sad: '😢', dance: '💃'};
+  U.fanReact = (name, kind) => {
+    const e = FAN_EMO[kind];
+    if (!e) return;
+    const el = h('div', {class: 'fan-pop', style: {right: (4 + Math.random() * 22) + '%'}}, h('span', {class: 'fan-emo', text: e}), h('small', {text: name}));
+    document.body.append(el);
+    setTimeout(() => el.remove(), 3300);
+    Sound.play('pop');
+  };
+
   /* ---------- Vinst ---------- */
   U.win = (p, title, text, stats, thumb) => {
     $('winAvatar').style.setProperty('--pc', p.color);
@@ -5838,26 +6055,48 @@ const UI = (() => {
     $('sVoice').checked = Settings.voice; $('sDaynight').checked = Settings.daynight; $('sFollow').checked = Settings.follow;
     $('sTable').checked = Settings.table; $('sFast').checked = Settings.quality === 'low';
     $('sDie3d').checked = Settings.die3d !== false; $('sDof').checked = Settings.dof !== false;
-    $('sCoach').checked = Settings.coach !== false; $('sXmas').value = Settings.xmas || 'auto';
+    $('sCoach').checked = Settings.coach !== false; $('sXmas').value = Settings.xmas === 'on' ? 'jul' : Settings.xmas || 'auto';
+    fillVoices();
     const t = Settings.turn || {}; $('sTurnUrl').value = t.url || ''; $('sTurnUser').value = t.user || ''; $('sTurnPass').value = t.pass || '';
     U.modal('dlgSettings', true);
   };
+  // Rösterna som finns på den här enheten, bästa först, och tips om bättre röster när bara de gamla finns
+  function fillVoices() {
+    const sel = $('sVoiceId'), list = Sound.voices();
+    sel.innerHTML = '';
+    sel.append(h('option', {value: '', text: list.length ? `Bästa rösten (${list[0].name})` : 'Ingen svensk röst hittades'}));
+    list.forEach(v => sel.append(h('option', {value: v.id, text: v.name + (v.natural ? ' ★' : '')})));
+    sel.value = list.some(v => v.id === Settings.voiceId) ? Settings.voiceId : '';
+    sel.disabled = !list.length;
+    $('bVoiceTest').disabled = !list.length;
+    const ua = navigator.userAgent, ios = /iPad|iPhone|iPod/.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1);
+    const tip = Sound.naturalVoice() ? ''
+      : ios ? 'Tips: bättre röster finns i Inställningar → Hjälpmedel → Uppläst innehåll → Röster → Svenska. Ladda ner en förbättrad röst eller premiumröst.'
+      : /Edg\//.test(ua) ? ''
+      : /Windows/.test(ua) ? 'Tips: i webbläsaren Edge finns naturliga svenska röster (Sofie och Mattias) som låter mycket bättre.'
+      : /Android/.test(ua) ? 'Tips: fler röster finns i telefonens inställningar under Text till tal.'
+      : /Macintosh/.test(ua) ? 'Tips: fler röster finns i Systeminställningar → Hjälpmedel → Uppläst innehåll.' : '';
+    $('voiceNote').textContent = tip;
+    $('voiceNote').hidden = !tip;
+  }
   U.bindSettings = () => {
     const upd = () => {
       Settings.music = +$('sMusic').value; Settings.sfx = +$('sSfx').value;
       Settings.voice = $('sVoice').checked; Settings.daynight = $('sDaynight').checked; Settings.follow = $('sFollow').checked;
       Settings.quality = $('sFast').checked ? 'low' : 'auto';
       Settings.die3d = $('sDie3d').checked; Settings.dof = $('sDof').checked;
-      Settings.coach = $('sCoach').checked; Settings.xmas = $('sXmas').value;
+      Settings.coach = $('sCoach').checked; Settings.xmas = $('sXmas').value; Settings.voiceId = $('sVoiceId').value || null;
       const tu = $('sTurnUrl').value.trim();
       Settings.turn = tu ? {url: tu, user: $('sTurnUser').value.trim(), pass: $('sTurnPass').value} : null;
       document.body.classList.toggle('xmas', Xmas.on());
-      S3.setSnow(Xmas.on());
+      document.body.classList.toggle('halloween', Halloween.on());
+      S3.setSeason(Season.now());
       const t = $('sTable').checked;
       if (t !== Settings.table) { Settings.table = t; Bus.emit('tableMode', t); }
       saveSettings(); Sound.setVolumes(); U.soundIcon();
     };
-    ['sMusic', 'sSfx', 'sVoice', 'sDaynight', 'sFollow', 'sTable', 'sFast', 'sDie3d', 'sDof', 'sCoach', 'sXmas', 'sTurnUrl', 'sTurnUser', 'sTurnPass'].forEach(id => $(id).addEventListener('input', upd));
+    ['sMusic', 'sSfx', 'sVoice', 'sDaynight', 'sFollow', 'sTable', 'sFast', 'sDie3d', 'sDof', 'sCoach', 'sXmas', 'sVoiceId', 'sTurnUrl', 'sTurnUser', 'sTurnPass'].forEach(id => $(id).addEventListener('input', upd));
+    $('bVoiceTest').onclick = () => Sound.testVoice();
     $('bCoachReset').onclick = () => { Coach.reset(); Sound.play('click'); UI.toast(null, 'Guiden visas igen nästa gång ni spelar.'); };
   };
   return U;
@@ -6458,7 +6697,7 @@ const Game = (() => {
     p.clueUsed = false;
     setActive(p);
     const sp = SPEED();
-    if (!p.bot) { Sound.play('turn'); Sound.say(`${genitive(p.name)} tur.`); }
+    if (!p.bot) { Sound.play('turn'); Sound.say(Line.turn(p.name), 'normal'); }
     if (p.skip > 0) {
       p.skip--; UI.updateHUD();
       UI.prompt(`${p.name} står över den här gången.`, '', p);
@@ -6580,6 +6819,25 @@ const Game = (() => {
     return out.sort((a, b) => (b.city - a.city) || a.label.localeCompare(b.label, 'sv'));
   }
   // Karta till mobilen: var spelaren står, resmålen med sina vägar och de andra pjäserna
+  // Berättarens repliker: lite variation så att det inte låter likadant varje gång
+  const Line = {
+    turn: n => pick([`Nu är det ${genitive(n)} tur!`, `${n}, din tur!`, `Varsågod, ${n}!`, `${genitive(n)} tur. Lycka till!`, `Kör hårt, ${n}!`]),
+    arrive: (n, c) => pick([`${n} är framme i ${c}!`, `Välkommen till ${c}, ${n}!`, `${n} har kommit fram till ${c}.`, `Nu är ${n} i ${c}.`]),
+    trap: (n, caught) => pick([`Oj då! ${n} ${caught}.`, `Åh nej! ${n} ${caught}!`, `Aj, aj, aj. ${n} ${caught}.`]),
+    win: (n, how) => pick([`Hurra! ${n} vann! ${how}`, `Grattis, ${n}! Du vann! ${how}`, `Jippi! ${n} vinner! ${how}`])
+  };
+  function sayOutcome(p, out) {
+    const th = themeOf(board), kind = /^gem/.test(out.kind) ? 'gem' : out.kind, a = out.def && (out.def.a || out.def.name.toLowerCase());
+    const dbl = kind === 'gem' && /dubbelt/.test(out.text);
+    const lines = {
+      star: [`Jaaa! ${p.name} hittade ${starName(board)}! Skynda till ${startNames(board)}!`, `Titta! ${starName(board)}! ${p.name} har hittat skatten!`],
+      gem: dbl ? [`Wow, ${a}! Och dubbelt värde! ${p.name} får ${kr(out.money)}!`] : [`Wow, ${a}! ${p.name} får ${kr(out.money)}!`, `Kolla, ${a}! Det blir ${kr(out.money)} till ${p.name}.`, `Snyggt, ${p.name}! ${a[0].toUpperCase() + a.slice(1)}, värd ${kr(out.money)}.`],
+      thief: out.money ? [`Åh nej! ${th.thief.the} tog ${kr(-out.money)} från ${p.name}!`, `Nej, nej, nej! ${th.thief.the} tog pengarna!`] : [`${th.thief.the}! Men ${p.name} hade inga pengar. Puh!`],
+      pass: [`${a[0].toUpperCase() + a.slice(1)}! Bra att ha, ${p.name}.`, `${p.name} fick ${a}! Det kan bli viktigt.`],
+      blank: [out.text]
+    };
+    Sound.say(pick(lines[kind] || [`${out.title} ${out.text}`]), kind === 'thief' && out.money ? 'sad' : kind === 'blank' ? 'calm' : 'happy');
+  }
   function phoneMap(p, opts, pathOf = o => o.path) {
     const xy = id => { const n = board.nodes[id]; return [Math.round(n.x), Math.round(n.y)]; };
     return {
@@ -6753,7 +7011,7 @@ const Game = (() => {
       emote(p, 'scared');
       UI.toast(p, `${p.name} ${trap.caught}!`);
       UI.prompt(`${p.name} ${trap.caught}!`, 'Slå 1 eller 2 nästa tur för att komma loss.', p);
-      Sound.say(`${p.name} ${trap.caught}.`);
+      Sound.say(Line.trap(p.name, trap.caught), 'sad');
       UI.updateHUD();
       await waitP(SPEED().think + 700, gen);
       return;
@@ -6798,7 +7056,7 @@ const Game = (() => {
       return;
     }
     // Som i brädspelet: betala för att vända direkt, annars får man slå 4–6 på nästa tur
-    if (!p.bot) Sound.say(`${p.name} är framme i ${c.name}.`);
+    if (!p.bot) Sound.say(Line.arrive(p.name, c.name), 'normal');
     if (p.money < COST.flip) {
       UI.prompt(`${p.name} är framme i ${c.name}!`, 'Här ligger en bricka. Nästa tur kan du slå 4, 5 eller 6 för att vända den.', p);
       await waitP(SPEED().think + 900, gen);
@@ -6830,7 +7088,7 @@ const Game = (() => {
     if (bribable) out.text = `${themeOf(board).thief.the} vill ta dina pengar! Du kan muta den med ${kr(BRIBE)} så går den till någon annan.`;
     let from = p.money, real = bribable ? 0 : moneyData(p, out.money);
     save();
-    Sound.say(`${p.name}: ${out.title} ${out.text}`);
+    sayOutcome(p, out);
     const offOk = p.bot ? () => {} : Remote.offer(p, {type: 'ok', title: out.title, text: out.text, svg: tokenSVG(tokenArtKey(board, out.kind))}, () => { if (!$('revealOk').hidden) $('revealOk').click(); });
     await UI.reveal(board, out.kind, out.title, out.text, p.bot ? SPEED().auto : 0, p.seat);
     offOk();
@@ -7142,7 +7400,7 @@ const Game = (() => {
     UI.bubble(anchor(target), lost ? pick(['Nej!', 'Mina pengar!', 'Orättvist!']) : 'Haha, jag har inga!', 1800);
     if (lost) emote(target, 'sad');
     UI.toast(target, lost ? `${th.thief.the} tog ${kr(lost)} av ${target.name}.` : `${target.name} hade för lite pengar för ${th.thief.the.toLowerCase()}.`);
-    Remote.event(target, {kind: 'robbed', by: p.name, amount: lost});
+    Remote.event(target, {kind: 'robbed', by: p.name, amount: lost, who: th.thief.the.toLowerCase()});
     await waitP(900, gen);
   }
 
@@ -7160,7 +7418,7 @@ const Game = (() => {
     Sound.play('win');
     S3.focusNode(p.node, S3.cam.dMin * 1.8, 1200);
     const how = p.star ? `${starName(board)} är i säkerhet i ${c.name}!` : `Med ${themeOf(board).pass.name.toLowerCase()} hela vägen till ${c.name}!`;
-    Sound.say(`${p.name} vann! ${how}`);
+    Sound.say(Line.win(p.name, how), 'happy');
     UI.prompt(`${p.name} vann!`, how, p);
     Bus.emit('gameOver', p);
     G.players.forEach(q => { if (q !== p) setTimeout(() => emote(q, 'cheer'), (300 + Math.random() * 700) * Time.scale); });
@@ -7184,6 +7442,7 @@ const Game = (() => {
     if (!p.bot) stats.push(['nya stämplar', String(Passport.newCount(p.name, G.startedAt || 0))]);
     UI.win(p, `${p.name} vann!`, G.how || '', stats, thumbs[p.i]);
     UI.diary(diaryRows(p));
+    UI.diaryFans();
     Bus.emit('hud');
   }
   // Allas resvägar ritas på kartan och kameran flyger längs vinnarens väg
@@ -8117,12 +8376,15 @@ const Remote = (() => {
   R.has = p => !!(p && !p.bot && p.dev && R.online(p.dev));
   R.leaderDev = () => leader;
   R.kick = (dev, text) => { const d = devs.get(dev); if (d) send(d, {t: 'kicked', text}); };
+  // Hejarklacken: mobiler som inte spelar men tippar och hejar (alla, eller bara de som är anslutna)
+  R.fans = (all = false) => [...devs.values()].filter(d => d.fan && (all || d.online)).map(d => d.fan);
 
   function handle(d, m) {
     const G = Game.state(), me = playerOf(d.dev), boss = leader === d.dev;
     switch (m.t) {
       case 'join': {
         if (G) return;
+        if (d.fan) { d.fan = null; fansChanged(); }
         const e = Setup.remoteJoin(d.dev, {name: m.name, piece: m.piece, quiz: m.quiz, acc: m.acc});
         if (e) send(d, {t: 'error', text: e});
         pickLeader();
@@ -8156,6 +8418,7 @@ const Remote = (() => {
         if (!p || p.bot || (p.dev && p.dev !== d.dev && R.online(p.dev))) { send(d, {t: 'error', text: 'Den spelaren är redan tagen.'}); return; }
         G.players.forEach(q => { if (q.dev === d.dev && q !== p) q.dev = null; });
         p.dev = d.dev;
+        if (d.fan) { d.fan = null; fansChanged(); }
         Missions.assign(G, Game.board());
         Game.save();
         pickLeader();
@@ -8174,12 +8437,24 @@ const Remote = (() => {
         else if (o.onHover) o.onHover(m.k);
         break;
       }
-      case 'tipAns': if (me) Tips.answer(me, m.id, m.k); break;
+      case 'tipAns': if (me || d.fan) Tips.answer(me || d.fan, m.id, m.k); break;
       case 'react': {
         const now = Date.now();
-        if (me && G && now - (d.reactT || 0) > 1200) { d.reactT = now; Game.react(me, String(m.kind)); }
+        if (G && now - (d.reactT || 0) > 1200 && (me || d.fan)) { d.reactT = now; if (me) Game.react(me, String(m.kind)); else UI.fanReact(d.fan.name, String(m.kind)); }
         break;
       }
+      case 'fan': {
+        // Bara titta och heja: lämnar sin plats (i lobbyn eller i spelet) och tippar och hejar i stället
+        const name = String(m.name || '').replace(/[<>]/g, '').trim().slice(0, 14) || 'Hejare';
+        if (!G) Setup.remoteLeave(d.dev);
+        else if (me) { me.dev = null; Game.save(); UI.remoteMarks(); }
+        const was = d.fan;
+        d.fan = {dev: d.dev, name, fan: true, stats: {stars: was ? was.stats.stars : 0}};
+        if (!was) UI.toast(null, `${name} är med i hejarklacken!`);
+        pickLeader(); sendMap(d); fansChanged();
+        break;
+      }
+      case 'unfan': if (d.fan) { d.fan = null; fansChanged(); } break;
       case 'setup': if (boss && !G) Setup.remoteSetup(m.patch); break;
       case 'start': if (boss && !G && !Setup.remoteStart()) send(d, {t: 'error', text: 'Det behövs minst två spelare.'}); break;
       case 'pause': if (boss && G && !G.winner) Bus.emit('remotePause', !!m.on); break;
@@ -8223,6 +8498,7 @@ const Remote = (() => {
     const G = Game.state(), me = playerOf(d.dev);
     const phase = G ? (G.winner ? 'over' : 'game') : Setup.isOpen() && Setup.invite() ? 'lobby' : 'title';
     const msg = {t: 'status', phase, leader: leader === d.dev, code};
+    if (d.fan) msg.fan = {name: d.fan.name, stars: d.fan.stats.stars || 0};
     if (phase === 'lobby') msg.lobby = Setup.lobby(d.dev);
     if (G) msg.game = gameInfo(G, me);
     send(d, msg);
@@ -8232,16 +8508,18 @@ const Remote = (() => {
     return {
       map: board.map.name, round: G.round, turn: G.turn, prompt: lastPrompt.title, sub: lastPrompt.sub, storm: G.storm || 0, paused: Game.paused(), expert: !!G.options.expert,
       me: me ? me.i : null, winner: G.winner ? G.winner.i : null, how: G.how || '', treasure: starName(board), pass: themeOf(board).pass.name,
-      players: G.players.map(p => ({i: p.i, name: p.name, color: p.color, money: p.money, star: !!p.star, pass: p.pass, stuck: !!p.stuck, skip: p.skip, bot: p.bot || 0,
+      players: G.players.map(p => ({i: p.i, name: p.name, color: p.color, money: p.money, star: !!p.star, pass: p.pass, stuck: !!p.stuck, skip: p.skip, bot: p.bot || 0, pos: board.nodes[p.node] ? [Math.round(board.nodes[p.node].x), Math.round(board.nodes[p.node].y)] : null,
         remote: !!p.dev, online: R.online(p.dev), free: !!p.freeFlight, dbl: !!p.doubleRoll, stars: p.stats.stars || 0})),
       mine: me ? {stars: me.stats.stars || 0, mission: me.mission ? {text: me.mission.text, progress: me.mission.progress, target: me.mission.target, done: me.mission.done} : null} : null,
-      diary: G.winner ? Game.diaryRows() : null
+      diary: G.winner ? Game.diaryRows() : null,
+      fans: R.fans(true).map(f => ({name: f.name, stars: f.stats.stars || 0}))
     };
   }
   Bus.on('prompt', (title, sub) => { lastPrompt = {title, sub}; changed(); });
   ['hud', 'lobby', 'gameOver', 'gameClear'].forEach(ev => Bus.on(ev, changed));
   Bus.on('turn', p => { R.event(p, {kind: 'turn'}); changed(); });
-  Bus.on('gameStart', () => { pickLeader(); devs.forEach(d => { if (d.online) { sendThumbs(d, thumbKeys()); d.mapSent = null; sendMap(d); } }); UI.remoteMarks(); changed(); });
+  function fansChanged() { UI.remoteMarks(); drawLists(); changed(); }
+  Bus.on('gameStart', () => { devs.forEach(d => { if (d.fan) d.fan.stats.stars = 0; }); pickLeader(); devs.forEach(d => { if (d.online) { sendThumbs(d, thumbKeys()); d.mapSent = null; sendMap(d); } }); UI.remoteMarks(); changed(); });
 
   /* ---------- Kartbilden till mobilerna ---------- */
   const mapCache = {};
@@ -8255,7 +8533,7 @@ const Remote = (() => {
     return (mapCache[b.map.id] = {id: b.map.id, src: c.toDataURL('image/jpeg', .72), W: b.W, H: b.H});
   }
   function sendMap(d) {
-    if (!d || !d.online || !playerOf(d.dev)) return;
+    if (!d || !d.online || !(playerOf(d.dev) || d.fan)) return;
     const m = mapFor();
     if (!m || d.mapSent === m.id) return;
     d.mapSent = m.id;
@@ -8334,7 +8612,8 @@ const Remote = (() => {
       info.append(h('ol', {class: 'remote-steps'},
         h('li', {text: 'Mobilen ska vara ansluten till samma wifi som den här skärmen.'}),
         h('li', {text: 'Välj namn och pjäs i mobilen. Den första som ansluter blir spelledare och startar spelet.'}),
-        h('li', {text: 'När det är din tur kastar du tärningen i mobilen: tryck, svep eller skaka.'})));
+        h('li', {text: 'När det är din tur kastar du tärningen i mobilen: tryck, svep eller skaka.'}),
+        h('li', {text: 'Vill du inte spela? Välj Bara titta och heja, så kan du tippa och heja från mobilen.'})));
       const list = h('div', {class: 'remote-list'});
       info.append(list);
       el.append(qr, info);
@@ -8348,6 +8627,8 @@ const Remote = (() => {
       const list = el.querySelector('.remote-list');
       if (!list) return;
       list.innerHTML = '';
+      const fans = R.fans();
+      if (fans.length) list.append(h('p', {class: 'remote-fans', html: icon('cheer') + `<span>Hejarklacken: ${fans.map(f => esc(f.name)).join(', ')}</span>`}));
       if (!G) return;
       G.players.filter(p => !p.bot).forEach(p => {
         const row = h('div', {class: 'remote-row', style: {'--pc': p.color}}, h('b', {text: p.name}), h('span', {text: p.dev ? (R.online(p.dev) ? 'spelar i mobilen' : 'mobilen har tappat kontakten') : 'spelar på skärmen'}));
@@ -8375,8 +8656,8 @@ const Remote = (() => {
 const Tips = (() => {
   const T = {};
   let cur = null, seq = 0;
-  // Mobilspelare som inte är den som spelar just nu
-  const tippers = except => { const G = Game.state(); return G ? G.players.filter(q => q !== except && !q.bot && Remote.has(q)) : []; };
+  // Mobilspelare som inte är den som spelar just nu, och hejarklacken
+  const tippers = except => { const G = Game.state(); return G ? G.players.filter(q => q !== except && !q.bot && Remote.has(q)).concat(Remote.fans()) : []; };
   T.open = (except, q, options, ms = 0) => {
     T.cancel();
     const who = tippers(except);
@@ -8498,12 +8779,22 @@ const Missions = (() => {
 })();
 
 /* ---- 10i-badges.js ---- */
-/* ================= Märken och jul ================= */
+/* ================= Märken och högtider ================= */
 // Märken samlas per spelarnamn mellan partierna och låser upp tillbehör till pjäserna.
-const Xmas = {
-  // Jultema: automatiskt i december, eller alltid/aldrig enligt inställningen
-  on: () => Settings.xmas === 'on' || (Settings.xmas !== 'off' && new Date().getMonth() === 11)
+// Högtiderna följer datumet (jul i december, halloween från mitten av oktober till alla helgons dag) eller inställningen.
+const Season = {
+  now() {
+    const s = Settings.xmas === 'on' ? 'jul' : Settings.xmas;
+    if (s === 'jul' || s === 'halloween') return s;
+    if (s === 'off') return null;
+    const d = new Date(), m = d.getMonth(), day = d.getDate();
+    if (m === 11) return 'jul';
+    if ((m === 9 && day >= 15) || (m === 10 && day <= 7)) return 'halloween';
+    return null;
+  }
 };
+const Xmas = {on: () => Season.now() === 'jul'};
+const Halloween = {on: () => Season.now() === 'halloween'};
 
 const Badges = (() => {
   const B = {};
@@ -8524,7 +8815,8 @@ const Badges = (() => {
     {id: 'mission', name: 'Hemlig agent', text: 'Klara ett hemligt uppdrag', icon: 'eye'},
     {id: 'tips5', name: 'Spåman', text: 'Gissa rätt fem gånger', icon: 'bulb', count: 'stars', target: 5},
     {id: 'challenge', name: 'Utmanare', text: 'Klara en utmaning', icon: 'crown'},
-    {id: 'xmas', name: 'God jul', text: 'Spela i december', icon: 'gem'}
+    {id: 'xmas', name: 'God jul', text: 'Spela i december', icon: 'gem'},
+    {id: 'halloween', name: 'Bus eller godis', text: 'Spela på halloween', icon: 'pumpkin'}
   ];
   B.list = LIST;
   const rec = name => (data.players[name] = data.players[name] || {got: {}, n: {}});
@@ -8541,7 +8833,7 @@ const Badges = (() => {
     return def;
   };
   // Tillbehör som spelaren får välja (tomteluvan i december får alla)
-  B.accessories = name => ACCESSORIES.filter(a => B.has(name, a.badge) || (a.id === 'santa' && Xmas.on()));
+  B.accessories = name => ACCESSORIES.filter(a => B.has(name, a.badge) || (a.id === 'santa' && Xmas.on()) || (a.id === 'witch' && Halloween.on()));
   B.accessoryName = id => (ACCESSORIES.find(a => a.id === id) || {}).name || 'Inget';
   // Efter ett parti: räknarna läggs ihop och alla nya märken delas ut
   B.endOfGame = (G, winner) => {
@@ -8556,6 +8848,7 @@ const Badges = (() => {
       LIST.filter(b => b.count).forEach(b => { if (B.count(p.name, b.count) >= b.target) give(b.id); });
       if (Passport.countFor(p.name) >= 25) give('stamps25');
       if (Xmas.on()) give('xmas');
+      if (Halloween.on()) give('halloween');
       if (got.length) out[p.i] = got;
     });
     return out;
@@ -8584,7 +8877,7 @@ const Coach = (() => {
   const C = {};
   let seen = Store.get('coach', {}), box = null, hideT = 0, current = null;
   const TIPS = {
-    goal: {el: () => $('prompt'), text: 'Målet: hitta skatten under en av brickorna och ta den till en startstad. Ädelstenar ger pengar, men se upp för rövaren!'},
+    goal: {el: () => $('prompt'), text: () => `Målet: hitta skatten under en av brickorna och ta den till en startstad. Ädelstenar ger pengar, men se upp för ${Game.board() ? themeOf(Game.board()).thief.the.toLowerCase() : 'rövaren'}!`},
     die: {el: () => $('dieBtn'), text: 'Tryck på tärningen för att kasta. Du kan också svepa uppåt från den.'},
     dest: {el: () => $('actions'), text: 'De blinkande ringarna på kartan visar vart du kan gå. Tryck på en ring, eller på en stad i listan.'},
     token: {el: () => $('actions'), text: 'Här ligger en bricka. Betala 1 000 kr för att vända den nu, eller vänta och slå 4, 5 eller 6 nästa tur.'},
@@ -8603,7 +8896,7 @@ const Coach = (() => {
     C.hide();
     current = id;
     const ok = h('button', {class: 'btn small primary', type: 'button', text: 'Okej!'});
-    box = h('div', {class: 'coach', role: 'status'}, h('span', {class: 'coach-gem', html: icon('bulb')}), h('p', {text: TIPS[id].text}), ok);
+    box = h('div', {class: 'coach', role: 'status'}, h('span', {class: 'coach-gem', html: icon('bulb')}), h('p', {text: typeof TIPS[id].text === 'function' ? TIPS[id].text() : TIPS[id].text}), ok);
     ok.onclick = () => { Sound.play('click'); C.hide(); };
     document.body.append(box);
     const r = el.getBoundingClientRect(), bw = Math.min(360, window.innerWidth - 24);
@@ -8744,6 +9037,56 @@ const Postcard = (() => {
   return P;
 })();
 
+// Skärmtest: vad klarar den här skärmen (TV, platta eller dator)? Bra att köra första gången på en ny TV.
+const ScreenCheck = (() => {
+  const C = {};
+  let run = 0;
+  const row = (state, title, text) => h('div', {class: 'check-row ' + state}, h('span', {class: 'check-mark', text: {ok: '✓', warn: '!', bad: '✕', wait: '…'}[state]}), h('div', null, h('b', {text: title}), h('span', {text})));
+  // Bilder per sekund medan brädet ritas bakom rutan
+  const fps = ms => new Promise(res => { let n = 0; const t0 = performance.now(); const f = t => { n++; if (t - t0 < ms) requestAnimationFrame(f); else res(Math.round(n * 1000 / (t - t0))); }; requestAnimationFrame(f); });
+  C.open = async () => {
+    const my = ++run, list = $('checkList');
+    UI.modal('dlgCheck', true);
+    $('checkLead').textContent = 'Testar vad den här skärmen klarar …';
+    list.innerHTML = '';
+    const rows = [];
+    const add = (state, title, text) => { const r = row(state, title, text); list.append(r); rows.push(state); return r; };
+    // 3D-grafik
+    const r3 = S3.renderer && S3.renderer(), gl = r3 && r3.getContext();
+    if (gl) {
+      let gpu = '';
+      try { const ext = gl.getExtension('WEBGL_debug_renderer_info'); if (ext) gpu = String(gl.getParameter(ext.UNMASKED_RENDERER_WEBGL)).replace(/^ANGLE \((.*)\)$/, '$1'); const parts = gpu.split(','); gpu = (parts[1] || parts[0]).replace(/\(0x[0-9a-f]+\)/i, '').replace(/(Direct3D|OpenGL|Vulkan|Metal).*$/i, '').trim().slice(0, 60); } catch (e) { gpu = ''; }
+      const big = r3.capabilities.maxTextureSize;
+      add(big >= 4096 ? 'ok' : 'warn', '3D-grafik', `${r3.capabilities.isWebGL2 ? 'WebGL 2' : 'WebGL 1'}, bilder upp till ${big} punkter${gpu ? ' · ' + gpu : ''}.`);
+    } else add('bad', '3D-grafik', 'Hittar ingen 3D-grafik (WebGL). Prova en annan webbläsare.');
+    // Skärmen
+    add('ok', 'Skärmen', `${window.innerWidth} × ${window.innerHeight} punkter, skärpa ${(window.devicePixelRatio || 1).toFixed(2)}${IS_TV ? '. TV-läge är på.' : '.'}`);
+    // Ljud och musik
+    const actx = !!(window.AudioContext || window.webkitAudioContext), mp3 = !!new Audio().canPlayType('audio/mpeg');
+    add(actx && mp3 ? 'ok' : actx ? 'warn' : 'bad', 'Ljud och musik', actx ? (mp3 ? 'Ljudeffekter och musik fungerar. Tryck på Spela ett ljud för att höra.' : 'Ljudeffekter fungerar, men inte musikfilerna. Då spelas den inbyggda musiken.') : 'Den här webbläsaren kan inte spela ljud.');
+    // Uppläsning
+    const vs = Sound.voices();
+    add(!('speechSynthesis' in window) ? 'bad' : !vs.length ? 'warn' : vs[0].natural ? 'ok' : 'warn', 'Uppläsning',
+      !('speechSynthesis' in window) ? 'Den här webbläsaren kan inte läsa upp text.' : !vs.length ? 'Ingen svensk röst hittades. Uppläsningen blir på en annan röst eller tyst.' : `${vs.length} svensk${vs.length > 1 ? 'a röster' : ' röst'}. Bäst: ${vs[0].name}.${vs[0].natural ? '' : ' Bättre röster finns i Edge eller i enhetens inställningar.'}`);
+    // Mobiler
+    const rtc = !!(window.RTCPeerConnection || window.webkitRTCPeerConnection);
+    add(rtc && navigator.onLine !== false ? 'ok' : rtc ? 'warn' : 'bad', 'Mobiler som handkontroller', rtc ? (navigator.onLine === false ? 'Skärmen verkar sakna internet. Mobilerna behöver internet första gången de ansluter.' : 'Mobiler kan ansluta. De ska vara på samma wifi som skärmen.') : 'Den här webbläsaren kan inte ta emot mobiler. Spela på skärmen, eller använd en dator eller platta som värd.');
+    // Utan internet och skärmsläckare
+    const sw = !!(navigator.serviceWorker && navigator.serviceWorker.controller);
+    add(sw ? 'ok' : 'warn', 'Fungerar utan internet', sw ? 'Spelet är sparat på enheten och startar även utan internet.' : 'Spelet behöver internet när det startar. Öppna det från webbadressen en gång till så sparas det.');
+    add('wakeLock' in navigator ? 'ok' : 'warn', 'Skärmen håller sig vaken', 'wakeLock' in navigator ? 'Skärmen släcks inte mitt i ett parti.' : 'Skärmen kan släckas om ingen rör den. Stäng av skärmsläckaren i enhetens inställningar.');
+    // Bildfrekvensen mäts sist, medan brädet ritas
+    const fr = add('wait', 'Bildfrekvens', 'Mäter …');
+    const f = await fps(2500);
+    if (my !== run) return;
+    const st = f >= 45 ? 'ok' : f >= 25 ? 'warn' : 'bad';
+    fr.replaceWith(row(st, 'Bildfrekvens', f >= 45 ? `${f} bilder per sekund. Flyter fint!` : f >= 25 ? `${f} bilder per sekund. Går att spela. Slå på Snabbare grafik om det hackar.` : `${f} bilder per sekund. Slå på Snabbare grafik under Inställningar.`));
+    rows[rows.length - 1] = st;
+    $('checkLead').textContent = rows.includes('bad') ? 'Något fungerar inte här, se det röda nedan.' : rows.includes('warn') ? 'Spelet fungerar! Det gula kan bli bättre.' : 'Allt fungerar som det ska. Mycket nöje!';
+  };
+  return C;
+})();
+
 // Utmaningar för den som vill spela själv mot datorn
 const Challenges = (() => {
   const C = {};
@@ -8758,25 +9101,63 @@ const Challenges = (() => {
     {id: 'europa-interrail', map: 'europa', name: 'Tågluffaren', text: 'Vinn i Europa på högst 15 rundor.', bots: [2, 2], rounds: 15}
   ];
   C.list = () => LIST.filter(c => MAPS[c.map]);
-  C.get = id => LIST.find(c => c.id === id);
+
+  // Dagens utmaning: samma för alla som spelar samma dag och en ny varje midnatt. Korta partier, så att den går fort.
+  const dayKey = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  C.today = () => dayKey(new Date());
+  function seeded(str) {
+    let x = 2166136261;
+    for (const ch of str) x = Math.imul(x ^ ch.charCodeAt(0), 16777619);
+    return () => { x = (x + 0x6D2B79F5) | 0; let t = Math.imul(x ^ x >>> 15, 1 | x); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+  }
+  // Rundor för ett kort parti: lite fler än hälften av partierna brukar ta (tools/sim-length.mjs)
+  const QUICK = {afrika: 10, sverige: 8, norden: 10, europa: 10};
+  C.dailyFor = date => {
+    const r = seeded('diamantjakten-' + date), pickR = a => a[Math.floor(r() * a.length)];
+    // Kartan och sortens utmaning turas om dag för dag (fyra kartor och fem sorter ger 20 olika i följd)
+    const [y, mo, dd] = date.split('-').map(Number), dayNo = Math.floor(Date.UTC(y, mo - 1, dd) / 864e5), maps = MAP_ORDER.filter(id => MAPS[id]);
+    const map = maps[dayNo % maps.length], nm = MAPS[map].name, kind = ['rounds', 'tour', 'noflight', 'hard', 'rich'][dayNo % 5];
+    const ch = {id: 'daily-' + date, daily: date, map, bots: [2], length: 'short'};
+    if (kind === 'rounds') return Object.assign(ch, {name: `Blixtresa i ${nm}`, text: `Vinn på högst ${QUICK[map] || 10} rundor.`, rounds: QUICK[map] || 10});
+    if (kind === 'noflight') return Object.assign(ch, {name: `Utan flyg i ${nm}`, text: 'Vinn utan att flyga en enda gång.', rule: 'noflight'});
+    if (kind === 'rich') { const x = pickR([6000, 7000, 8000]); return Object.assign(ch, {name: `Sparsam resenär i ${nm}`, text: `Vinn med minst ${kr(x)} kvar.`, rule: 'rich', rich: x}); }
+    if (kind === 'tour') { const n = pickR([5, 6]); return Object.assign(ch, {name: `Rundresa i ${nm}`, text: `Besök ${n} olika städer och vinn.`, rule: 'tour', tour: n}); }
+    return Object.assign(ch, {name: `Två kluriga i ${nm}`, text: 'Vinn mot två kluriga datorspelare.', bots: [3, 3]});
+  };
+  C.get = id => /^daily-/.test(id || '') ? C.dailyFor(id.slice(6)) : LIST.find(c => c.id === id);
+  // Hur många dagar i rad någon har klarat dagens utmaning (idag räknas om den är klar, annars från igår)
+  C.streak = name => {
+    const r = data[name] || {}, d = new Date();
+    if (!r['daily-' + dayKey(d)]) d.setDate(d.getDate() - 1);
+    let n = 0;
+    while (r['daily-' + dayKey(d)] && n < 999) { n++; d.setDate(d.getDate() - 1); }
+    return n;
+  };
+  // En prick på menyrutan när dagens utmaning inte är klar
+  C.markTile = () => { const t = $('bChallenges'), name = Store.get('challengeName', ''); if (t) t.classList.toggle('has-new', !C.done(name, 'daily-' + C.today())); };
   const rec = name => data[name] || {};
   C.done = (name, id) => !!(rec(name)[id]);
   // Klarade utmaningen? Anropas när någon har vunnit.
   C.result = (G, winner) => {
     const ch = C.get(G.options.challenge);
     if (!ch) return null;
-    const me = G.players.find(p => !p.bot);
+    const me = G.players.find(p => !p.bot) || G.players[0];
     let ok = winner === me, why = ok ? '' : `${winner.name} hann före.`;
     if (ok && ch.rounds && G.round > ch.rounds) { ok = false; why = `Det tog ${G.round} rundor.`; }
     if (ok && ch.rule === 'noflight' && me.stats.flights) { ok = false; why = 'Du flög.'; }
-    if (ok && ch.rule === 'rich' && me.money < 10000) { ok = false; why = `Du hade ${kr(me.money)} kvar.`; }
-    if (ok && ch.rule === 'tour' && me.stats.cities.length < 10) { ok = false; why = `Du besökte ${me.stats.cities.length} städer.`; }
+    if (ok && ch.rule === 'rich' && me.money < (ch.rich || 10000)) { ok = false; why = `Du hade ${kr(me.money)} kvar.`; }
+    if (ok && ch.rule === 'tour' && me.stats.cities.length < (ch.tour || 10)) { ok = false; why = `Du besökte ${me.stats.cities.length} städer.`; }
     if (ok) {
       const r = (data[me.name] = rec(me.name));
       const prev = r[ch.id];
       r[ch.id] = {t: Date.now(), rounds: Math.min(G.round, prev ? prev.rounds : 999)};
       Store.set('challenges', data);
       Badges.award(me.name, 'challenge');
+      C.markTile();
+    }
+    if (ch.daily) {
+      const n = C.streak(me.name);
+      return {ok, text: ok ? `Dagens utmaning är klarad!${n > 1 ? ` ${n} dagar i rad! 🔥` : ''}` : `Dagens utmaning blev inte klar. ${why} Försök igen!`};
     }
     return {ok, text: ok ? `Utmaningen "${ch.name}" är klarad!` : `Utmaningen "${ch.name}" blev inte klar. ${why}`};
   };
@@ -8784,7 +9165,7 @@ const Challenges = (() => {
   C.failNow = G => {
     const ch = C.get(G.options.challenge);
     if (!ch) return null;
-    const me = G.players.find(p => !p.bot);
+    const me = G.players.find(p => !p.bot) || G.players[0];
     if (ch.rounds && G.round > ch.rounds) return `Runda ${ch.rounds} är slut och skatten är inte hemma.`;
     if (ch.rule === 'noflight' && me && me.stats.flights) return 'Du flög, och det var inte tillåtet i den här utmaningen.';
     return null;
@@ -8800,6 +9181,16 @@ const Challenges = (() => {
     const names = Passport.counts().map(x => x.name);
     const name = (Store.get('challengeName', '') || names[0] || '').slice(0, 14);
     $('challengeName').value = name;
+    const who = name.trim(), dly = C.dailyFor(C.today()), dDone = C.done(who, dly.id), streak = C.streak(who);
+    const dArt = MAP_ASSETS[dly.map] && MAP_ASSETS[dly.map].thumb;
+    const day = new Date().toLocaleDateString('sv-SE', {weekday: 'long', day: 'numeric', month: 'long'});
+    const dc = h('button', {class: 'challenge daily' + (dDone ? ' done' : ''), type: 'button'},
+      h('span', {class: 'ch-art'}, dArt ? h('img', {src: dArt, alt: ''}) : ''),
+      h('span', {class: 'ch-txt'}, h('small', {class: 'ch-kicker', text: `Dagens utmaning · ${day}`}), h('b', {text: dly.name}), h('span', {text: dly.text}),
+        h('small', {text: dDone ? `Klarad idag!${streak > 1 ? ` ${streak} dagar i rad 🔥` : ''}` : streak ? `Du har klarat ${streak} ${streak === 1 ? 'dag' : 'dagar'} i rad. Fortsätt!` : 'Kort parti. En ny utmaning varje dag.'})),
+      h('span', {class: 'ch-medal', html: dDone ? icon('trophy') : icon('play')}));
+    dc.onclick = () => C.start(dly);
+    box.append(dc, h('h3', {class: 'ch-head', text: 'Fler utmaningar'}));
     C.list().forEach(ch => {
       const done = C.done($('challengeName').value.trim(), ch.id);
       const art = MAP_ASSETS[ch.map] && MAP_ASSETS[ch.map].thumb;
@@ -8894,7 +9285,12 @@ function bind() {
   on('bPostcardClose', () => UI.modal('dlgPostcard', false));
   on('bChallenges', () => { Sound.unlock(); Sound.play('click'); Challenges.open(); });
   on('bChallengesClose', () => UI.modal('dlgChallenges', false));
-  $('challengeName').addEventListener('change', () => Challenges.open());
+  on('bCheck', () => { Sound.unlock(); Sound.play('click'); ScreenCheck.open(); });
+  on('bCheckAgain', () => ScreenCheck.open());
+  on('bCheckClose', () => UI.modal('dlgCheck', false));
+  on('bCheckSound', () => { Sound.unlock(); Sound.play('gem'); });
+  on('bCheckVoice', () => Sound.testVoice());
+  $('challengeName').addEventListener('change', () => { Store.set('challengeName', $('challengeName').value.trim().slice(0, 14)); Challenges.open(); Challenges.markTile(); });
   on('bContinue', () => { Sound.unlock(); const s = Store.get('save'); if (s) Game.resume(s); });
   on('bWorkshop', () => { Sound.unlock(); Sound.play('click'); Workshop.open({}); });
   on('bRules', () => { Sound.play('click'); UI.rules(S3.board()); });
@@ -9019,7 +9415,9 @@ async function boot(hot) {
   }
   ModelLib.init();
   document.body.classList.toggle('xmas', Xmas.on());
+  document.body.classList.toggle('halloween', Halloween.on());
   UI.initIcons();
+  Challenges.markTile();
   const full = $('tFull');
   if (full) { full.innerHTML = icon('full'); full.hidden = !document.fullscreenEnabled; }
   UI.buildDie();

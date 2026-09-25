@@ -113,7 +113,12 @@ p{margin:0;font-weight:700;line-height:1.35}
 @keyframes pulse{50%{transform:scale(1.06)}}
 .prompt{font-family:var(--display);font-size:20px;font-weight:400;line-height:1.15}
 .sub{font-weight:800;color:var(--ink-soft);font-size:15px}
-.panel{display:flex;flex-direction:column;gap:12px}
+.panel{display:flex;flex-direction:column;gap:12px;position:relative}
+.say-btn{position:absolute;top:-4px;right:-4px;width:44px;height:44px;border-radius:50%;border:0;padding:0;display:grid;place-items:center;color:#063b1b;background:linear-gradient(180deg,#b8f5cb,#34b86b);box-shadow:0 0 0 2.5px var(--ink),0 3px 0 rgba(0,0,0,.3);z-index:2}
+.say-btn svg,.say-toggle svg{width:24px;height:24px}
+.panel > h2:first-of-type,.tipbox > h3{padding-right:48px}
+.tipbox{position:relative}
+.say-toggle[aria-pressed="true"]{color:#063b1b;background:linear-gradient(180deg,#b8f5cb,#34b86b)}
 .panel h2{margin:0}
 .die-area{display:grid;justify-items:center;gap:10px;padding:8px 0}
 .die-btn{width:min(210px,58vw);aspect-ratio:1;border-radius:50%;border:4px solid var(--line);background:radial-gradient(circle at 40% 35%,#fff,#ffe8a3);box-shadow:0 7px 0 var(--line);display:grid;place-items:center;padding:0;touch-action:none;animation:ready 1.2s ease-in-out infinite}
@@ -164,6 +169,12 @@ p{margin:0;font-weight:700;line-height:1.35}
 .prow.turn-on{background:#fff3c4;border-radius:8px}
 .tag{font-size:11px;font-weight:900;padding:2px 7px;border-radius:8px;background:#ffd6a0}
 .claim{display:grid;gap:10px}
+.fan-join{display:grid;gap:10px;margin-top:10px;padding-top:14px;border-top:2px dashed rgba(255,255,255,.25)}
+.fan-join h2{margin:0}
+.livemap{width:100%;height:auto;max-height:62vh;display:block;border-radius:12px}
+.lm-ring{animation:lmPulse 1.2s ease-in-out infinite}
+@keyframes lmPulse{50%{opacity:.25}}
+.bar .av.fan{display:grid;place-items:center;font-size:22px;background:radial-gradient(circle at 50% 40%,#ffd24d,#c46f00 150%)}
 .diary{display:grid;gap:8px;width:100%;text-align:left}
 .over-av{width:120px;height:120px;border-radius:50%;border:4px solid var(--line);background:var(--pc);display:grid;place-items:center;overflow:hidden}
 .over-av img{width:92%;height:92%;object-fit:contain}
@@ -298,6 +309,7 @@ html,body{background:radial-gradient(120% 70% at 50% 0%,#23525e 0%,#0c242c 55%,#
     <span class="who"><b id="barName"></b><small id="barSub"></small></span>
     <span class="items" id="barItems"></span>
     <span class="money" id="barMoney"></span>
+    <button class="icon-btn say-toggle" id="bRead" type="button" aria-label="Läs upp" aria-pressed="false"></button>
     <button class="icon-btn" id="bMenu" type="button" aria-label="Spelledarens meny" hidden></button>
     <span class="dot" id="barDot" title="Anslutning"></span>
   </header>
@@ -326,9 +338,13 @@ html,body{background:radial-gradient(120% 70% at 50% 0%,#23525e 0%,#0c242c 55%,#
       <div id="accRow" hidden><h2>Tillbehör</h2><div class="toggles" id="accList"></div></div>
       <h2>Frågesport</h2>
       <div class="seg" id="quizSeg" role="group" aria-label="Frågor"><button type="button" data-v="easy">Lätta frågor</button><button type="button" data-v="hard">Svåra frågor</button></div>
+      <h2>Uppläsning</h2>
+      <div class="toggles"><button type="button" class="toggle" id="readToggle" aria-pressed="false">Läs upp allt för mig</button></div>
       <button id="bDrawOpen" class="btn blue wide" type="button">Rita eller fota en egen pjäs</button>
       <button id="bJoin" class="btn big primary wide" type="button">Gå med!</button>
       <p class="err" id="joinErr"></p>
+      <p class="note fan-note" id="fanNote" hidden>Du hejar just nu. Vill du vara med och spela nästa parti? Välj pjäs och tryck på Gå med!</p>
+      <button id="bFan" class="btn wide" type="button">Bara titta och heja</button>
     </section>
 
     <section id="vDraw" class="view" hidden>
@@ -367,7 +383,12 @@ html,body{background:radial-gradient(120% 70% at 50% 0%,#23525e 0%,#0c242c 55%,#
       <h1>Vem är du?</h1>
       <p>Spelet har redan börjat. Tryck på den spelare du är.</p>
       <div id="claimList" class="claim"></div>
-      <p class="note">Står du inte med i listan kan du titta på i stället. Nästa gång kan du vara med från början.</p>
+      <div class="fan-join">
+        <h2>Eller heja på!</h2>
+        <p class="note">Tippa vad som händer och skicka hejarop till den stora skärmen. Nästa parti kan du vara med och spela.</p>
+        <input id="fanNameInput" class="name-input" maxlength="14" placeholder="Skriv ditt namn" autocomplete="off" aria-label="Namn">
+        <button id="bFanClaim" class="btn big wide" type="button">Heja på!</button>
+      </div>
     </section>
 
     <section id="vWait" class="view center" hidden>
@@ -387,6 +408,8 @@ html,body{background:radial-gradient(120% 70% at 50% 0%,#23525e 0%,#0c242c 55%,#
         <div class="box" id="secrets" hidden></div>
         <div class="box" id="stamps" hidden></div>
         <div class="box others" id="others"></div>
+        <div class="box livemap-box" id="liveMap" hidden></div>
+        <button id="bUnfan" class="btn small" type="button" hidden>Sluta heja</button>
       </div>
     </section>
 
@@ -433,6 +456,7 @@ html,body{background:radial-gradient(120% 70% at 50% 0%,#23525e 0%,#0c242c 55%,#
   'use strict';
   const $ = id => document.getElementById(id);
   const kr = n => (n || 0).toLocaleString('sv-SE') + ' kr';
+  const pick = a => a[Math.floor(Math.random() * a.length)];
   const genitive = n => /[sxz]$/i.test(n) ? n : n + 's';
   function h(tag, attrs, ...kids) {
     const e = document.createElement(tag);
@@ -535,7 +559,7 @@ html,body{background:radial-gradient(120% 70% at 50% 0%,#23525e 0%,#0c242c 55%,#
       case 'welcome': break;
       case 'status': st = m; render(); break;
       case 'thumb': thumbs[m.key] = m.src; render(true); break;
-      case 'offer': offer = {id: m.id, spec: m.spec}; selected = null; quizPicked = null; armed = null; renderOffer(); break;
+      case 'offer': offer = {id: m.id, spec: m.spec}; selected = null; quizPicked = null; armed = null; renderOffer(); if (m.spec.type !== 'secret') say(offerText(m.spec)); break;
       case 'clear':
         if (offer && offer.id === m.id) {
           // Tärningen får snurra klart tills slaget kommer från skärmen
@@ -547,12 +571,13 @@ html,body{background:radial-gradient(120% 70% at 50% 0%,#23525e 0%,#0c242c 55%,#
       case 'known': known = m.list || []; renderIdle(); break;
       case 'map': boardMap = {id: m.id, src: m.src, W: m.W, H: m.H}; break;
       case 'postcard': postcard = m.src; render(); break;
-      case 'tip': tip = {id: m.id, q: m.q, options: m.options, ms: m.ms, t0: performance.now(), picked: null, result: null}; renderTip(); buzz(30); break;
+      case 'tip': tip = {id: m.id, q: m.q, options: m.options, ms: m.ms, t0: performance.now(), picked: null, result: null}; renderTip(); buzz(30); say(tipText(tip)); break;
       case 'tipRes':
         if (tip && tip.id === m.id) {
           if (m.cancel || !m.answered) { tip = null; renderTip(); break; }
           tip.result = m; renderTip();
           buzz(m.ok ? [40, 40, 40] : 90);
+          say(m.ok ? pick(['Rätt! Du får en stjärna!', 'Snyggt gissat! En stjärna till dig!', 'Ja! Rätt gissat!']) : `Inte den här gången. ${m.text || ''}`, m.ok ? 'happy' : 'sad');
           clearTimeout(tipTimer);
           tipTimer = setTimeout(() => { tip = null; renderTip(); }, 3200);
         }
@@ -571,11 +596,14 @@ html,body{background:radial-gradient(120% 70% at 50% 0%,#23525e 0%,#0c242c 55%,#
     if (e.kind === 'turn') { buzz([90, 60, 90]); ding(); }
     else if (e.kind === 'roll') { dieBusy = false; showDie(e.v); }
     else if (e.kind === 'money') floatMoney(e.delta);
-    else if (e.kind === 'stamp') { stamps.unshift({city: e.city, svg: e.svg}); toast(`Ny stämpel: ${e.city}!`, e.fact, e.svg); renderIdle(); buzz(40); }
-    else if (e.kind === 'robbed') { toast(`${e.by} skickade rövaren till dig!`, e.amount ? `Den tog ${kr(e.amount)}.` : 'Men du hade inga pengar. Puh!'); buzz([200, 80, 200]); }
-    else if (e.kind === 'quiz') showQuizResult(e);
-    else if (e.kind === 'badge') { toast(`Nytt märke: ${e.name}!`, e.text); buzz([60, 40, 60]); }
-    else if (e.kind === 'mission') { toast('Uppdraget är klart!', `${e.text}. Du får ${e.reward}.`); buzz([100, 50, 100, 50, 200]); ding(); }
+    else if (e.kind === 'stamp') { stamps.unshift({city: e.city, svg: e.svg}); toast(`Ny stämpel: ${e.city}!`, e.fact, e.svg); renderIdle(); buzz(40); say(`Ny stämpel: ${e.city}! ${e.fact || ''}`); }
+    else if (e.kind === 'robbed') {
+      const t = `${e.by} skickade ${e.who || 'rövaren'} till dig!`, t2 = e.amount ? `Den tog ${kr(e.amount)}.` : 'Men du hade inga pengar. Puh!';
+      toast(t, t2); buzz([200, 80, 200]); say(`${t} ${t2}`, 'sad');
+    }
+    else if (e.kind === 'quiz') { showQuizResult(e); say(e.ok ? e.text : `Nästan! Rätt svar är ${e.answer}. ${e.text}`, e.ok ? 'happy' : 'normal'); }
+    else if (e.kind === 'badge') { toast(`Nytt märke: ${e.name}!`, e.text); buzz([60, 40, 60]); say(`Nytt märke: ${e.name}!`, 'happy'); }
+    else if (e.kind === 'mission') { toast('Uppdraget är klart!', `${e.text}. Du får ${e.reward}.`); buzz([100, 50, 100, 50, 200]); ding(); say(`Hurra! Uppdraget är klart! Du får ${e.reward}.`, 'happy'); }
   }
 
   /* ---------- Rita upp rätt vy ---------- */
@@ -587,13 +615,13 @@ html,body{background:radial-gradient(120% 70% at 50% 0%,#23525e 0%,#0c242c 55%,#
       const lob = st.lobby, mine = lob.seats.find(s => s.me);
       if (!mine || editing) {
         // Har vi varit med förut går vi med direkt med samma namn och pjäs
-        if (!mine && !editing && profile.name && profile.piece && !joinedOnce) { joinedOnce = true; send({t: 'join', name: profile.name, piece: profile.piece, quiz: profile.quiz}); }
+        if (!mine && !editing && !st.fan && profile.name && profile.piece && !joinedOnce) { joinedOnce = true; send({t: 'join', name: profile.name, piece: profile.piece, quiz: profile.quiz}); }
         renderJoin(lob, mine);
         show('vJoin');
       } else { renderLobby(lob, mine); show('vLobby'); }
     } else if (st.phase === 'game') {
       const g = st.game;
-      if (g.me == null) { renderClaim(g); show('vClaim'); }
+      if (g.me == null && !st.fan) { renderClaim(g); show('vClaim'); }
       else { renderGame(g); show('vGame'); }
     } else if (st.phase === 'over') { renderOver(st.game); show('vOver'); }
     else {
@@ -618,6 +646,14 @@ html,body{background:radial-gradient(120% 70% at 50% 0%,#23525e 0%,#0c242c 55%,#
       items.innerHTML = '';
       if (me.star) items.append(h('span', {html: GEM, title: g.treasure}));
       for (let k = 0; k < me.pass; k++) items.append(h('span', {html: PASS, title: g.pass}));
+    } else if (st.fan && (st.phase === 'game' || st.phase === 'over')) {
+      $('bar').hidden = false;
+      document.documentElement.style.setProperty('--pc', '#f2bf3f');
+      $('barAv').replaceWith(h('span', {class: 'av fan', id: 'barAv', text: '📣'}));
+      $('barName').textContent = st.fan.name;
+      $('barSub').textContent = 'hejarklacken' + (st.fan.stars ? ` · ⭐ ${st.fan.stars}` : '');
+      $('barMoney').textContent = '';
+      $('barItems').innerHTML = '';
     } else if (st.phase === 'lobby') {
       const mine = st.lobby.seats.find(s => s.me);
       $('bar').hidden = !mine;
@@ -661,14 +697,16 @@ html,body{background:radial-gradient(120% 70% at 50% 0%,#23525e 0%,#0c242c 55%,#
     setSeg($('quizSeg'), pendingQuiz || (mine && mine.quiz) || profile.quiz || 'easy');
     $('bJoin').textContent = mine ? 'Spara' : 'Gå med!';
     $('bJoin').disabled = lob.full;
-    $('joinErr').textContent = lob.full ? 'Spelet är fullt. Det får vara fyra spelare.' : '';
+    $('joinErr').textContent = lob.full ? 'Spelet är fullt. Det får vara fyra spelare, men du kan heja!' : '';
+    $('fanNote').hidden = !st.fan;
+    $('bFan').hidden = !!mine || !!st.fan;
   }
   function setSeg(el, v) { el.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.v === String(v)))); }
   $('quizSeg').querySelectorAll('button').forEach(b => { b.onclick = () => { pendingQuiz = b.dataset.v; setSeg($('quizSeg'), b.dataset.v); tap(); }; });
   $('bJoin').onclick = () => {
     unlockAudio();
     const key = $('pieceGrid').dataset.key, q = $('quizSeg').querySelector('[aria-pressed="true"]');
-    profile = {name: $('nameInput').value.trim().slice(0, 14), piece: key ? pieceRef(key) : null, quiz: q ? q.dataset.v : 'easy'};
+    profile = {name: $('nameInput').value.trim().slice(0, 14), piece: key ? pieceRef(key) : null, quiz: q ? q.dataset.v : 'easy', read: !!profile.read};
     store.set('profile', profile);
     joinedOnce = true; editing = false; pendingPiece = null; pendingQuiz = null; pendingName = null;
     send(Object.assign({t: 'join', name: profile.name, piece: profile.piece, quiz: profile.quiz}, pendingAcc !== undefined ? {acc: pendingAcc} : {}));
@@ -881,6 +919,8 @@ html,body{background:radial-gradient(120% 70% at 50% 0%,#23525e 0%,#0c242c 55%,#
 
   /* ---------- Spelet redan igång: välj vem man är ---------- */
   function renderClaim(g) {
+    const fi = $('fanNameInput');
+    if (document.activeElement !== fi && !fi.value) fi.value = profile.name || '';
     const list = $('claimList');
     list.innerHTML = '';
     g.players.filter(p => !p.bot).forEach(p => {
@@ -910,6 +950,7 @@ html,body{background:radial-gradient(120% 70% at 50% 0%,#23525e 0%,#0c242c 55%,#
     box.hidden = false;
     box.innerHTML = '';
     box.append(h('h3', {text: 'Tippa! ⭐'}), h('p', {class: 'quizq', text: tip.q}));
+    if (canSpeak) box.append(h('button', {class: 'say-btn', type: 'button', 'aria-label': 'Läs upp', html: SPEAKER, onclick: () => { tap(); speak(tipText(tip)); }}));
     const row = h('div', {class: 'tip-opts'});
     tip.options.forEach((o, k) => {
       const b = h('button', {class: 'choice', type: 'button', 'aria-pressed': String(tip.picked === k), disabled: tip.picked != null || !!tip.result, text: o});
@@ -941,6 +982,8 @@ html,body{background:radial-gradient(120% 70% at 50% 0%,#23525e 0%,#0c242c 55%,#
     const g = st && st.game;
     if (!g) return;
     renderMission(g);
+    renderLive(g);
+    $('bUnfan').hidden = !st.fan;
     const re = $('reacts');
     if (!re.childElementCount) {
       [['cheer', '👏'], ['joy', '🎉'], ['laugh', '😂'], ['wow', '😱'], ['sad', '😢'], ['dance', '💃']].forEach(([k, e]) => {
@@ -970,6 +1013,42 @@ html,body{background:radial-gradient(120% 70% at 50% 0%,#23525e 0%,#0c242c 55%,#
       const tags = [p.star ? g.treasure : '', p.pass ? `${g.pass}${p.pass > 1 ? ' ×' + p.pass : ''}` : '', p.stuck ? 'fast' : '', p.skip ? 'står över' : ''].filter(Boolean);
       ot.append(h('div', {class: 'prow' + (p.i === g.turn ? ' turn-on' : ''), style: {'--pc': p.color}}, avatar('player:' + p.i, p.color), h('span', {class: 'n', text: p.name + (p.i === g.me ? ' (du)' : '')}),
         tags.map(x => h('span', {class: 'tag', text: x})), h('span', {class: 'm', text: kr(p.money)})));
+    });
+  }
+
+  /* ---------- Hejarklacken ---------- */
+  function becomeFan(name) {
+    name = String(name || '').trim().slice(0, 14);
+    if (!name) { toast('Skriv ditt namn först.'); return; }
+    profile.name = name; store.set('profile', profile);
+    unlockAudio(); wake();
+    editing = false;
+    send({t: 'fan', name});
+  }
+  $('bFan').onclick = () => { tap(); becomeFan($('nameInput').value || profile.name); };
+  $('bFanClaim').onclick = () => { tap(); becomeFan($('fanNameInput').value); };
+  $('bUnfan').onclick = () => { tap(); send({t: 'unfan'}); };
+  // Hela kartan med alla pjäser, för hejarklacken och den som vill se var alla är
+  function renderLive(g) {
+    const box = $('liveMap');
+    if (!boardMap || !g.players.every(p => p.pos)) { box.hidden = true; return; }
+    box.hidden = false;
+    const W = boardMap.W, H = boardMap.H, R = Math.max(W, H) / 70;
+    let svg = box.querySelector('svg');
+    if (!svg || svg.dataset.map !== boardMap.id) {
+      box.innerHTML = '';
+      box.append(h('h3', {text: 'Kartan'}));
+      svg = sv('svg', {viewBox: `0 0 ${W} ${H}`, class: 'livemap', role: 'img', 'aria-label': 'Kartan med alla pjäser'});
+      svg.dataset.map = boardMap.id;
+      svg.append(sv('image', {href: boardMap.src, x: 0, y: 0, width: W, height: H, preserveAspectRatio: 'none'}), sv('g', {class: 'lm-dots'}));
+      box.append(svg);
+    }
+    const dots = svg.querySelector('.lm-dots'), at = {};
+    dots.innerHTML = '';
+    g.players.forEach(p => {
+      const key = p.pos.join(','), k = at[key] = (at[key] || 0) + 1, x = p.pos[0] + (k - 1) * R * 1.3, y = p.pos[1];
+      if (p.i === g.turn) dots.append(sv('circle', {cx: x, cy: y, r: R * 2, fill: 'none', stroke: '#fff', 'stroke-width': R * .4, class: 'lm-ring'}));
+      dots.append(sv('circle', {cx: x, cy: y, r: R, fill: p.color, stroke: '#1d2b33', 'stroke-width': R * .3}));
     });
   }
 
@@ -1004,6 +1083,7 @@ html,body{background:radial-gradient(120% 70% at 50% 0%,#23525e 0%,#0c242c 55%,#
       s.options.forEach(o => list.append(h('button', {class: 'choice' + (o.primary ? ' city' : ''), type: 'button', onclick: () => { tap(); pickOffer(o.k); }}, h('span', {text: o.label}), o.sub ? h('em', {text: o.sub}) : '')));
       box.append(list);
     } else if (s.type === 'bid') renderBid(box, s);
+    if (canSpeak) box.prepend(h('button', {class: 'say-btn', type: 'button', 'aria-label': 'Läs upp', html: SPEAKER, onclick: () => { tap(); speak(offerText(s)); }}));
     if (view === 'vGame') box.scrollIntoView({block: 'nearest'});
   }
   // Tärningen och knapparna för en tur
@@ -1196,6 +1276,7 @@ html,body{background:radial-gradient(120% 70% at 50% 0%,#23525e 0%,#0c242c 55%,#
     const me = g.me != null && (g.diary || []).find(r => r.name === g.players[g.me].name);
     if (me && me.mission) d.append(h('p', {class: 'sub', text: `Ditt uppdrag: ${me.mission.text} ${me.mission.done ? '✓ klarat!' : '(inte klart)'}`}));
     if (me && me.badges && me.badges.length) d.append(h('p', {class: 'sub', text: `Nya märken: ${me.badges.join(', ')}`}));
+    if (st.fan) d.append(h('p', {class: 'sub', text: st.fan.stars ? `Du hejade och gissade rätt ${st.fan.stars} ${st.fan.stars === 1 ? 'gång' : 'gånger'}! ⭐` : 'Tack för att du hejade!'}));
     const pc = $('overPostcard');
     pc.hidden = !postcard;
     if (postcard && pc.dataset.src !== String(postcard.length)) {
@@ -1214,7 +1295,7 @@ html,body{background:radial-gradient(120% 70% at 50% 0%,#23525e 0%,#0c242c 55%,#
     }
     $('overLeader').hidden = !st.leader;
     $('overWait').hidden = st.leader;
-    if (!render.overBuzzed) { render.overBuzzed = true; buzz(g.winner === g.me ? [100, 60, 100, 60, 300] : 80); }
+    if (!render.overBuzzed) { render.overBuzzed = true; buzz(g.winner === g.me ? [100, 60, 100, 60, 300] : 80); say(`${$('overTitle').textContent} ${g.how || ''}`); }
   }
   $('bAgain').onclick = () => { tap(); render.overBuzzed = false; postcard = null; send({t: 'again'}); };
   $('bReplay').onclick = () => { tap(); send({t: 'replay'}); };
@@ -1277,6 +1358,55 @@ html,body{background:radial-gradient(120% 70% at 50% 0%,#23525e 0%,#0c242c 55%,#
   async function wake() { try { if ('wakeLock' in navigator && !lock && !document.hidden) { lock = await navigator.wakeLock.request('screen'); lock.addEventListener('release', () => { lock = null; }); } } catch (e) { /* frivilligt */ } }
   document.addEventListener('pointerdown', () => { unlockAudio(); wake(); }, {once: true});
 
+  /* ---------- Uppläsning för den som inte kan läsa än ---------- */
+  // Allt som kommer till mobilen kan läsas upp med telefonens svenska röst. Hemligheter läses aldrig upp automatiskt.
+  const canSpeak = 'speechSynthesis' in window;
+  const SPEAKER = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor"/><path d="M16.5 8.5a5 5 0 010 7M19 6a8.5 8.5 0 010 12"/></svg>';
+  const clean = s => String(s || '').replace(/(\d)\s?kr\b/g, '$1 kronor').replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{2B50}\u{FE0F}\u{2713}]/gu, '').replace(/\s+/g, ' ').trim();
+  // Telefonens bästa svenska röst: naturliga, premium och förbättrade röster går före de äldre
+  const NATURAL = /natural|neural|online|premium|enhanced|förbättrad/i;
+  const voiceScore = v => (/natural|neural|online/i.test(v.name) ? 8 : 0) + (/premium/i.test(v.name) ? 7 : 0) + (/enhanced|förbättrad/i.test(v.name) ? 5 : 0) + (/google/i.test(v.name) ? 3 : 0) + (/compact|kompakt/i.test(v.name) ? -3 : 0) + (v.default ? .5 : 0);
+  const bestVoice = () => { try { return speechSynthesis.getVoices().filter(v => /^sv/i.test(v.lang)).sort((a, b) => voiceScore(b) - voiceScore(a))[0] || null; } catch (e) { return null; } };
+  const MOODS = {happy: [1.05, 1.14], sad: [.92, .92], normal: [.97, 1.05]};
+  const orList = list => list.length > 1 ? list.slice(0, -1).join(', ') + ' eller ' + list[list.length - 1] : list[0] || '';
+  function speak(text, queue, mood) {
+    if (!canSpeak || !clean(text)) return;
+    try {
+      if (!queue) speechSynthesis.cancel();
+      const u = new SpeechSynthesisUtterance(clean(text)), v = bestVoice(), [rate, pitch] = MOODS[mood] || MOODS.normal, k = v && NATURAL.test(v.name) ? .45 : 1;
+      u.lang = v ? v.lang : 'sv-SE';
+      if (v) u.voice = v;
+      u.rate = 1 + (rate - 1) * k; u.pitch = 1 + (pitch - 1) * k;
+      speechSynthesis.speak(u);
+    } catch (e) { /* uppläsning är frivillig */ }
+  }
+  // Automatiskt bara om spelaren har valt det. Det som kommer tätt läggs i kö i stället för att avbryta.
+  const say = (text, mood) => { if (profile.read) speak(text, true, mood); };
+  function offerText(s) {
+    if (s.type === 'actions') return `${s.title} ${s.sub || ''} ${orList(s.acts.map(a => a.label))}.`;
+    if (s.type === 'dest') { const cities = s.opts.filter(o => o.city && !o.back).map(o => o.label); return `${s.title} ${cities.length ? 'Du kan gå till ' + orList(cities) + '.' : 'Tryck på en ring på kartan.'}`; }
+    if (s.type === 'quiz') return `${s.q} ${s.clue || ''} ${orList(s.options)}?`;
+    if (s.type === 'choose') return `${s.title} ${s.sub || ''} ${orList(s.options.map(o => o.label))}.`;
+    if (s.type === 'bid') return `${s.title}. Tryck på Bjud om du vill ha brickan.`;
+    return `${s.title || ''}. ${s.text || ''}`;
+  }
+  const tipText = t => `Tippa! ${t.q} ${orList(t.options)}?`;
+  function setRead(on) {
+    profile.read = on;
+    store.set('profile', profile);
+    ['readToggle', 'bRead'].forEach(id => $(id).setAttribute('aria-pressed', String(on)));
+    if (on) speak('Nu läser jag upp allt för dig.');
+    else if (canSpeak) speechSynthesis.cancel();
+  }
+  $('bRead').innerHTML = SPEAKER;
+  $('bRead').hidden = !canSpeak;
+  $('bRead').onclick = () => { tap(); setRead(!profile.read); };
+  $('readToggle').onclick = () => { tap(); setRead(!profile.read); };
+  ['readToggle', 'bRead'].forEach(id => $(id).setAttribute('aria-pressed', String(!!profile.read)));
+  if (!canSpeak) $('readToggle').parentElement.previousElementSibling.hidden = $('readToggle').parentElement.hidden = true;
+  // iPhone läser bara upp om det första ljudet kom från ett tryck
+  document.addEventListener('pointerdown', () => { if (profile.read && canSpeak) { try { const u = new SpeechSynthesisUtterance(' '); u.volume = 0; speechSynthesis.speak(u); } catch (e) { /* frivilligt */ } } }, {once: true});
+
   /* ---------- Småmeddelanden ---------- */
   let toastT = 0;
   function toast(title, text, svg) {
@@ -1300,7 +1430,7 @@ html,body{background:radial-gradient(120% 70% at 50% 0%,#23525e 0%,#0c242c 55%,#
     buzz(delta > 0 ? 30 : [60, 40, 60]);
   }
 
-  window.DJC = {state: () => st, offer: () => offer, tip: () => tip, send, dev: () => dev, connected: () => connected, throwDie, pickOffer, map: () => boardMap};
+  window.DJC = {state: () => st, offer: () => offer, tip: () => tip, send, dev: () => dev, connected: () => connected, throwDie, pickOffer, map: () => boardMap, offerText, setRead};
   connect();
 })();
 </script>
