@@ -1,6 +1,6 @@
 # Diamantjakten
 
-Ett familjespel i 3D om jakten på en försvunnen skatt, med kartor över Afrika, Sverige, Skandinavien, Europa och hela världen.
+Ett familjespel i 3D om jakten på en försvunnen skatt, med kartor över Afrika, Sverige, Skåne, Skandinavien, Europa och hela världen.
 
 Spela: öppna sidan i webbläsaren. På iPad och iPhone kan du välja *Dela → Lägg till på hemskärmen* så startar spelet som en app, även utan internet.
 
