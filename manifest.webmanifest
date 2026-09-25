@@ -1,7 +1,7 @@
 {
   "name": "Diamantjakten",
   "short_name": "Diamantjakten",
-  "description": "Familjespelet om jakten på diamanten i 3D, med kartor över Afrika, Sverige, Skandinavien och Europa.",
+  "description": "Familjespelet om jakten på diamanten i 3D, med kartor över Afrika, Sverige, Skandinavien, Europa och hela världen.",
   "lang": "sv",
   "start_url": "./",
   "scope": "./",

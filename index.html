@@ -608,7 +608,8 @@ body{background:radial-gradient(120% 90% at 50% 20%,#1d4652 0%,#0c222a 60%,#0613
 /* ---------- Nytt spel och lobbyn ---------- */
 .setup-screen,.workshop-screen{background:radial-gradient(ellipse at 50% 40%,rgba(6,20,26,.25),rgba(3,10,13,.8))}
 .setup{padding:20px 24px}
-.maps{gap:14px;grid-template-columns:repeat(4,minmax(0,1fr))}
+.maps{gap:14px;grid-template-columns:repeat(5,minmax(0,1fr))}
+@media (max-width:1400px){.maps{grid-template-columns:repeat(3,minmax(0,1fr))}}
 .map-card small{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
 @media (max-width:1100px){.maps{grid-template-columns:repeat(2,minmax(0,1fr))}}
 .map-card{padding:0;border:0;border-radius:20px;overflow:hidden;display:grid;grid-template-columns:1fr;grid-template-rows:auto auto;align-items:stretch;gap:0;text-align:left;color:var(--cream);
@@ -814,7 +815,7 @@ body{background:radial-gradient(120% 90% at 50% 20%,#1d4652 0%,#0c222a 60%,#0613
           <g clip-path="url(#lgClip)"><rect class="lg-sweep" x="-260" y="120" width="200" height="170" fill="url(#lgSweep)"/></g>
         </svg>
       </h1>
-      <p class="tagline"><span>Jaga skatten i Afrika, Sverige, Skandinavien och Europa</span></p>
+      <p class="tagline"><span>Jaga skatten i Afrika, Sverige, Skandinavien, Europa och hela världen</span></p>
       <p class="bday-banner" id="bdayBanner" hidden></p>
       <div class="menu title-menu">
         <button id="bContinue" class="btn big blue" type="button" hidden>Fortsätt spelet</button>
@@ -1209,9 +1210,12 @@ function loadImage(src) {
 /* ================= Kartor, figurer och teman ================= */
 // Varje karta registreras i MAPS av sin egen fil (01a-, 01b-, 01c-).
 const MAPS = {};
-const MAP_ORDER = ['afrika', 'sverige', 'norden', 'europa'];
+// Kartor som inte är klara än visas inte i spelet (och deras bilder följer inte med i bygget, se tools/build-game.mjs)
+const HIDDEN_MAPS = ['varlden'];
+const MAP_ORDER = ['afrika', 'sverige', 'norden', 'europa', 'varlden'].filter(id => !HIDDEN_MAPS.includes(id));
 
 const COST = {flip: 1000, boat: 1000, air: 3000, start: 5000};
+const CONTINENTS = {europa: 'Europa', afrika: 'Afrika', asien: 'Asien', oceanien: 'Oceanien', nordamerika: 'Nordamerika', sydamerika: 'Sydamerika'};
 
 // Brickornas regler är desamma på alla kartor. Namn, värden och bilder kommer från kartans tema.
 const TOKEN_KINDS = ['star', 'gem1', 'gem2', 'gem3', 'pass', 'thief', 'blank'];
@@ -1234,6 +1238,15 @@ const THEMES = {
     thief: {name: 'Troll', the: 'Trollet', effect: 'Trollet tar alla dina pengar.'},
     blank: {name: 'Tom bricka', effect: 'Ingenting händer.'}
   },
+  varlden: {
+    star: {name: 'Regnbågsdiamanten', short: 'diamanten', effect: 'Målet! Ta den till en startstad.'},
+    gem1: {name: 'Rubin', a: 'en rubin', value: 5000, effect: 'Säljs direkt för 5 000 kr.'},
+    gem2: {name: 'Smaragd', a: 'en smaragd', value: 4000, effect: 'Säljs direkt för 4 000 kr.'},
+    gem3: {name: 'Topas', a: 'en topas', value: 3000, effect: 'Säljs direkt för 3 000 kr.'},
+    pass: {name: 'Visum', a: 'ett visum', effect: 'Räcker för att vinna när diamanten är hittad.'},
+    thief: {name: 'Rövare', the: 'Rövaren', effect: 'Tar alla dina pengar.'},
+    blank: {name: 'Tom bricka', effect: 'Ingenting händer.'}
+  },
   europa: {
     star: {name: 'Den blå diamanten', short: 'diamanten', effect: 'Målet! Ta den till en startstad.'},
     gem1: {name: 'Rubin', a: 'en rubin', value: 5000, effect: 'Säljs direkt för 5 000 kr.'},
@@ -1254,7 +1267,9 @@ const TRAPS = {
   moose: {name: 'Älgar', caught: 'stoppades av en älgflock', stuck: 'bakom älgarna'},
   viking: {name: 'Vikingar', caught: 'blev tagen av vikingar', stuck: 'hos vikingarna'},
   fog: {name: 'Dimma', caught: 'gick vilse i dimman', stuck: 'i dimman'},
-  strike: {name: 'Tågstrejk', caught: 'fastnade i en tågstrejk', stuck: 'i tågstrejken'}
+  strike: {name: 'Tågstrejk', caught: 'fastnade i en tågstrejk', stuck: 'i tågstrejken'},
+  sandstorm: {name: 'Sandstorm', caught: 'fastnade i en sandstorm', stuck: 'i sandstormen'},
+  snake: {name: 'Jätteorm', caught: 'blev stoppad av en jätteorm i djungeln', stuck: 'hos jätteormen'}
 };
 
 // Inbyggda figurer (3D-pjäser). Egna pjäser från verkstaden läggs till vid sidan av.
@@ -1826,7 +1841,42 @@ const FACTS = {
   santorini: 'Santorini är en ö som bildats av en vulkan. Husen är vitkalkade och många kyrkor har blå kupoler.',
   istanbul: 'Istanbul ligger i både Europa och Asien. Sundet Bosporen skiljer världsdelarna åt.',
   bukarest: 'Bukarest är Rumäniens huvudstad. Här ligger parlamentspalatset, ett av världens största hus.',
-  belgrad: 'Belgrad är Serbiens huvudstad. Staden ligger där floderna Donau och Sava flyter ihop.'
+  belgrad: 'Belgrad är Serbiens huvudstad. Staden ligger där floderna Donau och Sava flyter ihop.',
+  // Världen
+  newyork: 'I New Yorks hamn står Frihetsgudinnan, en gåva från Frankrike. Mitt bland skyskraporna ligger Central Park, en jättestor park.',
+  moskva: 'Mitt i Moskva ligger Röda torget och Kreml. Där står en kyrka med färgglada lökkupoler som ser ut som godis.',
+  reykjavik: 'Reykjavik på Island är världens nordligaste huvudstad. Varmt vatten från jorden värmer upp husen och badhusen.',
+  dubai: 'I Dubai står Burj Khalifa, världens högsta byggnad. Den är över 800 meter hög.',
+  samarkand: 'Samarkand låg på Sidenvägen, där karavaner med kameler fraktade siden och kryddor mellan Kina och Europa.',
+  mumbai: 'Mumbai är Indiens största stad. Här görs massor av filmer, i det som kallas Bollywood.',
+  delhi: 'Delhi är Indiens huvudstad. En bit bort ligger Taj Mahal, ett vitt marmorbygge som en kejsare lät bygga till minne av sin fru.',
+  kathmandu: 'Kathmandu är huvudstad i Nepal, vid foten av Himalaya. I Nepal ligger Mount Everest, världens högsta berg.',
+  bangkok: 'I Bangkok åker man båt på kanalerna och handlar på flytande marknader, där säljarna sitter i sina båtar.',
+  singapore: 'Singapore är både en stad och ett land. Symbolen är Merlion, som är hälften lejon och hälften fisk.',
+  peking: 'Peking är Kinas huvudstad. Norr om staden går Kinesiska muren, som är tusentals kilometer lång.',
+  shanghai: 'Shanghai är en av världens största städer. Här går ett snabbtåg som svävar fram på magneter.',
+  tokyo: 'Tokyo är Japans huvudstad. Därifrån går snabbtåget Shinkansen i över 300 kilometer i timmen.',
+  ulanbator: 'Ulan Bator är huvudstad i Mongoliet. Många mongoler bor i runda tält som kallas jurtor.',
+  irkutsk: 'Irkutsk ligger nära Bajkalsjön, världens djupaste sjö. Den är över 1 600 meter djup och fryser till is på vintern.',
+  darwin: 'I Darwin i norra Australien lever saltvattenkrokodiler, världens största krokodiler.',
+  perth: 'Perth är en av världens mest avlägsna storstäder. På en ö utanför bor quokkan, ett litet djur som ser ut att le.',
+  uluru: 'Uluru är ett jättestort rött berg mitt i Australiens öken. Det är heligt för ursprungsbefolkningen och skiftar färg när solen går ner.',
+  sydney: 'I Sydney ligger operahuset, vars tak ser ut som vita segel. I Australien lever kängurur och koalor.',
+  auckland: 'Auckland är Nya Zeelands största stad. I Nya Zeeland lever kiwin, en fågel som inte kan flyga.',
+  chicago: 'I Chicago byggdes en av världens första skyskrapor. Staden ligger vid Michigansjön, en av de fem Stora sjöarna.',
+  losangeles: 'I Los Angeles ligger Hollywood, där många filmer spelas in. På en kulle står en jättestor skylt med bokstäverna HOLLYWOOD.',
+  vancouver: 'Vancouver i Kanada ligger mellan berg och hav. I parkerna står höga totempålar som ursprungsbefolkningen har snidat.',
+  anchorage: 'Anchorage är Alaskas största stad. Ibland går älgar rakt genom stan, och på vintern kan man se norrsken.',
+  mexiko: 'Mexico City är byggd där det en gång låg en sjö. Här hade aztekerna sin huvudstad, och i närheten finns stora pyramider.',
+  havanna: 'I Havanna på Kuba kör gamla amerikanska bilar från 1950-talet fortfarande omkring på gatorna.',
+  nuuk: 'Nuuk är huvudstad på Grönland, världens största ö. Det mesta av Grönland är täckt av is som är flera kilometer tjock.',
+  honolulu: 'Honolulu ligger på Hawaii, öar som vulkaner har byggt upp mitt i Stilla havet. Hawaii är känt för sina höga vågor och surfare.',
+  bogota: 'Bogotá ligger högt uppe i Anderna, över 2 600 meter över havet. Här finns ett museum fullt av gamla guldföremål.',
+  lima: 'Lima är huvudstad i Peru. Uppe i bergen ligger Machu Picchu, en gammal inkastad byggd på en bergstopp.',
+  manaus: 'Manaus ligger mitt i Amazonas regnskog, där två stora floder möts. I floderna simmar rosa floddelfiner.',
+  rio: 'I Rio de Janeiro står en jättestor Kristusstaty på ett berg. Varje år firas en av världens största karnevaler här.',
+  buenosaires: 'Buenos Aires är huvudstad i Argentina. Här föddes dansen tango.',
+  ushuaia: 'Ushuaia kallas världens sydligaste stad. Härifrån åker båtar till Antarktis, där pingvinerna bor.'
 };
 
 /* ---- 01e-map-europa.js ---- */
@@ -2004,6 +2054,189 @@ MAPS.europa = {
   }
 };
 
+/* ---- 01f-map-varlden.js ---- */
+/* ================= Karta: Världen ================= */
+// Koordinater som [longitud, latitud]. Vägar: [från, till, mellanpunkter, fälla]. cont = världsdel (för frågesporten och uppdragen).
+MAPS.varlden = {
+  id: 'varlden',
+  name: 'Världen',
+  theme: 'varlden',
+  treasureShort: 'diamanten',
+  treasure: 'Regnbågsdiamanten',
+  blurb: 'Regnbågsdiamanten är borta! Res jorden runt med tåg, båt och flyg, från Stockholm och New York till Sydney och Rio.',
+  projection: {type: 'natearth', lon0: 10, fit: [[-168, 0], [178, 0], [10, 72], [10, -56]], long: 1800, margin: 20},
+  look: {sea: ['#16476b', '#246a93', '#56a3c2'], land: '#93b264', other: '#c3b999', label: '#233020', halo: '#f8f3df', table: 'wood'},
+  tokens: {star: 1, gem1: 3, gem2: 4, gem3: 5, pass: 4, thief: 4},
+  cities: [
+    {id: 'stockholm', name: 'Stockholm', ll: [18.07, 59.33], start: true, cont: 'europa'},
+    {id: 'newyork', name: 'New York', ll: [-74.01, 40.71], start: true, cont: 'nordamerika'},
+    {id: 'london', name: 'London', ll: [-0.13, 51.51], cont: 'europa'},
+    {id: 'paris', name: 'Paris', ll: [2.35, 48.86], cont: 'europa'},
+    {id: 'rom', name: 'Rom', ll: [12.50, 41.90], cont: 'europa'},
+    {id: 'moskva', name: 'Moskva', ll: [37.62, 55.76], cont: 'europa'},
+    {id: 'istanbul', name: 'Istanbul', ll: [28.98, 41.01], cont: 'europa'},
+    {id: 'reykjavik', name: 'Reykjavik', ll: [-21.94, 64.15], cont: 'europa'},
+    {id: 'kairo', name: 'Kairo', ll: [31.24, 30.04], cont: 'afrika'},
+    {id: 'marrakech', name: 'Marrakech', ll: [-7.99, 31.63], cont: 'afrika'},
+    {id: 'dakar', name: 'Dakar', ll: [-17.47, 14.72], cont: 'afrika'},
+    {id: 'lagos', name: 'Lagos', ll: [3.38, 6.52], cont: 'afrika'},
+    {id: 'kinshasa', name: 'Kinshasa', ll: [15.27, -4.44], cont: 'afrika'},
+    {id: 'nairobi', name: 'Nairobi', ll: [36.82, -1.29], cont: 'afrika'},
+    {id: 'kapstaden', name: 'Kapstaden', ll: [18.42, -33.92], cont: 'afrika'},
+    {id: 'madagaskar', name: 'Madagaskar', ll: [47.52, -18.88], cont: 'afrika'},
+    {id: 'dubai', name: 'Dubai', ll: [55.27, 25.20], cont: 'asien'},
+    {id: 'samarkand', name: 'Samarkand', ll: [66.96, 39.65], cont: 'asien'},
+    {id: 'mumbai', name: 'Mumbai', ll: [72.88, 19.08], cont: 'asien'},
+    {id: 'delhi', name: 'Delhi', ll: [77.21, 28.61], cont: 'asien'},
+    {id: 'kathmandu', name: 'Kathmandu', ll: [85.32, 27.72], cont: 'asien'},
+    {id: 'bangkok', name: 'Bangkok', ll: [100.50, 13.76], cont: 'asien'},
+    {id: 'singapore', name: 'Singapore', ll: [103.82, 1.35], cont: 'asien'},
+    {id: 'peking', name: 'Peking', ll: [116.40, 39.90], cont: 'asien'},
+    {id: 'shanghai', name: 'Shanghai', ll: [121.47, 31.23], cont: 'asien'},
+    {id: 'tokyo', name: 'Tokyo', ll: [139.69, 35.69], cont: 'asien'},
+    {id: 'ulanbator', name: 'Ulan Bator', ll: [106.91, 47.89], cont: 'asien'},
+    {id: 'irkutsk', name: 'Irkutsk', ll: [104.28, 52.29], cont: 'asien'},
+    {id: 'darwin', name: 'Darwin', ll: [130.84, -12.46], cont: 'oceanien'},
+    {id: 'perth', name: 'Perth', ll: [115.86, -31.95], cont: 'oceanien'},
+    {id: 'uluru', name: 'Uluru', ll: [131.04, -25.34], cont: 'oceanien'},
+    {id: 'sydney', name: 'Sydney', ll: [151.21, -33.87], cont: 'oceanien'},
+    {id: 'auckland', name: 'Auckland', ll: [174.76, -36.85], cont: 'oceanien'},
+    {id: 'chicago', name: 'Chicago', ll: [-87.63, 41.88], cont: 'nordamerika'},
+    {id: 'losangeles', name: 'Los Angeles', ll: [-118.24, 34.05], cont: 'nordamerika'},
+    {id: 'vancouver', name: 'Vancouver', ll: [-123.12, 49.28], cont: 'nordamerika'},
+    {id: 'anchorage', name: 'Anchorage', ll: [-149.90, 61.22], cont: 'nordamerika'},
+    {id: 'mexiko', name: 'Mexico City', ll: [-99.13, 19.43], cont: 'nordamerika'},
+    {id: 'havanna', name: 'Havanna', ll: [-82.38, 23.13], cont: 'nordamerika'},
+    {id: 'nuuk', name: 'Nuuk', ll: [-51.72, 64.18], cont: 'nordamerika'},
+    {id: 'honolulu', name: 'Honolulu', ll: [-157.86, 21.31], cont: 'oceanien'},
+    {id: 'bogota', name: 'Bogotá', ll: [-74.07, 4.71], cont: 'sydamerika'},
+    {id: 'lima', name: 'Lima', ll: [-77.04, -12.05], cont: 'sydamerika'},
+    {id: 'manaus', name: 'Manaus', ll: [-60.02, -3.12], cont: 'sydamerika'},
+    {id: 'rio', name: 'Rio de Janeiro', ll: [-43.17, -22.91], cont: 'sydamerika'},
+    {id: 'buenosaires', name: 'Buenos Aires', ll: [-58.38, -34.60], cont: 'sydamerika'},
+    {id: 'ushuaia', name: 'Ushuaia', ll: [-68.30, -54.80], cont: 'sydamerika'}
+  ],
+  land: [
+    // Europa
+    ['stockholm', 'moskva', [[22.5, 60.4], [27.5, 60.2], [31.5, 58.6], [34.8, 56.9]]],
+    ['stockholm', 'paris', [[14.2, 56.6], [10.8, 54.9], [8.4, 52.4], [5.2, 50.4]]],
+    ['london', 'paris', [[1.2, 50.6]]],
+    ['paris', 'rom', [[5.6, 46.3], [8.8, 45.1], [11.0, 43.6]]],
+    ['rom', 'istanbul', [[16.5, 41.4], [20.2, 41.6], [24.6, 41.2]]],
+    ['moskva', 'istanbul', [[36.0, 51.6], [32.0, 48.0], [28.8, 45.2], [27.9, 42.8]]],
+    ['paris', 'marrakech', [[0.2, 45.0], [-3.6, 40.6], [-5.6, 36.2], [-6.9, 33.9]]],
+    ['istanbul', 'kairo', [[33.2, 38.6], [36.3, 35.6], [35.1, 32.2]]],
+    ['moskva', 'samarkand', [[45.5, 51.6], [55.2, 47.2], [61.8, 42.8]]],
+    ['moskva', 'irkutsk', [[50.5, 56.4], [61.5, 56.8], [73.5, 55.8], [84.5, 55.6], [95.5, 55.9]], 'storm'],
+    // Afrika
+    ['kairo', 'marrakech', [[24.2, 28.2], [15.0, 28.4], [5.0, 29.6], [-2.6, 31.2]], 'sandstorm'],
+    ['marrakech', 'dakar', [[-11.4, 27.4], [-14.6, 21.6]], 'bandit'],
+    ['dakar', 'lagos', [[-11.6, 10.6], [-4.4, 8.2]]],
+    ['lagos', 'kinshasa', [[8.8, 3.6], [12.4, -0.8]]],
+    ['kairo', 'nairobi', [[32.4, 21.6], [33.4, 12.2], [36.6, 5.4]]],
+    ['kinshasa', 'nairobi', [[22.4, -2.4], [29.6, -1.4]], 'snake'],
+    ['kinshasa', 'kapstaden', [[15.2, -12.4], [15.8, -21.6], [17.4, -28.6]]],
+    ['nairobi', 'kapstaden', [[35.2, -10.2], [30.6, -19.6], [25.8, -28.0]]],
+    // Asien
+    ['kairo', 'dubai', [[37.2, 29.4], [45.0, 25.6], [50.6, 24.6]], 'sandstorm'],
+    ['istanbul', 'dubai', [[39.8, 37.4], [45.6, 32.6], [50.6, 28.2]]],
+    ['dubai', 'samarkand', [[58.2, 29.6], [62.2, 34.8]]],
+    ['samarkand', 'delhi', [[70.2, 36.4], [73.8, 32.2]], 'storm'],
+    ['delhi', 'mumbai', [[75.2, 24.2]]],
+    ['delhi', 'kathmandu', [[81.0, 28.2]]],
+    ['kathmandu', 'peking', [[94.4, 31.4], [104.6, 34.6], [111.8, 37.8]], 'storm'],
+    ['delhi', 'bangkok', [[88.2, 24.2], [95.8, 19.6]], 'snake'],
+    ['bangkok', 'singapore', [[100.8, 7.2]]],
+    ['bangkok', 'shanghai', [[107.6, 22.0], [115.2, 26.2]]],
+    ['peking', 'shanghai', [[118.0, 35.2]]],
+    ['peking', 'ulanbator', [[111.4, 43.8]], 'sandstorm'],
+    ['ulanbator', 'irkutsk', [[106.2, 50.2]]],
+    // Oceanien
+    ['darwin', 'uluru', [[132.2, -18.8]]],
+    ['uluru', 'perth', [[124.0, -28.6], [119.2, -31.0]], 'sandstorm'],
+    ['uluru', 'sydney', [[138.8, -29.6], [146.4, -32.4]]],
+    // Nordamerika
+    ['newyork', 'chicago', [[-80.4, 41.4]]],
+    ['chicago', 'vancouver', [[-99.8, 48.6], [-112.8, 50.6]], 'storm'],
+    ['chicago', 'losangeles', [[-97.0, 37.8], [-108.4, 35.6]]],
+    ['vancouver', 'losangeles', [[-122.8, 43.6], [-121.2, 38.4]]],
+    ['vancouver', 'anchorage', [[-130.4, 56.4], [-140.6, 60.4]], 'moose'],
+    ['losangeles', 'mexiko', [[-111.6, 30.2], [-104.2, 23.8]]],
+    ['mexiko', 'bogota', [[-90.4, 15.2], [-83.4, 9.8], [-77.8, 7.6]], 'snake'],
+    // Sydamerika
+    ['bogota', 'lima', [[-78.2, -0.4], [-79.2, -6.2]]],
+    ['bogota', 'manaus', [[-69.8, 1.8], [-64.8, -1.4]], 'snake'],
+    ['manaus', 'rio', [[-52.4, -8.2], [-46.4, -15.2]]],
+    ['lima', 'buenosaires', [[-68.4, -17.8], [-63.4, -27.6]]],
+    ['rio', 'buenosaires', [[-48.8, -26.8], [-54.6, -31.6]]],
+    ['buenosaires', 'ushuaia', [[-63.4, -40.2], [-67.4, -47.4]], 'storm']
+  ],
+  sea: [
+    ['london', 'reykjavik', [[-3.6, 54.8], [-12.4, 60.4]], 'fog'],
+    ['reykjavik', 'nuuk', [[-33.6, 62.6], [-44.2, 61.2]]],
+    ['nuuk', 'newyork', [[-54.2, 57.6], [-60.4, 49.4], [-67.2, 43.2]]],
+    ['rom', 'kairo', [[16.6, 37.4], [24.4, 33.8], [29.4, 31.6]], 'pirate'],
+    ['dakar', 'rio', [[-26.4, 5.2], [-33.6, -6.8], [-38.4, -16.2]]],
+    ['dubai', 'mumbai', [[59.6, 23.4], [66.4, 21.2]]],
+    ['nairobi', 'madagaskar', [[41.8, -4.6], [45.6, -11.4]]],
+    ['kapstaden', 'madagaskar', [[26.8, -36.2], [38.6, -30.2], [44.6, -24.2]]],
+    ['singapore', 'darwin', [[110.6, -4.2], [121.4, -8.6]], 'pirate'],
+    ['singapore', 'perth', [[106.2, -12.4], [110.4, -24.6]]],
+    ['shanghai', 'tokyo', [[127.4, 31.6], [133.6, 33.2]]],
+    ['sydney', 'auckland', [[160.2, -35.6], [168.2, -36.8]]],
+    ['newyork', 'havanna', [[-74.6, 35.2], [-78.2, 29.4], [-80.6, 25.2]]],
+    ['havanna', 'bogota', [[-78.6, 18.4], [-76.2, 12.8]], 'pirate'],
+    ['losangeles', 'honolulu', [[-128.6, 30.2], [-143.2, 24.6]]]
+  ],
+  air: [['stockholm', 'newyork'], ['moskva', 'peking'], ['dubai', 'singapore'], ['tokyo', 'sydney'], ['kapstaden', 'rio'], ['newyork', 'losangeles'], ['paris', 'kairo'], ['delhi', 'nairobi'], ['stockholm', 'dubai'], ['newyork', 'rio']],
+  specials: {
+    double: {kapstaden: 'Diamantgruvan i Kimberley'},
+    bonus: {dubai: {amount: 5000, text: 'Guldmarknaden i Dubai'}, honolulu: {amount: 3000, text: 'Surfsemester på Hawaii'}},
+    extra: {rio: 'Karnevalen i Rio'}
+  },
+  labels: [
+    {text: 'NORDAMERIKA', ll: [-100, 58], size: 22, kind: 'country'},
+    {text: 'SYDAMERIKA', ll: [-60, -11], size: 15, kind: 'country'},
+    {text: 'EUROPA', ll: [26, 66], size: 15, kind: 'country'},
+    {text: 'AFRIKA', ll: [18, 18], size: 22, kind: 'country'},
+    {text: 'ASIEN', ll: [92, 62], size: 26, kind: 'country'},
+    {text: 'OCEANIEN', ll: [122, -20.5], size: 13, kind: 'country'},
+    {text: 'ATLANTEN', ll: [-38, 28], size: 22, kind: 'ocean'},
+    {text: 'STILLA HAVET', ll: [-135, 8], size: 22, kind: 'ocean'},
+    {text: 'INDISKA OCEANEN', ll: [78, -18], size: 20, kind: 'ocean'},
+    {text: 'NORRA ISHAVET', ll: [60, 71], size: 14, kind: 'ocean'}
+  ],
+  compass: [-125, -40],
+  geo: {
+    source: 'ne',
+    // Berg: [lon, lat, bredd i km, höjd]
+    ridge: [
+      [78, 33.5, 540, .7], [82, 30.8, 510, .82], [86.5, 28.6, 480, .9], [90.5, 28.2, 440, .8], [94.5, 28.8, 420, .6],
+      [86, 33.5, 1500, .36], [94, 33.2, 1200, .34], [72, 37, 600, .55], [68.5, 35, 500, .4], [79, 42, 700, .38], [88, 49, 700, .3],
+      [7.6, 46.2, 400, .42], [11, 46.8, 400, .38], [44, 42.8, 440, .42], [50.5, 32, 540, .3], [59, 55, 340, .22], [60, 63, 340, .22],
+      [-5, 31.8, 540, .34], [38.5, 9.5, 880, .34], [36.8, -2.5, 510, .25], [29, -29.5, 440, .25], [14, 64, 440, .3], [9, 61.5, 400, .3],
+      [-106, 39, 880, .46], [-110.5, 44, 880, .42], [-115.5, 50, 780, .42], [-122, 56.5, 780, .38], [-139, 61, 710, .42], [-150, 63, 610, .42],
+      [-104, 24, 710, .3], [-80.5, 37.5, 540, .18],
+      [-75, 5.5, 510, .42], [-78.2, -2, 510, .5], [-76.4, -10, 510, .5], [-70.5, -16, 710, .56], [-68, -23, 540, .54], [-70, -31, 440, .54], [-71.4, -40, 410, .42], [-72.6, -48, 410, .38],
+      [148.6, -30, 440, .2], [146.6, -36.6, 370, .22], [138, 36.2, 370, .3], [135, 62, 1220, .25], [-42, 68, 1000, .4]
+    ],
+    peaks: [[86.9, 28.0, 90, .8], [76.5, 35.9, 80, .7], [37.35, -3.07, 80, .55], [-70.0, -32.65, 80, .65], [-151.0, 63.07, 80, .6], [6.86, 45.83, 60, .45], [42.4, 43.35, 60, .45], [138.7, 35.36, 50, .35]],
+    // Landskapstyper som stora mjuka fält: [lon, lat, rx km, ry km, färg]
+    fields: [
+      [10, 23, 2300, 820, '#e8d196'], [-6, 22, 900, 700, '#e8d196'], [25, 22, 900, 720, '#ead39a'], [5, 13.5, 2600, 480, '#cdbf6c'],
+      [48, 22, 950, 650, '#e9cf92'], [58, 30, 620, 420, '#dcc890'], [71, 27, 320, 220, '#dcc68e'], [62, 43, 950, 420, '#d9cf93'],
+      [105, 43, 950, 360, '#dccd97'], [83, 39, 620, 260, '#e3cf95'], [88, 33, 950, 320, '#b8ae86'],
+      [21, -23, 620, 520, '#dcc58a'], [36, 1, 700, 850, '#bcc06a'], [22, -1, 1150, 620, '#3f8a46'],
+      [-62, -5, 1750, 950, '#3a8744'], [102, 8, 800, 700, '#43904a'], [115, -2, 1250, 420, '#43904a'],
+      [127, -25, 1450, 780, '#d99a5b'], [-113, 34, 520, 420, '#dcc28c'], [-100, 41, 700, 520, '#c9c77f'],
+      [-70, -24, 160, 720, '#dcc49a'], [-69, -45, 420, 620, '#b9b682'], [-43, 67, 650, 1000, '#eef3f4'], [-45, 62.5, 320, 380, '#eef3f4']
+    ],
+    heathNorth: 66.0,
+    forest: 0.45
+  },
+  decor: {landmarks: [], ships: [], walkers: [], statics: []}
+};
+
 /* ---- 02-geo.js ---- */
 /* ================= Geometri: projektion, vägnät och namnskyltar ================= */
 // Allt här är ren beräkning utan webbläsare, så att samma kod kan köras av byggverktygen i Node.
@@ -2013,6 +2246,7 @@ function makeProjection(map) {
   if (pr.type === 'equirect') {
     return {W: pr.w, H: pr.h, P: (lon, lat) => [(lon - pr.lon0) * pr.k, (pr.lat0 - lat) * pr.k], km: 111.32 / pr.k};
   }
+  if (pr.type === 'natearth') return natEarthProjection(pr);
   // Lamberts konforma koniska projektion (sfärisk). Meridianerna lutar lite, precis som på en riktig karta.
   const r = Math.PI / 180, f1 = pr.lat1 * r, f2 = pr.lat2 * r, f0 = pr.latOrigin * r;
   const t = f => Math.tan(Math.PI / 4 + f / 2);
@@ -2028,6 +2262,24 @@ function makeProjection(map) {
   const s = (pr.long - 2 * pr.margin) / Math.max(x1 - x0, y1 - y0);
   const W = Math.round((x1 - x0) * s + 2 * pr.margin), H = Math.round((y1 - y0) * s + 2 * pr.margin);
   return {W, H, P: (lon, lat) => { const [x, y] = raw(lon, lat); return [(x - x0) * s + pr.margin, (y1 - y) * s + pr.margin]; }, km: 6371 / s};
+}
+
+// Natural Earth-projektionen (Šavrič m.fl. 2011) för världskartan: rundade kanter och lagom stora kontinenter.
+// Longituden räknas från mittmeridianen lon0. Pl tar en redan "uppvecklad" longitud, så att en ö eller ett land
+// som korsar kartans kant hålls ihop i stället för att dras tvärs över kartan.
+function natEarthProjection(pr) {
+  const r = Math.PI / 180;
+  const raw = (l, lat) => {
+    const f = lat * r, lo = l * r, p2 = f * f, p4 = p2 * p2, p6 = p4 * p2, p8 = p4 * p4, p10 = p8 * p2, p12 = p6 * p6;
+    return [lo * (0.870700 - 0.131979 * p2 - 0.013791 * p4 + 0.003971 * p10 - 0.001529 * p12), f * (1.007226 + 0.015085 * p2 - 0.044475 * p6 + 0.028874 * p8 - 0.005916 * p10)];
+  };
+  const wrap = lon => { const l = lon - pr.lon0; return ((l % 360) + 540) % 360 - 180; };
+  let x0 = Infinity, x1 = -Infinity, y0 = Infinity, y1 = -Infinity;
+  pr.fit.forEach(([lo, la]) => { const [x, y] = raw(wrap(lo), la); x0 = Math.min(x0, x); x1 = Math.max(x1, x); y0 = Math.min(y0, y); y1 = Math.max(y1, y); });
+  const s = (pr.long - 2 * pr.margin) / Math.max(x1 - x0, y1 - y0);
+  const W = Math.round((x1 - x0) * s + 2 * pr.margin), H = Math.round((y1 - y0) * s + 2 * pr.margin);
+  const Pl = (l, lat) => { const [x, y] = raw(l, lat); return [(x - x0) * s + pr.margin, (y1 - y) * s + pr.margin]; };
+  return {W, H, P: (lon, lat) => Pl(wrap(lon), lat), Pl, wrap, km: 6371 / (s * 0.8707)};
 }
 
 function splineSample(pts, per) {
@@ -2457,9 +2709,29 @@ const Sound = (() => {
     const nd = noiseBuf.getChannelData(0); for (let i = 0; i < nd.length; i++) nd[i] = Math.random() * 2 - 1;
     A.setVolumes();
     setInterval(schedule, 25);
+    // iPhone och iPad kan pausa ljudet (uppläsning, samtal, andra appar). Då försöker vi väcka det igen.
+    ctx.onstatechange = () => { if (ctx.state !== 'running' && ctx.state !== 'closed') { clearTimeout(wakeT); wakeT = setTimeout(A.restore, 700); } };
     return ctx;
   }
-  A.unlock = () => { try { ensure(); } catch (e) { /* ljud är valfritt */ } };
+  let wakeT = 0, speechPrimed = false;
+  // Anropas vid varje tryck: iPhone och iPad släpper bara fram ljud (och uppläsning) som startas av ett tryck
+  A.unlock = () => {
+    try {
+      ensure();
+      if (ctx && ctx.state !== 'running') ctx.resume().catch(() => {});
+      Tracks.prime();
+      Tracks.kick();
+      if (Settings.voice && hasSpeech && !speechPrimed) { speechPrimed = true; const u = new SpeechSynthesisUtterance(' '); u.volume = 0; speechSynthesis.speak(u); }
+    } catch (e) { /* ljud är valfritt */ }
+  };
+  // Väck ljudet igen efter ett avbrott, utan att vänta på ett tryck (fungerar inte alltid på iPhone, då räcker nästa tryck)
+  A.restore = () => {
+    try {
+      if (ctx && ctx.state !== 'running' && ctx.state !== 'closed') ctx.resume().catch(() => {});
+      Tracks.kick();
+    } catch (e) { /* ljud är valfritt */ }
+  };
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) A.restore(); });
   A.setVolumes = () => {
     if (!ctx) return;
     if (Settings.music <= 0) Tracks.stop(); else Tracks.retry();
@@ -2552,9 +2824,9 @@ const Sound = (() => {
     }
   }
   let mapTheme = 'afrika';
-  A.setTheme = id => { mapTheme = id; if (['afrika', 'sverige', 'norden'].includes(id)) wantTheme = id; else if (id === 'europa') wantTheme = 'norden'; if (mood.want === 'game') Tracks.want(trackFor('game')); };
+  A.setTheme = id => { mapTheme = id; if (['afrika', 'sverige', 'norden'].includes(id)) wantTheme = id; else if (id === 'europa') wantTheme = 'norden'; else if (id === 'varlden') wantTheme = 'afrika'; if (mood.want === 'game') Tracks.want(trackFor('game')); };
   // Riktig musik (från Suno) när filen finns, annars spelas den egna musiken som skapas i webbläsaren
-  const trackFor = m => m === 'menu' ? (typeof Xmas !== 'undefined' && Xmas.on() && Tracks.has('jul') ? 'jul' : 'meny') : m === 'game' ? mapTheme : m === 'tension' ? 'spanning' : m === 'win' ? 'vinst' : null;
+  const trackFor = m => m === 'menu' ? (typeof Xmas !== 'undefined' && Xmas.on() && Tracks.has('jul') ? 'jul' : 'meny') : m === 'game' ? (Tracks.has(mapTheme) ? mapTheme : ({varlden: 'europa'})[mapTheme] || mapTheme) : m === 'tension' ? 'spanning' : m === 'win' ? 'vinst' : null;
   A.mood = m => {
     Tracks.want(trackFor(m));
     const pm = m === 'win' ? 'menu' : m;
@@ -2615,6 +2887,31 @@ const Sound = (() => {
     };
     T.stop = () => { if (!cur) return; cur = null; const d = deck[active]; if (d) { level(d, 0, 1.5); setTimeout(() => { if (!cur) d.a.pause(); }, 1800); } };
     T.retry = () => { if (wantKey && !cur) next(wantKey); };
+    // Spela ett kort tyst ljud i båda spelarna vid första trycket (iPhone kräver att varje spelare startas av ett tryck en gång)
+    let primed = false, silent = null;
+    function silentUrl() {
+      const n = 800, b = new Uint8Array(44 + n), v = new DataView(b.buffer), w = (o, str) => [...str].forEach((c, i) => { b[o + i] = c.charCodeAt(0); });
+      w(0, 'RIFF'); v.setUint32(4, 36 + n, true); w(8, 'WAVE'); w(12, 'fmt '); v.setUint32(16, 16, true); v.setUint16(20, 1, true); v.setUint16(22, 1, true);
+      v.setUint32(24, 8000, true); v.setUint32(28, 8000, true); v.setUint16(32, 1, true); v.setUint16(34, 8, true); w(36, 'data'); v.setUint32(40, n, true); b.fill(128, 44);
+      return URL.createObjectURL(new Blob([b], {type: 'audio/wav'}));
+    }
+    T.prime = () => {
+      if (primed || !files.length) return;
+      primed = true;
+      if (!deck.length) deck = [makeDeck(), makeDeck()];
+      silent = silent || silentUrl();
+      deck.forEach((d, k) => {
+        if (k === active && cur) return;
+        d.a.src = silent;
+        d.a.play().then(() => { if (d.a.src === silent) d.a.pause(); }).catch(() => {});
+      });
+    };
+    // Starta om musiken om den borde spela men har stannat (till exempel efter uppläsning på iPhone)
+    T.kick = () => {
+      const d = deck[active];
+      if (cur && d && d.a.paused && d.a.src !== silent) d.a.play().catch(() => {});
+      else if (wantKey && !cur && Settings.music > 0) next(wantKey);
+    };
     return T;
   })();
   A.tracks = Tracks;
@@ -2685,18 +2982,24 @@ const Sound = (() => {
     .replace(/(\d)\s?kr\b/g, '$1 kronor').replace(/\bkr\b/g, 'kronor')
     .replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{2B50}\u{FE0F}]/gu, '')
     .replace(/\s+/g, ' ').trim();
+  let speakT = 0;
   function utter(text, mood) {
     const t = spoken(text);
     if (!hasSpeech || !t) return;
     try {
-      speechSynthesis.cancel();
+      const busy = speechSynthesis.speaking || speechSynthesis.pending;
+      if (busy) speechSynthesis.cancel();
       const u = new SpeechSynthesisUtterance(t), v = voiceOf(), [rate, pitch] = MOODS[mood] || MOODS.normal;
       u.lang = v ? v.lang : 'sv-SE';
       if (v) u.voice = v;
       // De naturliga rösterna har redan liv i sig, där räcker en liten ändring av tempo och ton
       const k = v && NATURAL.test(v.name) ? .45 : 1;
       u.rate = 1 + (rate - 1) * k; u.pitch = 1 + (pitch - 1) * k;
-      speechSynthesis.speak(u);
+      u.onend = u.onerror = () => setTimeout(A.restore, 150);
+      speechPrimed = true;
+      clearTimeout(speakT);
+      if (busy) speakT = setTimeout(() => { try { speechSynthesis.speak(u); } catch (e) { /* frivilligt */ } }, 90);
+      else speechSynthesis.speak(u);
     } catch (e) { /* uppläsning är valfri */ }
   }
   // Läser upp oavsett inställning (när man trycker på en uppläsningsknapp)
@@ -2953,6 +3256,9 @@ const icon = (name, cls = 'ico') => `<svg class="${cls}" viewBox="0 0 24 24" fil
 
 /* ---------- Kartornas märken i menyn ---------- */
 const MAP_BADGES = {
+  varlden: '<svg viewBox="0 0 60 40" aria-hidden="true"><rect width="60" height="40" rx="6" fill="#0f5f8c"/><circle cx="30" cy="20" r="14" fill="#2f86c0" stroke="#fff6d8" stroke-width="2"/>'
+    + '<path d="M22,12C26,10 30,12 29,16C27,19 23,18 21,21C19,18 19,14 22,12ZM31,22C35,20 39,23 38,27C36,31 32,31 31,28C30,26 29,24 31,22ZM34,10C37,10 40,13 39,15C37,16 35,14 34,10Z" fill="#8cc267"/>'
+    + '<ellipse cx="30" cy="20" rx="14" ry="5.5" fill="none" stroke="#fff6d8" stroke-width="1" opacity=".55"/></svg>',
   europa: '<svg viewBox="0 0 60 40" aria-hidden="true"><rect width="60" height="40" rx="6" fill="#1f4fa8"/>' + Array.from({length: 12}, (_, i) => { const a = i / 12 * Math.PI * 2; return `<circle cx="${(30 + Math.cos(a) * 11).toFixed(1)}" cy="${(20 + Math.sin(a) * 11).toFixed(1)}" r="1.9" fill="#ffd200"/>`; }).join('') + '</svg>',
   afrika: '<svg viewBox="0 0 60 40" aria-hidden="true"><rect width="60" height="40" rx="6" fill="#2683a6"/><path d="M22,6C28,4 36,6 38,9C40,13 44,14 45,18C46,23 40,26 38,31C36,35 31,37 29,33C27,29 26,25 22,23C18,21 15,18 16,13C17,9 18,7 22,6Z" fill="#e9c46a" stroke="#8a6a2a" stroke-width="1.2"/><circle cx="31" cy="18" r="3" fill="#bff0ff" stroke="#2b98c0"/></svg>',
   sverige: '<svg viewBox="0 0 60 40" aria-hidden="true"><rect width="60" height="40" rx="6" fill="#006aa7"/><rect x="16" width="9" height="40" fill="#fecc00"/><rect y="15.5" width="60" height="9" fill="#fecc00"/></svg>',
@@ -6197,7 +6503,9 @@ const UI = (() => {
   U.bindSettings = () => {
     const upd = () => {
       Settings.music = +$('sMusic').value; Settings.sfx = +$('sSfx').value;
+      const voiceOn = !Settings.voice && $('sVoice').checked;
       Settings.voice = $('sVoice').checked; Settings.daynight = $('sDaynight').checked; Settings.follow = $('sFollow').checked;
+      if (voiceOn) Sound.speak('Nu läser jag upp vad som händer.', 'happy');
       Settings.quality = $('sFast').checked ? 'low' : 'auto';
       Settings.die3d = $('sDie3d').checked; Settings.dof = $('sDof').checked;
       Settings.coach = $('sCoach').checked; Settings.xmas = $('sXmas').value; Settings.voiceId = $('sVoiceId').value || null;
@@ -6601,7 +6909,7 @@ const Game = (() => {
   };
   // Tillsammans: så många rundor har laget på sig. Simuleringar (tools/sim-length.mjs) ger att laget hinner i ungefär
   // tre partier av fyra. Färre spelare vänder färre brickor per runda och får därför fler rundor.
-  const COOP = {short: {afrika: 13, sverige: 10, norden: 13, europa: 13}, normal: {afrika: 25, sverige: 20, norden: 23, europa: 25}}, COOP_F = {2: 1.8, 3: 1.3, 4: 1};
+  const COOP = {short: {afrika: 13, sverige: 10, norden: 13, europa: 13, varlden: 16}, normal: {afrika: 25, sverige: 20, norden: 23, europa: 25, varlden: 32}}, COOP_F = {2: 1.8, 3: 1.3, 4: 1};
   const coopLimit = (b, len, n) => Math.round((COOP[len === 'short' ? 'short' : 'normal'][b.map.id] || 20) * (COOP_F[n] || 1));
   const coopLabel = () => `Tillsammans: runda ${Math.min(G.round, G.coopLimit)} av ${G.coopLimit}`;
   // Kartan, äventyret och spelarna. Berättaren läser upp. Ett tryck eller en knapp hoppar över.
@@ -7833,7 +8141,7 @@ const Setup = (() => {
     });
   }
   function setMap(id) {
-    if (!MAPS[id] || cfg.mapId === id) return;
+    if (!MAP_ORDER.includes(id) || cfg.mapId === id) return;
     cfg.mapId = id;
     renderMaps(); renderSeats();
     Bus.emit('previewMap', id);
@@ -8055,8 +8363,9 @@ const Setup = (() => {
 // Passen sparas per spelarnamn och följer med mellan spelen.
 const Passport = (() => {
   const P = {};
-  const INK = {afrika: '#b83227', sverige: '#1f5fae', norden: '#1f7a55', europa: '#6a3fb5'};
+  const INK = {afrika: '#b83227', sverige: '#1f5fae', norden: '#1f7a55', europa: '#6a3fb5', varlden: '#0f7b8c'};
   const ICON = {
+    varlden: '<g fill="none" stroke="currentColor" stroke-width="2"><circle r="10"/><ellipse rx="4.6" ry="10"/><path d="M-10,0H10M-8.6,-5H8.6M-8.6,5H8.6"/></g>',
     europa: '<g fill="currentColor">' + Array.from({length: 8}, (_, i) => { const a = i / 8 * Math.PI * 2; return `<circle cx="${(Math.cos(a) * 8).toFixed(1)}" cy="${(Math.sin(a) * 8).toFixed(1)}" r="1.9"/>`; }).join('') + '</g>',
     afrika: '<path d="M0,-11C4,-11 7,-7 7,-2C7,4 0,11 0,11C0,11 -7,4 -7,-2C-7,-7 -4,-11 0,-11Z" fill="none" stroke="currentColor" stroke-width="2.4"/><circle r="2.8" fill="currentColor" cy="-2"/>',
     sverige: '<path d="M-10,5L-11,-6L-5,-1L0,-9L5,-1L11,-6L10,5Z" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/><path d="M-10,8H10" stroke="currentColor" stroke-width="2.4"/>',
@@ -8281,6 +8590,13 @@ const Quiz = (() => {
     venedig: 'Italien', milano: 'Italien', pisa: 'Italien', rom: 'Italien', neapel: 'Italien', palermo: 'Italien', dubrovnik: 'Kroatien',
     aten: 'Grekland', santorini: 'Grekland', istanbul: 'Turkiet', bukarest: 'Rumänien', belgrad: 'Serbien'
   });
+  Object.assign(COUNTRY, {
+    newyork: 'USA', chicago: 'USA', losangeles: 'USA', anchorage: 'USA', honolulu: 'USA', vancouver: 'Kanada', mexiko: 'Mexiko', havanna: 'Kuba',
+    moskva: 'Ryssland', irkutsk: 'Ryssland', reykjavik: 'Island', dubai: 'Förenade Arabemiraten', samarkand: 'Uzbekistan', mumbai: 'Indien', delhi: 'Indien',
+    kathmandu: 'Nepal', bangkok: 'Thailand', peking: 'Kina', shanghai: 'Kina', tokyo: 'Japan', ulanbator: 'Mongoliet',
+    darwin: 'Australien', perth: 'Australien', uluru: 'Australien', sydney: 'Australien', auckland: 'Nya Zeeland',
+    bogota: 'Colombia', lima: 'Peru', manaus: 'Brasilien', rio: 'Brasilien', buenosaires: 'Argentina', ushuaia: 'Argentina'
+  });
   const SWEDEN = ['stockholm', 'goteborg', 'malmo', 'kalmar', 'visby', 'jonkoping', 'karlstad', 'mora', 'sundsvall', 'ostersund', 'umea', 'lulea', 'kiruna'];
   SWEDEN.forEach(id => { COUNTRY[id] = 'Sverige'; });
   // På Sverigekartan frågas det om landskap i stället
@@ -8292,6 +8608,16 @@ const Quiz = (() => {
     storuman: 'Lappland', skelleftea: 'Västerbotten', lulea: 'Norrbotten', haparanda: 'Norrbotten', jokkmokk: 'Lappland', gallivare: 'Lappland',
     kiruna: 'Lappland', abisko: 'Lappland', treriksroset: 'Lappland'
   };
+  // Världsdelar på världskartan (städer som ligger i två världsdelar eller långt från sin världsdel frågas det inte om)
+  const CONT_SKIP = ['istanbul', 'honolulu', 'nuuk'];
+  function continent(cities, hard) {
+    const list = cities.filter(c => c.cont && !CONT_SKIP.includes(c.id));
+    if (list.length < 6) return null;
+    const c = pickOne(list), right = CONTINENTS[c.cont];
+    const pool = shuffle(Object.values(CONTINENTS).filter(x => x !== right)).slice(0, hard ? 3 : 1);
+    const opts = shuffle([right, ...pool]);
+    return {q: `I vilken världsdel ligger ${c.name}?`, options: opts, correct: opts.indexOf(right), explain: `${c.name} ligger i ${right}.`, city: c};
+  }
   const DIRS = [['norrut', c => c.ll[1]], ['söderut', c => -c.ll[1]], ['västerut', c => -c.ll[0]], ['österut', c => c.ll[0]]];
   const pickOne = pick;
   const escRe = s => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -8348,7 +8674,10 @@ const Quiz = (() => {
     const cities = board.map.cities, hard = level === 'hard';
     const r = Math.random();
     let q = null;
-    if (!hard) q = r < .7 ? whichCity(cities, false) : direction(cities, false);
+    if (board.map.id === 'varlden') {
+      if (!hard) q = r < .5 ? whichCity(cities, false) : r < .8 ? continent(cities, false) : direction(cities, false);
+      else q = r < .3 ? whichCity(cities, true) : r < .5 ? continent(cities, true) : r < .65 ? direction(cities, true) : r < .85 ? country(board, cities) : distance(cities);
+    } else if (!hard) q = r < .7 ? whichCity(cities, false) : direction(cities, false);
     else q = r < .35 ? whichCity(cities, true) : r < .55 ? direction(cities, true) : r < .8 ? country(board, cities) : distance(cities);
     return q || whichCity(cities, hard);
   };
@@ -8976,7 +9305,7 @@ const Missions = (() => {
     {id: 'quiz', target: 2, need: G => G.options.quiz !== false, text: () => 'Svara rätt på två frågor', count: (G, b, p) => p.stats.quiz},
     {id: 'fly', target: 2, text: () => 'Flyg två gånger', count: (G, b, p) => p.stats.flights},
     {id: 'rich', target: 1, text: () => 'Ha 12 000 kr på en gång', count: (G, b, p) => (p.stats.maxMoney || 0) >= 12000 ? 1 : 0},
-    {id: 'trio', target: 3, setup: (G, b) => {
+    {id: 'trio', target: 3, need: (G, b) => !(b && b.map.cities.some(c => c.cont)), setup: (G, b) => {
       // Tre städer långt ifrån varandra, inte startstäderna
       const cand = shuffle(b.map.cities.filter(c => !c.start));
       const out = [];
@@ -8989,6 +9318,8 @@ const Missions = (() => {
       const c = b.map.cities.filter(x => !x.start).reduce((a, x) => f(x) > f(a) ? x : a);
       return {cities: [c.id], names: [c.name], dir: word};
     }, text: (m) => `Res till ${m.names[0]}, staden längst ${m.dir}`, count: (G, b, p, m) => p.stats.cities.includes(m.cities[0]) ? 1 : 0},
+    {id: 'continents', easy: true, target: 3, need: (G, b) => !!(b && b.map.cities.some(c => c.cont)), text: () => 'Besök tre världsdelar',
+      count: (G, b, p) => new Set(p.stats.cities.map(id => (b.cityById[id] || {}).cont).filter(Boolean)).size},
     {id: 'tips', target: 3, need: G => G.players.filter(q => q.dev && !q.bot).length >= 2, text: () => 'Gissa rätt tre gånger när andra spelar', count: (G, b, p) => p.stats.stars || 0}
   ];
   const def = id => POOL.find(m => m.id === id);
@@ -8997,7 +9328,7 @@ const Missions = (() => {
     const used = new Set(G.players.filter(p => p.mission).map(p => p.mission.id));
     G.players.forEach(p => {
       if (p.bot || !p.dev || p.mission) return;
-      const pool = shuffle(POOL.filter(m => !used.has(m.id) && (!m.need || m.need(G)) && (p.quiz !== 'easy' || m.easy)));
+      const pool = shuffle(POOL.filter(m => !used.has(m.id) && (!m.need || m.need(G, board)) && (p.quiz !== 'easy' || m.easy)));
       for (const m of pool) {
         const extra = m.setup ? m.setup(G, board) : {};
         if (!extra) continue;
@@ -9365,9 +9696,10 @@ const Challenges = (() => {
     {id: 'afrika-hard', map: 'afrika', name: 'Två kluriga', text: 'Vinn mot två kluriga datorspelare.', bots: [3, 3]},
     {id: 'sverige-rich', map: 'sverige', name: 'Rik resenär', text: 'Vinn med minst 10 000 kr kvar.', bots: [2], rule: 'rich'},
     {id: 'norden-tour', map: 'norden', name: 'Nordisk rundresa', text: 'Besök tio olika städer och vinn.', bots: [2], rule: 'tour'},
-    {id: 'europa-interrail', map: 'europa', name: 'Tågluffaren', text: 'Vinn i Europa på högst 15 rundor.', bots: [2, 2], rounds: 15}
+    {id: 'europa-interrail', map: 'europa', name: 'Tågluffaren', text: 'Vinn i Europa på högst 15 rundor.', bots: [2, 2], rounds: 15},
+    {id: 'varlden-jordenrunt', map: 'varlden', name: 'Jorden runt', text: 'Besök fyra världsdelar och vinn.', bots: [2], rule: 'continents', n: 4}
   ];
-  C.list = () => LIST.filter(c => MAPS[c.map]);
+  C.list = () => LIST.filter(c => MAP_ORDER.includes(c.map));
 
   // Dagens utmaning: samma för alla som spelar samma dag och en ny varje midnatt. Korta partier, så att den går fort.
   const dayKey = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
@@ -9378,7 +9710,7 @@ const Challenges = (() => {
     return () => { x = (x + 0x6D2B79F5) | 0; let t = Math.imul(x ^ x >>> 15, 1 | x); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
   }
   // Rundor för ett kort parti: lite fler än hälften av partierna brukar ta (tools/sim-length.mjs)
-  const QUICK = {afrika: 10, sverige: 8, norden: 10, europa: 10};
+  const QUICK = {afrika: 10, sverige: 8, norden: 10, europa: 10, varlden: 12};
   C.dailyFor = date => {
     const r = seeded('diamantjakten-' + date), pickR = a => a[Math.floor(r() * a.length)];
     // Kartan och sortens utmaning turas om dag för dag (fyra kartor och fem sorter ger 20 olika i följd)
@@ -9414,6 +9746,10 @@ const Challenges = (() => {
     if (ok && ch.rule === 'noflight' && me.stats.flights) { ok = false; why = 'Du flög.'; }
     if (ok && ch.rule === 'rich' && me.money < (ch.rich || 10000)) { ok = false; why = `Du hade ${kr(me.money)} kvar.`; }
     if (ok && ch.rule === 'tour' && me.stats.cities.length < (ch.tour || 10)) { ok = false; why = `Du besökte ${me.stats.cities.length} städer.`; }
+    if (ok && ch.rule === 'continents') {
+      const b = buildBoardCached(ch.map), n = new Set(me.stats.cities.map(id => (b.cityById[id] || {}).cont).filter(Boolean)).size;
+      if (n < (ch.n || 4)) { ok = false; why = `Du besökte ${n} ${n === 1 ? 'världsdel' : 'världsdelar'}.`; }
+    }
     if (ok) {
       const r = (data[me.name] = rec(me.name));
       const prev = r[ch.id];
@@ -9685,6 +10021,7 @@ async function boot(hot) {
   document.body.classList.toggle('xmas', Xmas.on());
   document.body.classList.toggle('halloween', Halloween.on());
   UI.initIcons();
+  ['pointerdown', 'touchend', 'keydown'].forEach(ev => document.addEventListener(ev, () => Sound.unlock(), {capture: true, passive: true}));
   Challenges.markTile();
   UI.birthdayBanner();
   const full = $('tFull');

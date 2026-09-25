@@ -1365,7 +1365,7 @@ html,body{background:radial-gradient(120% 70% at 50% 0%,#23525e 0%,#0c242c 55%,#
   if (store.get('motion') && window.DeviceMotionEvent && typeof window.DeviceMotionEvent.requestPermission !== 'function') enableMotion();
   let lock = null;
   async function wake() { try { if ('wakeLock' in navigator && !lock && !document.hidden) { lock = await navigator.wakeLock.request('screen'); lock.addEventListener('release', () => { lock = null; }); } } catch (e) { /* frivilligt */ } }
-  document.addEventListener('pointerdown', () => { unlockAudio(); wake(); }, {once: true});
+  document.addEventListener('pointerdown', () => { unlockAudio(); wake(); });
 
   /* ---------- Uppläsning för den som inte kan läsa än ---------- */
   // Allt som kommer till mobilen kan läsas upp med telefonens svenska röst. Hemligheter läses aldrig upp automatiskt.
@@ -1378,15 +1378,22 @@ html,body{background:radial-gradient(120% 70% at 50% 0%,#23525e 0%,#0c242c 55%,#
   const bestVoice = () => { try { return speechSynthesis.getVoices().filter(v => /^sv/i.test(v.lang)).sort((a, b) => voiceScore(b) - voiceScore(a))[0] || null; } catch (e) { return null; } };
   const MOODS = {happy: [1.05, 1.14], sad: [.92, .92], normal: [.97, 1.05]};
   const orList = list => list.length > 1 ? list.slice(0, -1).join(', ') + ' eller ' + list[list.length - 1] : list[0] || '';
+  let speakT = 0;
   function speak(text, queue, mood) {
     if (!canSpeak || !clean(text)) return;
     try {
-      if (!queue) speechSynthesis.cancel();
+      const busy = !queue && (speechSynthesis.speaking || speechSynthesis.pending);
+      if (busy) speechSynthesis.cancel();
       const u = new SpeechSynthesisUtterance(clean(text)), v = bestVoice(), [rate, pitch] = MOODS[mood] || MOODS.normal, k = v && NATURAL.test(v.name) ? .45 : 1;
       u.lang = v ? v.lang : 'sv-SE';
       if (v) u.voice = v;
       u.rate = 1 + (rate - 1) * k; u.pitch = 1 + (pitch - 1) * k;
-      speechSynthesis.speak(u);
+      // Efter uppläsningen kan iPhone ha pausat pipljuden, så de väcks igen
+      u.onend = u.onerror = () => { try { if (actx && actx.state !== 'running') actx.resume(); } catch (e) { /* frivilligt */ } };
+      clearTimeout(speakT);
+      // WebKit tappar ibland en replik som startas direkt efter cancel()
+      if (busy) speakT = setTimeout(() => { try { speechSynthesis.speak(u); } catch (e) { /* frivilligt */ } }, 90);
+      else speechSynthesis.speak(u);
     } catch (e) { /* uppläsning är frivillig */ }
   }
   // Automatiskt bara om spelaren har valt det. Det som kommer tätt läggs i kö i stället för att avbryta.
