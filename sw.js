@@ -1,6 +1,6 @@
 // Diamantjakten: sparar spelet i webbläsaren så att det fungerar utan internet
-const CACHE = 'diamantjakten-954ab4a6ec';
-const CORE = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png', './apple-touch-icon.png', './favicon-32.png'];
+const CACHE = 'diamantjakten-e6a91eaae8';
+const CORE = ['./', './index.html', './kontroll.html', './manifest.webmanifest', './icon-192.png', './icon-512.png', './apple-touch-icon.png', './favicon-32.png'];
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(async c => {
     await c.addAll(CORE);

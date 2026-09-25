@@ -1,0 +1,962 @@
+<!doctype html>
+<html lang="sv">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1b2a30">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Diamantjakten">
+<title>Diamantjakten i mobilen</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Nunito:wght@400;700;800;900&display=swap">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" href="favicon-32.png">
+<style>
+:root{
+  --ink:#1d2b33; --ink-soft:#4a5d66; --paper:#fffaf0; --line:#1d2b33; --sun:#ffc233; --coral:#ff5a4e; --leaf:#2fb56a; --sky:#39a0ff; --grape:#9b5de5;
+  --display:"Lilita One","Arial Rounded MT Bold","Trebuchet MS",system-ui,sans-serif;
+  --body:"Nunito","Segoe UI",system-ui,-apple-system,Arial,sans-serif;
+  --pc:#e5484d;
+  color-scheme:light;
+}
+*,*::before,*::after{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{margin:0;min-height:100%;background:radial-gradient(circle at 50% 0%,#2c5a66,#132a31 70%) fixed;color:var(--ink);font-family:var(--body);-webkit-tap-highlight-color:transparent;overscroll-behavior:none}
+body{min-height:100dvh}
+button,input{font:inherit;color:inherit}
+button{cursor:pointer;touch-action:manipulation}
+:focus-visible{outline:4px solid var(--sky);outline-offset:3px}
+#app{max-width:560px;margin:0 auto;padding:max(10px,env(safe-area-inset-top)) max(14px,env(safe-area-inset-right)) max(18px,env(safe-area-inset-bottom)) max(14px,env(safe-area-inset-left));min-height:100dvh;display:flex;flex-direction:column;gap:10px;user-select:none;-webkit-user-select:none}
+main{flex:1;display:flex;flex-direction:column}
+.view{flex:1;display:flex;flex-direction:column;gap:12px;background:var(--paper);border:3px solid var(--line);border-radius:26px;padding:16px;box-shadow:0 8px 0 rgba(0,0,0,.25)}
+.view.center{align-items:center;justify-content:center;text-align:center}
+h1{font-family:var(--display);font-weight:400;font-size:30px;margin:0;line-height:1.05}
+h2{font-family:var(--display);font-weight:400;font-size:21px;margin:6px 0 0;display:flex;align-items:center;gap:8px}
+p{margin:0;font-weight:700;line-height:1.35}
+.note{color:var(--ink-soft);font-weight:800;font-size:15px}
+.err{color:#c62f3d;font-weight:900;min-height:1.2em}
+.logo{font-family:var(--display);font-size:52px;line-height:.9;color:#fff;display:flex;gap:2px;text-shadow:0 .05em 0 var(--line),.03em .03em 0 var(--line),-.03em .03em 0 var(--line),.03em -.03em 0 var(--line),-.03em -.03em 0 var(--line)}
+.logo .l2{color:var(--sun)}
+.view.center .logo{margin-bottom:8px}
+
+.btn{border:3px solid var(--line);background:#fff;border-radius:16px;padding:12px 18px;font-weight:900;font-size:17px;line-height:1.1;box-shadow:0 5px 0 var(--line);display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:54px;transition:transform .08s,box-shadow .08s}
+.btn:active{transform:translateY(4px);box-shadow:0 1px 0 var(--line)}
+.btn.big{font-family:var(--display);font-weight:400;font-size:23px;min-height:64px;padding:12px 22px}
+.btn.primary{background:var(--sun)}
+.btn.blue{background:#7cc4ff}
+.btn.green{background:#7fe0a6}
+.btn.red{background:#ff8a80}
+.btn.small{min-height:42px;padding:8px 14px;font-size:15px;border-radius:12px}
+.btn.wide{width:100%}
+.btn:disabled{opacity:.45;transform:none;box-shadow:0 5px 0 var(--line)}
+.btn .sub{font-family:var(--body);font-weight:800;font-size:14px;opacity:.75}
+.stack{display:grid;gap:12px;width:100%}
+.icon-btn{width:40px;height:40px;border-radius:50%;border:3px solid var(--line);background:#fff;display:grid;place-items:center;padding:0;font-weight:900;font-size:20px;line-height:1}
+.spin{width:22px;height:22px;border-radius:50%;border:4px solid rgba(29,43,51,.2);border-top-color:var(--ink);animation:spin .8s linear infinite;display:inline-block}
+@keyframes spin{to{transform:rotate(360deg)}}
+.spin-row{display:flex;gap:10px;align-items:center;justify-content:center}
+
+/* Toppen: vem jag är och mina pengar */
+.bar{display:flex;align-items:center;gap:10px;background:var(--paper);border:3px solid var(--line);border-radius:20px;padding:6px 10px 6px 6px;box-shadow:0 5px 0 rgba(0,0,0,.25);position:sticky;top:max(6px,env(safe-area-inset-top));z-index:5}
+.av{width:48px;height:48px;border-radius:50%;background:var(--pc);border:3px solid var(--line);display:grid;place-items:center;overflow:hidden;flex:none}
+.av img{width:94%;height:94%;object-fit:contain}
+.who{display:grid;min-width:0;flex:1}
+.who b{font-size:17px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.who small{font-weight:800;color:var(--ink-soft);font-size:12px}
+.money{font-family:var(--display);font-size:25px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.money.up{color:#15924d}.money.down{color:#d6283b}
+.items{display:flex;gap:2px}
+.items svg,.items img{width:26px;height:26px}
+.dot{width:12px;height:12px;border-radius:50%;background:#bbb;border:2px solid var(--line);flex:none}
+.dot.on{background:var(--leaf)}.dot.wait{background:var(--sun)}.dot.off{background:var(--coral)}
+
+/* Gå med */
+.code-input{width:min(260px,80%);border:3px solid var(--line);border-radius:16px;padding:10px;font-family:var(--display);font-size:40px;text-align:center;letter-spacing:.16em;text-transform:uppercase;background:#fff}
+.name-input{width:100%;border:3px solid var(--line);border-radius:16px;padding:12px;font-size:22px;font-weight:900;text-align:center;background:#fff}
+.pieces{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:10px}
+.piece{border:3px solid var(--line);border-radius:18px;background:#fff;padding:6px 4px 8px;display:grid;justify-items:center;gap:3px;font-weight:900;font-size:13px;box-shadow:0 4px 0 var(--line);position:relative}
+.piece .pic{width:70px;height:70px;border-radius:50%;background:var(--pc,#eee);border:3px solid var(--line);display:grid;place-items:center;overflow:hidden}
+.piece .pic img{width:94%;height:94%;object-fit:contain}
+.piece[aria-pressed="true"]{background:#fff3c4;outline:4px solid var(--sun);outline-offset:-1px}
+.piece:disabled{opacity:.4}
+.piece small{font-size:11px;color:var(--ink-soft)}
+.seg{display:inline-flex;border:3px solid var(--line);border-radius:14px;overflow:hidden;background:#fff;align-self:flex-start}
+.seg.wrap{flex-wrap:wrap}
+.seg button{border:0;background:transparent;padding:10px 14px;font-weight:900;font-size:15px}
+.seg button[aria-pressed="true"]{background:var(--sun)}
+.toggles{display:flex;gap:8px;flex-wrap:wrap}
+.toggle{border:3px solid var(--line);border-radius:999px;background:#fff;padding:8px 14px;font-weight:900}
+.toggle[aria-pressed="true"]{background:#7fe0a6}
+.toggle[aria-pressed="true"]::before{content:"✓ "}
+
+/* Lobbyn */
+.me-card{display:flex;align-items:center;gap:14px;background:#fff;border:3px solid var(--line);border-radius:20px;padding:10px}
+.me-card .av{width:76px;height:76px}
+.me-card b{font-family:var(--display);font-size:26px;font-weight:400;display:block}
+.seats{display:grid;gap:8px}
+.seat{display:flex;align-items:center;gap:10px;border:3px solid var(--line);border-radius:16px;background:#fff;padding:6px 10px 6px 6px;border-left:10px solid var(--pc)}
+.seat .av{width:40px;height:40px}
+.seat b{flex:1;font-size:16px;font-weight:900}
+.seat small{font-weight:800;color:var(--ink-soft)}
+.seat .x{border:2px solid var(--line);background:#fff;border-radius:50%;width:32px;height:32px;padding:0;font-weight:900}
+.leader{display:grid;gap:10px;border:3px dashed #c9b88f;border-radius:18px;padding:10px 12px 14px}
+.crown{width:26px;height:20px;background:var(--sun);clip-path:polygon(0 30%,25% 60%,50% 0,75% 60%,100% 30%,90% 100%,10% 100%);display:inline-block;border-radius:3px}
+.field{display:grid;gap:6px;font-weight:900}
+
+/* Spelet */
+.game{gap:10px}
+.turn{display:flex;align-items:center;gap:10px;font-family:var(--display);font-size:24px}
+.turn .av{width:40px;height:40px}
+.turn.mine{color:#15924d;animation:pulse 1.2s ease-in-out 3}
+@keyframes pulse{50%{transform:scale(1.06)}}
+.prompt{font-family:var(--display);font-size:20px;font-weight:400;line-height:1.15}
+.sub{font-weight:800;color:var(--ink-soft);font-size:15px}
+.panel{display:flex;flex-direction:column;gap:12px}
+.panel h2{margin:0}
+.die-area{display:grid;justify-items:center;gap:10px;padding:8px 0}
+.die-btn{width:min(210px,58vw);aspect-ratio:1;border-radius:50%;border:4px solid var(--line);background:radial-gradient(circle at 40% 35%,#fff,#ffe8a3);box-shadow:0 7px 0 var(--line);display:grid;place-items:center;padding:0;touch-action:none;animation:ready 1.2s ease-in-out infinite}
+.die-btn:disabled{animation:none;background:radial-gradient(circle at 40% 35%,#fff,#e9f2f5)}
+@keyframes ready{50%{transform:scale(1.05) rotate(-3deg)}}
+.die-stage{width:120px;height:120px;display:grid;place-items:center;perspective:600px}
+.die-tilt{transform-style:preserve-3d;transform:rotateX(-18deg) rotateY(-24deg)}
+.die{width:84px;height:84px;position:relative;transform-style:preserve-3d;transition:transform 1s cubic-bezier(.17,.85,.3,1.03)}
+.die.rolling{animation:tumble .45s linear infinite;transition:none}
+@keyframes tumble{from{transform:rotateX(0) rotateY(0)}to{transform:rotateX(360deg) rotateY(720deg)}}
+.face{position:absolute;inset:0;border-radius:16px;background:radial-gradient(circle at 32% 28%,#fff,#ece2cc 78%);border:3px solid #1d2b33;display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);padding:11px}
+.pip{width:14px;height:14px;border-radius:50%;background:#1b2930;place-self:center}
+.f1 .pip{background:#cf3350;width:19px;height:19px}
+.f1{transform:translateZ(42px)}.f6{transform:rotateY(180deg) translateZ(42px)}.f2{transform:rotateY(90deg) translateZ(42px)}.f5{transform:rotateY(-90deg) translateZ(42px)}.f3{transform:rotateX(90deg) translateZ(42px)}.f4{transform:rotateX(-90deg) translateZ(42px)}
+.die-hint{font-weight:900;color:var(--ink-soft);text-align:center}
+.choices{display:grid;gap:10px}
+.choice{border:3px solid var(--line);border-radius:16px;background:#fff;padding:12px 14px;font-weight:900;font-size:18px;box-shadow:0 4px 0 var(--line);display:flex;justify-content:space-between;align-items:center;gap:10px;text-align:left}
+.choice em{font-style:normal;font-weight:800;font-size:14px;opacity:.7}
+.choice[aria-pressed="true"]{background:var(--pc);color:#fff;border-color:var(--line)}
+.choice.city{border-left:10px solid var(--pc)}
+.choice.tip{outline:4px dashed var(--sun);outline-offset:2px}
+.go-row{position:sticky;bottom:max(10px,env(safe-area-inset-bottom));z-index:3;background:linear-gradient(rgba(255,250,240,0),var(--paper) 30%);padding-top:14px}
+.choice.right{background:#7fe0a6}.choice.wrong{background:#ff8a80}
+.choice:disabled{opacity:1}
+.card{display:grid;justify-items:center;gap:8px;text-align:center;background:linear-gradient(#fff,#f6efff);border:3px solid var(--line);border-radius:22px;padding:14px;animation:flipin .5s cubic-bezier(.3,1.4,.5,1)}
+@keyframes flipin{from{transform:rotateY(90deg) scale(.8)}}
+.card svg,.card img{width:120px;height:120px}
+.card h2{font-size:26px}
+.clue{background:#f3ecff;border:3px solid var(--line);border-radius:14px;padding:10px 12px;font-style:italic}
+.quizq{font-family:var(--display);font-size:22px;font-weight:400;line-height:1.15}
+.result{font-weight:900;font-size:18px;text-align:center}
+.result.ok{color:#15924d}.result.no{color:#c62f3d}
+.bid{display:grid;gap:10px;text-align:center}
+.bid .high{font-family:var(--display);font-size:30px}
+.timebar{height:12px;border:3px solid var(--line);border-radius:999px;overflow:hidden;background:#fff}
+.timebar i{display:block;height:100%;background:var(--coral);transform-origin:left}
+.reacts{display:grid;grid-template-columns:repeat(6,1fr);gap:6px}
+.react{border:3px solid var(--line);border-radius:14px;background:#fff;font-size:26px;padding:6px 0;box-shadow:0 3px 0 var(--line);line-height:1.2}
+.react:disabled{opacity:.4}
+.box{border:3px solid var(--line);border-radius:18px;background:#fff;padding:10px 12px;display:grid;gap:8px}
+.box h3{margin:0;font-family:var(--display);font-weight:400;font-size:19px}
+.srow{display:flex;align-items:center;gap:10px;font-weight:800}
+.srow svg{width:40px;height:40px;flex:none}
+.prow{display:flex;align-items:center;gap:8px;font-weight:900;border-left:8px solid var(--pc);padding-left:8px}
+.prow .av{width:32px;height:32px;border-width:2px}
+.prow span.n{flex:1}
+.prow .m{font-family:var(--display);font-weight:400;font-size:19px}
+.prow.turn-on{background:#fff3c4;border-radius:8px}
+.tag{font-size:11px;font-weight:900;padding:2px 7px;border-radius:8px;background:#ffd6a0}
+.claim{display:grid;gap:10px}
+.diary{display:grid;gap:8px;width:100%;text-align:left}
+.over-av{width:120px;height:120px;border-radius:50%;border:4px solid var(--line);background:var(--pc);display:grid;place-items:center;overflow:hidden}
+.over-av img{width:92%;height:92%;object-fit:contain}
+
+/* Meddelanden */
+.toast{position:fixed;left:50%;bottom:max(18px,env(safe-area-inset-bottom));transform:translateX(-50%);width:min(520px,calc(100% - 28px));background:var(--paper);border:3px solid var(--line);border-left:10px solid var(--pc);border-radius:18px;padding:10px 14px;font-weight:900;box-shadow:0 6px 0 rgba(0,0,0,.3);z-index:20;animation:toastin .3s ease-out;display:flex;gap:10px;align-items:center}
+.toast svg{width:64px;height:64px;flex:none}
+.toast small{display:block;font-weight:700;color:var(--ink-soft);margin-top:2px}
+@keyframes toastin{from{transform:translate(-50%,30px);opacity:0}}
+.secret,.menu-sheet{position:fixed;inset:0;background:rgba(10,24,30,.72);display:grid;place-items:center;padding:18px;z-index:30;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}
+.secret-card,.menu-card{background:var(--paper);border:3px solid var(--line);border-radius:26px;padding:18px;display:grid;justify-items:center;gap:10px;text-align:center;width:min(420px,100%);box-shadow:0 10px 0 rgba(0,0,0,.3)}
+.menu-card .btn{width:100%}
+.psst{color:var(--grape);font-weight:900}
+.secret-token svg{width:170px;height:170px;filter:drop-shadow(0 10px 14px rgba(0,0,0,.35))}
+.float{position:fixed;right:24px;top:70px;font-family:var(--display);font-size:30px;-webkit-text-stroke:6px var(--line);paint-order:stroke;color:#7df0b8;z-index:25;animation:floatup 1.5s ease-out forwards;pointer-events:none}
+.float.neg{color:#ff9aa8}
+@keyframes floatup{from{opacity:0;translate:0 10px}15%{opacity:1}70%{opacity:1}to{opacity:0;translate:0 -40px}}
+
+/* ---------- Premiumutseende, samma som på den stora skärmen ---------- */
+:root{--gold:#f2bf3f;--gold-ink:#3d2800;--parch-1:#fffbf2;--parch-2:#f9edd2;--parch-3:#eedcb3;--cream:#fff6df;
+  --gold-frame:linear-gradient(145deg,#fff1b8 0%,#e6ab31 22%,#fbe08a 46%,#c98a14 70%,#f7d06a 100%)}
+html,body{background:radial-gradient(120% 70% at 50% 0%,#23525e 0%,#0c242c 55%,#061318 100%) fixed}
+.logo{display:block;width:min(340px,86%);height:auto;aspect-ratio:1000/300;overflow:visible;margin:0 auto 6px}
+.lg-t{font-family:var(--display);font-size:150px}
+.lg-main{stroke:#1d2b33;stroke-width:17px;stroke-linejoin:round;paint-order:stroke}
+.lg-depth{fill:#06151a;stroke:#06151a;stroke-width:17px;stroke-linejoin:round}
+.view{border:5px solid transparent;border-radius:26px;background:radial-gradient(130% 100% at 50% 0%,var(--parch-1) 0%,var(--parch-2) 60%,var(--parch-3) 100%) padding-box,var(--gold-frame) border-box;
+  box-shadow:0 0 0 2.5px var(--ink),inset 0 0 0 2px rgba(80,52,6,.5),0 18px 40px rgba(0,0,0,.45)}
+.view.center .logo{filter:drop-shadow(0 6px 10px rgba(0,0,0,.25))}
+.btn{--top:#fffdf7;--bot:#e6d3a6;--txt:var(--ink);border:0;color:var(--txt);
+  background:linear-gradient(180deg,rgba(255,255,255,.55) 0%,rgba(255,255,255,.18) 46%,rgba(255,255,255,0) 50%),linear-gradient(180deg,var(--top),var(--bot));
+  box-shadow:0 0 0 2.5px var(--ink),0 5px 0 2.5px var(--ink),0 10px 18px rgba(0,0,0,.28),inset 0 -4px 0 rgba(0,0,0,.1),inset 0 2px 0 rgba(255,255,255,.85);text-shadow:0 1px 0 rgba(255,255,255,.45)}
+.btn:active{transform:translateY(4px);box-shadow:0 0 0 2.5px var(--ink),0 1px 0 2.5px var(--ink),inset 0 2px 0 rgba(255,255,255,.6)}
+.btn:disabled{filter:grayscale(.55);opacity:.55;transform:none;box-shadow:0 0 0 2.5px var(--ink),0 5px 0 2.5px var(--ink)}
+.btn.primary{--top:#ffe27a;--bot:#ea9410;--txt:var(--gold-ink);background:linear-gradient(180deg,rgba(255,255,255,.55) 0%,rgba(255,255,255,.18) 46%,rgba(255,255,255,0) 50%),linear-gradient(180deg,var(--top),var(--bot))}
+.btn.blue{--top:#b8ecff;--bot:#2596d4;--txt:#06304a;background:linear-gradient(180deg,rgba(255,255,255,.55) 0%,rgba(255,255,255,.18) 46%,rgba(255,255,255,0) 50%),linear-gradient(180deg,var(--top),var(--bot))}
+.btn.green{--top:#b9f5ca;--bot:#23a85d;--txt:#083b1e;background:linear-gradient(180deg,rgba(255,255,255,.55) 0%,rgba(255,255,255,.18) 46%,rgba(255,255,255,0) 50%),linear-gradient(180deg,var(--top),var(--bot))}
+.btn.red{--top:#ffd0c9;--bot:#ec5647;--txt:#4a0b06;background:linear-gradient(180deg,rgba(255,255,255,.55) 0%,rgba(255,255,255,.18) 46%,rgba(255,255,255,0) 50%),linear-gradient(180deg,var(--top),var(--bot))}
+.bar{border:0;color:#fff6e4;background:linear-gradient(180deg,rgba(33,74,86,.96),rgba(10,28,34,.96));box-shadow:0 0 0 2.5px var(--ink),0 0 0 4.5px rgba(242,191,63,.6),0 8px 18px rgba(0,0,0,.4)}
+.bar .av{border:0;box-shadow:0 0 0 2.5px var(--ink),0 0 0 4.5px #fff3d0,0 0 0 6px var(--ink);background:radial-gradient(circle at 50% 40%,var(--pc),#1d2b33 150%)}
+.who small{color:#bcd3d9}
+.money{color:#ffe28a;text-shadow:0 2px 0 rgba(0,0,0,.45)}
+.money.up{color:#86f5bf}.money.down{color:#ff9fab}
+.icon-btn{border:0;color:var(--cream);background:radial-gradient(circle at 35% 28%,#3a6874,#0a1d23);box-shadow:0 0 0 2.5px var(--ink),0 0 0 4.5px rgba(242,191,63,.8)}
+.dot{border:0;box-shadow:0 0 0 2px var(--ink)}
+.dot.on{background:#4fe08f;box-shadow:0 0 0 2px var(--ink),0 0 10px #4fe08f}
+.code-input,.name-input{border:0;background:#fffdf7;box-shadow:0 0 0 2.5px var(--ink),inset 0 3px 6px rgba(120,80,20,.18)}
+.piece{border:0;background:linear-gradient(180deg,#fffdf7,#f3e5c2);box-shadow:0 0 0 2.5px var(--ink),0 4px 0 2.5px var(--ink)}
+.piece .pic{border:0;background:radial-gradient(circle at 50% 70%,rgba(255,255,255,.5),rgba(255,255,255,0) 55%),radial-gradient(circle at 50% 40%,var(--pc,#eee),#1d2b33 150%);box-shadow:0 0 0 2.5px var(--ink),0 0 0 5px #fff3d0,0 0 0 7px var(--ink)}
+.piece[aria-pressed="true"]{background:linear-gradient(180deg,#fff6cc,#ffe79a);outline:0;box-shadow:0 0 0 2.5px var(--ink),0 0 0 6px var(--gold),0 0 0 8.5px var(--ink),0 0 22px rgba(242,191,63,.55)}
+.seg{border:0;padding:4px;gap:4px;border-radius:14px;background:linear-gradient(180deg,#0c2229,#16343d);box-shadow:0 0 0 2.5px var(--ink),inset 0 3px 8px rgba(0,0,0,.5)}
+.seg button{color:#dcecf0;border-radius:10px}
+.seg button[aria-pressed="true"]{background:linear-gradient(180deg,rgba(255,255,255,.55),rgba(255,255,255,0) 55%),linear-gradient(180deg,#ffe992,#f0a61a);color:var(--gold-ink);box-shadow:0 2px 0 rgba(0,0,0,.45)}
+.toggle{border:0;background:linear-gradient(180deg,#16343d,#0c2229);color:#dcecf0;box-shadow:0 0 0 2.5px var(--ink)}
+.toggle[aria-pressed="true"]{background:linear-gradient(180deg,#b8f5cb,#34b86b);color:#063b1b}
+.me-card,.seat,.box,.claim .choice{border:0;background:linear-gradient(180deg,#fffdf7,#f3e5c2);box-shadow:0 0 0 2.5px var(--ink),0 4px 0 2.5px var(--ink)}
+.me-card .av{box-shadow:0 0 0 3px var(--ink),0 0 0 7px #fff3d0,0 0 0 9.5px var(--ink);border:0}
+.seat{border-left:0;box-shadow:0 0 0 2.5px var(--ink),inset 8px 0 0 var(--pc),0 4px 0 2.5px var(--ink);padding-left:16px}
+.leader{border:2px dashed rgba(154,100,8,.5);background:rgba(255,255,255,.35)}
+.crown{background:linear-gradient(180deg,#fff3bd,#f2bf3f 55%,#c98a14)}
+.choice{border:0;background:linear-gradient(180deg,#fff,#f1e6c9);box-shadow:0 0 0 2.5px var(--ink),0 4px 0 2.5px var(--ink)}
+.choice.city{border-left:0;box-shadow:0 0 0 2.5px var(--ink),inset 10px 0 0 var(--pc),0 4px 0 2.5px var(--ink);padding-left:22px}
+.choice[aria-pressed="true"]{background:linear-gradient(180deg,rgba(255,255,255,.35),rgba(255,255,255,0) 50%),var(--pc);color:#fff;text-shadow:0 1px 0 rgba(0,0,0,.35)}
+.choice.right{background:linear-gradient(180deg,#c9f8d7,#4fcf85)}.choice.wrong{background:linear-gradient(180deg,#ffd0c9,#f07a6e)}
+.die-btn{border:0;background:radial-gradient(circle at 38% 30%,#fffdf0,#ffe8a3 55%,#f2bf3f);box-shadow:0 0 0 3.5px var(--ink),0 0 0 8px #fff3d0,0 0 0 11px var(--ink),0 8px 0 10px var(--ink),0 0 34px 10px rgba(255,214,90,.5)}
+.die-btn:disabled{background:radial-gradient(circle at 38% 30%,#ffffff,#eef4f6 55%,#c9d6db);box-shadow:0 0 0 3.5px var(--ink),0 0 0 8px #fff3d0,0 0 0 11px var(--ink),0 8px 0 10px var(--ink)}
+.face{border:3px solid #1d2b33}
+.react{border:0;background:linear-gradient(180deg,#fff,#f1e6c9);box-shadow:0 0 0 2.5px var(--ink),0 3px 0 2.5px var(--ink)}
+.card{border:5px solid transparent;background:linear-gradient(#fffaf0,#f3ecff) padding-box,var(--gold-frame) border-box;box-shadow:0 0 0 2.5px var(--ink),0 12px 24px rgba(0,0,0,.3)}
+.clue{border:0;box-shadow:0 0 0 2.5px var(--ink);background:linear-gradient(180deg,#faf6ff,#efe6ff)}
+.timebar{border:0;box-shadow:0 0 0 2.5px var(--ink)}
+.toast{border:0;color:#fff6e4;background:linear-gradient(180deg,rgba(33,74,86,.97),rgba(10,28,34,.97));box-shadow:0 0 0 2.5px var(--ink),inset 8px 0 0 var(--pc),0 0 0 4.5px rgba(242,191,63,.5),0 8px 18px rgba(0,0,0,.4);padding-left:20px}
+.toast small{color:#bcd3d9}
+.secret-card,.menu-card{border:5px solid transparent;background:radial-gradient(130% 100% at 50% 0%,var(--parch-1),var(--parch-2) 60%,var(--parch-3)) padding-box,var(--gold-frame) border-box;box-shadow:0 0 0 2.5px var(--ink),0 20px 50px rgba(0,0,0,.5)}
+.over-av{border:0;box-shadow:0 0 0 4px var(--ink),0 0 0 9px #fff3d0,0 0 0 12px var(--ink),0 0 0 17px var(--gold),0 0 0 19.5px var(--ink);background:radial-gradient(circle at 50% 40%,var(--pc),#1d2b33 150%)}
+.turn.mine{color:#138a48}
+.die-tilt,.die{display:block}
+.die-area .die-hint{margin-top:16px}
+.die-area{gap:14px}
+@media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="lgCream" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset=".55" stop-color="#eaf8ff"/><stop offset="1" stop-color="#9dd6ec"/></linearGradient>
+    <linearGradient id="lgGold" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff6c2"/><stop offset=".42" stop-color="#ffd24d"/><stop offset=".6" stop-color="#f3a511"/><stop offset="1" stop-color="#c46f00"/></linearGradient>
+    <linearGradient id="lgGem" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset=".45" stop-color="#bff0ff"/><stop offset="1" stop-color="#4fc3e8"/></linearGradient>
+  </defs>
+  <symbol id="logoSym" viewBox="0 0 1000 300">
+    <g transform="translate(500 86) scale(2.1)">
+      <path d="M-30,-8L-17,-26L17,-26L30,-8L0,32Z" fill="url(#lgGem)" stroke="#1d2b33" stroke-width="4.5" stroke-linejoin="round"/>
+      <path d="M-30,-8H30M-17,-26L-9,-8L0,-26L9,-8L17,-26M-9,-8L0,32L9,-8" fill="none" stroke="#1d2b33" stroke-width="3" stroke-linejoin="round"/>
+    </g>
+    <text x="500" y="276" text-anchor="middle" textLength="930" lengthAdjust="spacingAndGlyphs" class="lg-t lg-depth">Diamantjakten</text>
+    <text x="500" y="262" text-anchor="middle" textLength="930" lengthAdjust="spacingAndGlyphs" class="lg-t lg-main"><tspan fill="url(#lgCream)">Diamant</tspan><tspan fill="url(#lgGold)">jakten</tspan></text>
+  </symbol>
+</svg>
+<div id="app">
+  <header id="bar" class="bar" hidden>
+    <span class="av" id="barAv"></span>
+    <span class="who"><b id="barName"></b><small id="barSub"></small></span>
+    <span class="items" id="barItems"></span>
+    <span class="money" id="barMoney"></span>
+    <button class="icon-btn" id="bMenu" type="button" aria-label="Spelledarens meny" hidden></button>
+    <span class="dot" id="barDot" title="Anslutning"></span>
+  </header>
+
+  <main id="main">
+    <section id="vConnect" class="view center">
+      <svg class="logo" role="img" aria-label="Diamantjakten"><use href="#logoSym"/></svg>
+      <p class="spin-row"><span class="spin"></span><span id="connText">Ansluter till spelet …</span></p>
+      <button id="bChangeCode" class="btn small" type="button">Skriv en annan kod</button>
+    </section>
+
+    <section id="vCode" class="view center" hidden>
+      <svg class="logo" role="img" aria-label="Diamantjakten"><use href="#logoSym"/></svg>
+      <h1>Gå med i spelet</h1>
+      <p>Skriv koden som syns på den stora skärmen.</p>
+      <input id="codeInput" class="code-input" maxlength="5" autocapitalize="characters" autocomplete="off" spellcheck="false" aria-label="Kod">
+      <button id="bCode" class="btn big primary" type="button">Anslut</button>
+      <p class="err" id="codeErr"></p>
+    </section>
+
+    <section id="vJoin" class="view" hidden>
+      <h1>Vem är du?</h1>
+      <input id="nameInput" class="name-input" maxlength="14" placeholder="Skriv ditt namn" autocomplete="off" aria-label="Namn">
+      <h2>Välj pjäs</h2>
+      <div id="pieceGrid" class="pieces"></div>
+      <h2>Frågesport</h2>
+      <div class="seg" id="quizSeg" role="group" aria-label="Frågor"><button type="button" data-v="easy">Lätta frågor</button><button type="button" data-v="hard">Svåra frågor</button></div>
+      <button id="bJoin" class="btn big primary wide" type="button">Gå med!</button>
+      <p class="err" id="joinErr"></p>
+    </section>
+
+    <section id="vLobby" class="view" hidden>
+      <div class="me-card" id="lobbyMe"></div>
+      <h2>Spelare</h2>
+      <div id="lobbySeats" class="seats"></div>
+      <div id="lobbyLeader" class="leader" hidden>
+        <h2><span class="crown"></span>Du är spelledare</h2>
+        <div class="field"><span>Karta</span><div class="seg wrap" id="lMap" role="group" aria-label="Karta"></div></div>
+        <div class="field"><span>Speltid</span><div class="seg" id="lLength" role="group" aria-label="Speltid"><button type="button" data-v="short">Kort</button><button type="button" data-v="normal">Vanligt</button></div></div>
+        <div class="field"><span>Regler</span><div class="seg" id="lRules" role="group" aria-label="Regler"><button type="button" data-v="family">Familj</button><button type="button" data-v="expert">Expert</button></div></div>
+        <div class="field"><span>Extra</span><div class="toggles"><button type="button" class="toggle" id="lCards">Äventyrskort</button><button type="button" class="toggle" id="lQuiz">Frågesport</button></div></div>
+        <div class="field"><span>Datorspelare</span><div class="seg" id="lBot" role="group" aria-label="Lägg till datorspelare"><button type="button" data-v="1">+ lätt</button><button type="button" data-v="2">+ lagom</button><button type="button" data-v="3">+ klurig</button></div></div>
+        <button id="bStart" class="btn big primary wide" type="button">Starta spelet!</button>
+      </div>
+      <p id="lobbyWait" class="note"></p>
+      <button id="bEdit" class="btn small" type="button">Byt namn eller pjäs</button>
+    </section>
+
+    <section id="vClaim" class="view" hidden>
+      <h1>Vem är du?</h1>
+      <p>Spelet har redan börjat. Tryck på den spelare du är.</p>
+      <div id="claimList" class="claim"></div>
+      <p class="note">Står du inte med i listan kan du titta på i stället. Nästa gång kan du vara med från början.</p>
+    </section>
+
+    <section id="vWait" class="view center" hidden>
+      <svg class="logo" role="img" aria-label="Diamantjakten"><use href="#logoSym"/></svg>
+      <p id="waitText">Väntar på spelledaren …</p>
+      <button id="bLobby" class="btn big primary" type="button" hidden>Nytt spel</button>
+    </section>
+
+    <section id="vGame" class="view game" hidden>
+      <div class="turn" id="gTurn"></div>
+      <div class="talk"><p class="prompt" id="gPrompt"></p><p class="sub" id="gSub"></p></div>
+      <div class="panel" id="gPanel" hidden></div>
+      <div class="idle" id="gIdle">
+        <div class="reacts" id="reacts"></div>
+        <div class="box" id="secrets" hidden></div>
+        <div class="box" id="stamps" hidden></div>
+        <div class="box others" id="others"></div>
+      </div>
+    </section>
+
+    <section id="vOver" class="view center" hidden>
+      <div class="over-av" id="overAv"></div>
+      <h1 id="overTitle"></h1>
+      <p id="overText"></p>
+      <div id="overDiary" class="diary"></div>
+      <div id="overLeader" class="stack" hidden>
+        <button id="bAgain" class="btn big primary" type="button">Spela igen</button>
+        <button id="bReplay" class="btn big" type="button">Visa resan på TV:n</button>
+        <button id="bToLobby" class="btn big" type="button">Till lobbyn</button>
+      </div>
+      <p id="overWait" class="note">Spelledaren väljer vad som händer nu.</p>
+    </section>
+  </main>
+
+  <div id="toast" class="toast" hidden></div>
+  <div id="secret" class="secret" hidden>
+    <div class="secret-card">
+      <p class="psst">Psst! Bara du ser det här.</p>
+      <div class="secret-token" id="secretToken"></div>
+      <h2 id="secretTitle"></h2>
+      <p id="secretText"></p>
+      <button id="bSecretOk" class="btn big primary" type="button">Jag har tittat</button>
+    </div>
+  </div>
+  <div id="menu" class="menu-sheet" hidden>
+    <div class="menu-card">
+      <h2>Spelledaren</h2>
+      <button id="mPause" class="btn big" type="button">Pausa spelet</button>
+      <button id="mEnd" class="btn big red" type="button">Avsluta spelet</button>
+      <button id="mClose" class="btn big primary" type="button">Stäng</button>
+    </div>
+  </div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/peerjs/1.5.4/peerjs.min.js"></script>
+<script>window.Peer||document.write('<script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js"><\/script>')</script>
+<script>
+/* ================= Diamantjakten i mobilen: tärning, val, frågor och hemligheter ================= */
+// Mobilen ansluter till skärmen med brädet (TV, platta eller dator) med koden i QR-koden.
+(() => {
+  'use strict';
+  const $ = id => document.getElementById(id);
+  const kr = n => (n || 0).toLocaleString('sv-SE') + ' kr';
+  const genitive = n => /[sxz]$/i.test(n) ? n : n + 's';
+  function h(tag, attrs, ...kids) {
+    const e = document.createElement(tag);
+    if (attrs) for (const k in attrs) {
+      const v = attrs[k];
+      if (v == null || v === false) continue;
+      if (k === 'class') e.className = v;
+      else if (k === 'text') e.textContent = v;
+      else if (k === 'html') e.innerHTML = v;
+      else if (k === 'style' && typeof v === 'object') { for (const s in v) e.style.setProperty(s, v[s]); }
+      else if (k.startsWith('on') && typeof v === 'function') e.addEventListener(k.slice(2), v);
+      else e.setAttribute(k, v === true ? '' : v);
+    }
+    kids.flat().forEach(c => { if (c != null && c !== false) e.append(c.nodeType ? c : document.createTextNode(String(c))); });
+    return e;
+  }
+  const store = {
+    get(k, d) { try { const v = localStorage.getItem('djc.' + k); if (v != null) return JSON.parse(v); } catch (e) { /* ingen lagring */ } return d; },
+    set(k, v) { try { localStorage.setItem('djc.' + k, JSON.stringify(v)); } catch (e) { /* ingen lagring */ } }
+  };
+
+  const PREFIX = 'diamantjakten-';
+  const dev = store.get('dev') || (() => { const id = 'd' + Math.random().toString(36).slice(2, 12); store.set('dev', id); return id; })();
+  let code = parseCode();
+  let peer = null, conn = null, connected = false, retryT = 0, openT = 0, lastMsg = 0;
+  let st = null, offer = null, thumbs = {}, known = [], stamps = [], profile = store.get('profile', {name: '', piece: null, quiz: 'easy'});
+  let editing = false, joinedOnce = false, dieBusy = false, armed = null, selected = null, quizPicked = null, bidTimer = 0, pendingPiece = null, pendingQuiz = null, pendingName = null;
+
+  function parseCode() {
+    const m = (location.hash.slice(1) || new URLSearchParams(location.search).get('kod') || store.get('code') || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
+    return m.length >= 4 ? m.slice(0, 8) : null;
+  }
+
+  /* ---------- Vyer ---------- */
+  const VIEWS = ['vConnect', 'vCode', 'vJoin', 'vLobby', 'vClaim', 'vWait', 'vGame', 'vOver'];
+  let view = '';
+  function show(id) { if (view === id) return; view = id; VIEWS.forEach(v => { $(v).hidden = v !== id; }); window.scrollTo(0, 0); }
+
+  /* ---------- Anslutningen ---------- */
+  function setConn(s, text) {
+    $('barDot').className = 'dot ' + ({on: 'on', connecting: 'wait', off: 'off'}[s] || '');
+    if (text) $('connText').textContent = text;
+    if (s !== 'on' && !st) show('vConnect');
+  }
+  function connect() {
+    clearTimeout(retryT);
+    if (!code) { show('vCode'); return; }
+    if (!window.Peer) { setConn('off', 'Kunde inte ladda anslutningen. Kontrollera internet och ladda om sidan.'); return; }
+    setConn('connecting', st ? 'Ansluter igen …' : 'Ansluter till spelet …');
+    if (!peer || peer.destroyed) {
+      peer = new window.Peer({debug: 0});
+      peer.on('open', openConn);
+      peer.on('disconnected', () => { try { if (!peer.destroyed) peer.reconnect(); } catch (e) { /* försöker igen */ } });
+      peer.on('error', e => {
+        const t = e && e.type;
+        if (t === 'peer-unavailable') { setConn('off', `Hittar inget spel med koden ${code}. Kolla koden på den stora skärmen.`); if (!st) $('bChangeCode').hidden = false; retry(4000); }
+        else if (['network', 'server-error', 'socket-error', 'socket-closed', 'disconnected'].includes(t)) retry(3000);
+        else if (t === 'browser-incompatible') setConn('off', 'Den här webbläsaren kan inte ansluta. Prova Safari eller Chrome.');
+      });
+    } else if (peer.open) openConn();
+    else if (peer.disconnected) { try { peer.reconnect(); } catch (e) { retry(2000); } }
+  }
+  function openConn() {
+    if (conn) { try { conn.close(); } catch (e) { /* stängd */ } }
+    const c = peer.connect(PREFIX + code, {reliable: true});
+    conn = c;
+    clearTimeout(openT);
+    openT = setTimeout(() => { if (conn === c && !connected) { setConn('off', 'Får ingen kontakt. Är mobilen på samma wifi som den stora skärmen?'); try { c.close(); } catch (e) { /* stängd */ } retry(2500); } }, 14000);
+    c.on('open', () => {
+      if (conn !== c) return;
+      clearTimeout(openT);
+      connected = true; lastMsg = Date.now();
+      store.set('code', code);
+      setConn('on');
+      c.send({t: 'hello', dev});
+    });
+    c.on('data', m => { if (conn === c) { lastMsg = Date.now(); onMsg(m); } });
+    c.on('close', () => { if (conn !== c) return; connected = false; setConn('off', 'Tappade kontakten, ansluter igen …'); retry(1200); });
+    c.on('error', () => {});
+  }
+  function retry(ms) { clearTimeout(retryT); retryT = setTimeout(connect, ms); }
+  function send(msg) { try { if (conn && connected) conn.send(msg); } catch (e) { /* ansluter igen */ } }
+  setInterval(() => {
+    if (!connected) return;
+    send({t: 'ping'});
+    if (Date.now() - lastMsg > 25000) { connected = false; try { conn.close(); } catch (e) { /* stängd */ } connect(); }
+  }, 8000);
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) { if (!connected) connect(); wake(); } });
+
+  /* ---------- Meddelanden från den stora skärmen ---------- */
+  function onMsg(m) {
+    if (!m || typeof m !== 'object') return;
+    switch (m.t) {
+      case 'welcome': break;
+      case 'status': st = m; render(); break;
+      case 'thumb': thumbs[m.key] = m.src; render(true); break;
+      case 'offer': offer = {id: m.id, spec: m.spec}; selected = null; quizPicked = null; armed = null; renderOffer(); break;
+      case 'clear':
+        if (offer && offer.id === m.id) {
+          // Tärningen får snurra klart tills slaget kommer från skärmen
+          const rolling = offer.spec.type === 'actions' && dieBusy;
+          offer = null;
+          if (!rolling) renderOffer();
+        }
+        break;
+      case 'known': known = m.list || []; renderIdle(); break;
+      case 'event': onEvent(m); break;
+      case 'error': toast(m.text); $('joinErr').textContent = m.text; break;
+      case 'kicked': toast(m.text || 'Du är inte med i spelet längre.'); editing = false; break;
+    }
+  }
+  function onEvent(e) {
+    if (e.kind === 'turn') { buzz([90, 60, 90]); ding(); }
+    else if (e.kind === 'roll') { dieBusy = false; showDie(e.v); }
+    else if (e.kind === 'money') floatMoney(e.delta);
+    else if (e.kind === 'stamp') { stamps.unshift({city: e.city, svg: e.svg}); toast(`Ny stämpel: ${e.city}!`, e.fact, e.svg); renderIdle(); buzz(40); }
+    else if (e.kind === 'robbed') { toast(`${e.by} skickade rövaren till dig!`, e.amount ? `Den tog ${kr(e.amount)}.` : 'Men du hade inga pengar. Puh!'); buzz([200, 80, 200]); }
+    else if (e.kind === 'quiz') showQuizResult(e);
+  }
+
+  /* ---------- Rita upp rätt vy ---------- */
+  function render(soft) {
+    if (!st) return;
+    renderBar();
+    if (st.phase === 'lobby') {
+      const lob = st.lobby, mine = lob.seats.find(s => s.me);
+      if (!mine || editing) {
+        // Har vi varit med förut går vi med direkt med samma namn och pjäs
+        if (!mine && !editing && profile.name && profile.piece && !joinedOnce) { joinedOnce = true; send({t: 'join', name: profile.name, piece: profile.piece, quiz: profile.quiz}); }
+        renderJoin(lob, mine);
+        show('vJoin');
+      } else { renderLobby(lob, mine); show('vLobby'); }
+    } else if (st.phase === 'game') {
+      const g = st.game;
+      if (g.me == null) { renderClaim(g); show('vClaim'); }
+      else { renderGame(g); show('vGame'); }
+    } else if (st.phase === 'over') { renderOver(st.game); show('vOver'); }
+    else {
+      $('waitText').textContent = st.leader ? 'Du är spelledare. Tryck på Nytt spel när alla är redo.' : 'Väntar på att spelledaren startar ett nytt spel …';
+      $('bLobby').hidden = !st.leader;
+      show('vWait');
+    }
+    $('bMenu').hidden = !(st.leader && st.phase === 'game');
+  }
+  const pieceRef = key => { const i = key.indexOf(':'); return {type: key.slice(0, i), id: key.slice(i + 1)}; };
+  const avatar = (key, color, cls = 'av') => h('span', {class: cls, style: {'--pc': color || '#ccc'}}, thumbs[key] ? h('img', {src: thumbs[key], alt: ''}) : '');
+  function renderBar() {
+    const g = st.game, me = g && g.me != null ? g.players[g.me] : null;
+    if (me) {
+      $('bar').hidden = false;
+      document.documentElement.style.setProperty('--pc', me.color);
+      $('barAv').replaceWith(Object.assign(avatar('player:' + me.i, me.color), {id: 'barAv'}));
+      $('barName').textContent = me.name;
+      $('barSub').textContent = me.stuck ? 'sitter fast' : me.skip ? 'står över' : me.dbl ? 'snabba skor!' : me.free ? 'har flygbiljett' : g.map;
+      $('barMoney').textContent = kr(me.money);
+      const items = $('barItems');
+      items.innerHTML = '';
+      if (me.star) items.append(h('span', {html: GEM, title: g.treasure}));
+      for (let k = 0; k < me.pass; k++) items.append(h('span', {html: PASS, title: g.pass}));
+    } else if (st.phase === 'lobby') {
+      const mine = st.lobby.seats.find(s => s.me);
+      $('bar').hidden = !mine;
+      if (mine) {
+        document.documentElement.style.setProperty('--pc', mine.color);
+        $('barAv').replaceWith(Object.assign(avatar(mine.piece, mine.color), {id: 'barAv'}));
+        $('barName').textContent = mine.name;
+        $('barSub').textContent = st.leader ? 'spelledare' : 'är med';
+        $('barMoney').textContent = '';
+        $('barItems').innerHTML = '';
+      }
+    } else $('bar').hidden = true;
+  }
+  const GEM = '<svg viewBox="-50 -50 100 100"><path d="M-30,-8L-17,-26L17,-26L30,-8L0,32Z" fill="#bff0ff" stroke="#1d2b33" stroke-width="6" stroke-linejoin="round"/></svg>';
+  const PASS = '<svg viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="2" fill="#2f7d5b" stroke="#1d2b33" stroke-width="2"/><circle cx="12" cy="11" r="3.5" fill="none" stroke="#f7c948" stroke-width="1.6"/></svg>';
+
+  /* ---------- Gå med: namn, pjäs och frågor ---------- */
+  function renderJoin(lob, mine) {
+    const name = $('nameInput');
+    if (document.activeElement !== name) name.value = pendingName != null ? pendingName : mine ? mine.name : profile.name || '';
+    const cur = mine ? mine.piece : profile.piece ? profile.piece.type + ':' + profile.piece.id : null;
+    const grid = $('pieceGrid');
+    grid.innerHTML = '';
+    const want = pendingPiece || cur;
+    let chosen = want && lob.pieces.find(p => p.key === want && !p.taken && !p.locked) ? want : null;
+    if (!chosen) { const free = lob.pieces.find(p => !p.taken && !p.locked); chosen = free ? free.key : null; }
+    lob.pieces.forEach(p => {
+      const b = h('button', {class: 'piece', type: 'button', 'aria-pressed': String(p.key === chosen), disabled: p.taken || p.locked > 0},
+        h('span', {class: 'pic', style: {'--pc': p.color}}, thumbs[p.key] ? h('img', {src: thumbs[p.key], alt: ''}) : ''), p.name,
+        p.locked ? h('small', {text: `${p.locked} stämplar kvar`}) : p.taken ? h('small', {text: 'upptagen'}) : '');
+      b.onclick = () => { grid.querySelectorAll('.piece').forEach(x => x.setAttribute('aria-pressed', String(x === b))); grid.dataset.key = p.key; pendingPiece = p.key; tap(); };
+      grid.append(b);
+    });
+    grid.dataset.key = chosen || '';
+    $('quizSeg').hidden = !lob.quiz;
+    setSeg($('quizSeg'), pendingQuiz || (mine && mine.quiz) || profile.quiz || 'easy');
+    $('bJoin').textContent = mine ? 'Spara' : 'Gå med!';
+    $('bJoin').disabled = lob.full;
+    $('joinErr').textContent = lob.full ? 'Spelet är fullt. Det får vara fyra spelare.' : '';
+  }
+  function setSeg(el, v) { el.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.v === String(v)))); }
+  $('quizSeg').querySelectorAll('button').forEach(b => { b.onclick = () => { pendingQuiz = b.dataset.v; setSeg($('quizSeg'), b.dataset.v); tap(); }; });
+  $('bJoin').onclick = () => {
+    unlockAudio();
+    const key = $('pieceGrid').dataset.key, q = $('quizSeg').querySelector('[aria-pressed="true"]');
+    profile = {name: $('nameInput').value.trim().slice(0, 14), piece: key ? pieceRef(key) : null, quiz: q ? q.dataset.v : 'easy'};
+    store.set('profile', profile);
+    joinedOnce = true; editing = false; pendingPiece = null; pendingQuiz = null; pendingName = null;
+    send({t: 'join', name: profile.name, piece: profile.piece, quiz: profile.quiz});
+    wake();
+  };
+  $('bEdit').onclick = () => { editing = true; render(); };
+  $('nameInput').addEventListener('input', () => { pendingName = $('nameInput').value; });
+
+  /* ---------- Lobbyn ---------- */
+  function renderLobby(lob, mine) {
+    const me = $('lobbyMe');
+    me.innerHTML = '';
+    me.append(avatar(mine.piece, mine.color), h('div', null, h('b', {text: mine.name}), h('span', {text: st.leader ? 'Du är spelledare!' : 'Du är med!'})));
+    const seats = $('lobbySeats');
+    seats.innerHTML = '';
+    lob.seats.forEach(s => {
+      const row = h('div', {class: 'seat', style: {'--pc': s.color}}, avatar(s.piece, s.color), h('b', {text: s.name}),
+        h('small', {text: s.bot ? ['', 'dator, lätt', 'dator, lagom', 'dator, klurig'][s.bot] : s.remote ? (s.online ? 'mobil' : 'tappade kontakten') : 'på skärmen'}));
+      if (st.leader && s.bot) row.append(h('button', {class: 'x', type: 'button', 'aria-label': 'Ta bort', text: '×', onclick: () => { tap(); send({t: 'setup', patch: {remove: s.key}}); }}));
+      seats.append(row);
+    });
+    $('lobbyLeader').hidden = !st.leader;
+    if (st.leader) {
+      const mp = $('lMap');
+      mp.innerHTML = '';
+      lob.maps.forEach(m => mp.append(h('button', {type: 'button', 'aria-pressed': String(m.id === lob.map), text: m.name, onclick: () => { tap(); send({t: 'setup', patch: {map: m.id}}); }})));
+      setSeg($('lLength'), lob.length); setSeg($('lRules'), lob.rules);
+      $('lCards').setAttribute('aria-pressed', String(lob.cards));
+      $('lQuiz').setAttribute('aria-pressed', String(lob.quiz));
+      $('lBot').querySelectorAll('button').forEach(b => { b.disabled = lob.seats.length >= 4; });
+      $('bStart').disabled = !lob.canStart;
+      $('bStart').textContent = lob.canStart ? 'Starta spelet!' : 'Det behövs minst två spelare';
+    }
+    $('lobbyWait').textContent = st.leader ? `Karta: ${(lob.maps.find(m => m.id === lob.map) || {}).name}. Lägg till datorspelare om ni vill och tryck sedan på Starta.` : `Karta: ${(lob.maps.find(m => m.id === lob.map) || {}).name}. Väntar på att spelledaren startar spelet …`;
+  }
+  $('lLength').querySelectorAll('button').forEach(b => { b.onclick = () => { tap(); send({t: 'setup', patch: {length: b.dataset.v}}); }; });
+  $('lRules').querySelectorAll('button').forEach(b => { b.onclick = () => { tap(); send({t: 'setup', patch: {rules: b.dataset.v}}); }; });
+  $('lBot').querySelectorAll('button').forEach(b => { b.onclick = () => { tap(); send({t: 'setup', patch: {addBot: +b.dataset.v}}); }; });
+  $('lCards').onclick = () => { tap(); send({t: 'setup', patch: {cards: $('lCards').getAttribute('aria-pressed') !== 'true'}}); };
+  $('lQuiz').onclick = () => { tap(); send({t: 'setup', patch: {quiz: $('lQuiz').getAttribute('aria-pressed') !== 'true'}}); };
+  $('bStart').onclick = () => { unlockAudio(); tap(); send({t: 'start'}); };
+  $('bLobby').onclick = () => { tap(); send({t: 'menu'}); };
+
+  /* ---------- Spelet redan igång: välj vem man är ---------- */
+  function renderClaim(g) {
+    const list = $('claimList');
+    list.innerHTML = '';
+    g.players.filter(p => !p.bot).forEach(p => {
+      const taken = p.remote && p.online;
+      list.append(h('button', {class: 'choice city', type: 'button', style: {'--pc': p.color}, disabled: taken, onclick: () => { tap(); send({t: 'claim', i: p.i}); }},
+        h('span', {style: {display: 'flex', gap: '10px', 'align-items': 'center'}}, avatar('player:' + p.i, p.color), p.name), h('em', {text: taken ? 'har redan en mobil' : kr(p.money)})));
+    });
+  }
+
+  /* ---------- Under spelet ---------- */
+  function renderGame(g) {
+    const turn = g.players[g.turn], mine = g.turn === g.me;
+    const t = $('gTurn');
+    t.innerHTML = '';
+    t.className = 'turn' + (mine ? ' mine' : '');
+    t.append(avatar('player:' + turn.i, turn.color), h('span', {text: g.paused ? 'Pausat' : mine ? 'Din tur!' : `${genitive(turn.name)} tur`}));
+    $('gPrompt').textContent = g.prompt || '';
+    $('gSub').textContent = g.sub || '';
+    renderIdle();
+    if (!offer && !dieBusy) renderOffer();
+  }
+  function renderIdle() {
+    const g = st && st.game;
+    if (!g) return;
+    const re = $('reacts');
+    if (!re.childElementCount) {
+      [['cheer', '👏'], ['joy', '🎉'], ['laugh', '😂'], ['wow', '😱'], ['sad', '😢'], ['dance', '💃']].forEach(([k, e]) => {
+        const b = h('button', {class: 'react', type: 'button', 'aria-label': k, text: e});
+        b.onclick = () => { send({t: 'react', kind: k}); tap(); re.querySelectorAll('button').forEach(x => { x.disabled = true; }); setTimeout(() => re.querySelectorAll('button').forEach(x => { x.disabled = false; }), 1300); };
+        re.append(b);
+      });
+    }
+    const sec = $('secrets');
+    sec.hidden = !known.length;
+    sec.innerHTML = '';
+    if (known.length) {
+      sec.append(h('h3', {text: 'Dina hemligheter'}));
+      known.forEach(k => sec.append(h('div', {class: 'srow', html: k.svg}, h('span', {text: `${k.city}: ${k.name}`}))));
+    }
+    const sp = $('stamps');
+    sp.hidden = !stamps.length;
+    sp.innerHTML = '';
+    if (stamps.length) {
+      sp.append(h('h3', {text: `Nya stämplar i passet (${stamps.length})`}));
+      stamps.slice(0, 6).forEach(s => sp.append(h('div', {class: 'srow', html: s.svg}, h('span', {text: s.city}))));
+    }
+    const ot = $('others');
+    ot.innerHTML = '';
+    ot.append(h('h3', {text: g.storm ? `Spelarna · storm till sjöss (${g.storm})` : 'Spelarna'}));
+    g.players.forEach(p => {
+      const tags = [p.star ? g.treasure : '', p.pass ? `${g.pass}${p.pass > 1 ? ' ×' + p.pass : ''}` : '', p.stuck ? 'fast' : '', p.skip ? 'står över' : ''].filter(Boolean);
+      ot.append(h('div', {class: 'prow' + (p.i === g.turn ? ' turn-on' : ''), style: {'--pc': p.color}}, avatar('player:' + p.i, p.color), h('span', {class: 'n', text: p.name + (p.i === g.me ? ' (du)' : '')}),
+        tags.map(x => h('span', {class: 'tag', text: x})), h('span', {class: 'm', text: kr(p.money)})));
+    });
+  }
+
+  /* ---------- Frågor från skärmen ---------- */
+  function pickOffer(k, extra) { if (!offer) return; send(Object.assign({t: 'pick', id: offer.id, k}, extra || {})); }
+  function renderOffer() {
+    const box = $('gPanel');
+    clearInterval(bidTimer);
+    $('secret').hidden = !(offer && offer.spec.type === 'secret');
+    // Frågan i panelen har en egen rubrik, så skärmens text döljs medan den visas
+    document.querySelector('#vGame .talk').hidden = !!(offer && offer.spec.type !== 'secret');
+    if (!offer || offer.spec.type === 'secret') {
+      box.hidden = true; box.innerHTML = ''; $('gIdle').hidden = false;
+      if (offer) renderSecret(offer.spec);
+      return;
+    }
+    box.hidden = false; $('gIdle').hidden = true;
+    box.innerHTML = '';
+    const s = offer.spec;
+    if (s.type === 'actions') renderActions(box, s);
+    else if (s.type === 'dest') renderDest(box, s);
+    else if (s.type === 'quiz') renderQuiz(box, s);
+    else if (s.type === 'card' || s.type === 'ok') {
+      box.append(h('div', {class: 'card', html: s.icon || s.svg || ''}, h('h2', {text: s.title}), h('p', {text: s.text})));
+      box.append(h('button', {class: 'btn big primary wide', type: 'button', text: s.type === 'card' ? 'Okej!' : 'Fortsätt', onclick: () => { tap(); pickOffer(0); }}));
+    } else if (s.type === 'choose') {
+      box.append(h('h2', {text: s.title}));
+      if (s.sub) box.append(h('p', {class: 'sub', text: s.sub}));
+      const list = h('div', {class: 'choices'});
+      s.options.forEach(o => list.append(h('button', {class: 'choice' + (o.primary ? ' city' : ''), type: 'button', onclick: () => { tap(); pickOffer(o.k); }}, h('span', {text: o.label}), o.sub ? h('em', {text: o.sub}) : '')));
+      box.append(list);
+    } else if (s.type === 'bid') renderBid(box, s);
+    if (view === 'vGame') box.scrollIntoView({block: 'nearest'});
+  }
+  // Tärningen och knapparna för en tur
+  function renderActions(box, s) {
+    const dies = s.acts.filter(a => a.die), rest = s.acts.filter(a => !a.die);
+    box.append(h('h2', {text: s.title}));
+    if (s.sub) box.append(h('p', {class: 'sub', text: s.sub}));
+    if (dies.length) {
+      if (!armed || !dies.some(a => a.id === armed)) armed = (dies.find(a => a.primary) || dies[0]).id;
+      if (dies.length > 1) {
+        const seg = h('div', {class: 'choices'});
+        dies.forEach(a => seg.append(h('button', {class: 'choice', type: 'button', 'aria-pressed': String(a.id === armed), onclick: () => { armed = a.id; tap(); renderOffer(); }}, h('span', {text: a.label}), a.sub ? h('em', {text: a.sub}) : '')));
+        box.append(seg);
+      }
+      box.append(dieArea());
+    }
+    if (rest.length) {
+      const list = h('div', {class: 'stack'});
+      rest.forEach(a => list.append(h('button', {class: 'btn big ' + (a.primary ? 'primary' : a.id === 'fly' ? 'blue' : ''), type: 'button', onclick: () => { tap(); pickOffer(a.id); }}, h('span', {text: a.label}), a.sub ? h('span', {class: 'sub', text: a.sub}) : '')));
+      box.append(list);
+    }
+  }
+  function dieArea() {
+    const btn = h('button', {class: 'die-btn', type: 'button', 'aria-label': 'Kasta tärningen', disabled: dieBusy},
+      h('span', {class: 'die-stage'}, h('span', {class: 'die-tilt'}, buildDie())));
+    let start = null;
+    btn.addEventListener('pointerdown', e => { start = {x: e.clientX, y: e.clientY, t: performance.now()}; });
+    btn.addEventListener('pointerup', e => {
+      if (!start) return;
+      const dx = e.clientX - start.x, dy = e.clientY - start.y, dist = Math.hypot(dx, dy), dt = Math.max(30, performance.now() - start.t);
+      start = null;
+      throwDie(dist > 36 ? {dx, dy, speed: dist / dt * 1000} : null);
+    });
+    btn.addEventListener('click', e => e.preventDefault());
+    const hint = h('p', {class: 'die-hint', text: motionOn ? 'Tryck, svep uppåt eller skaka mobilen!' : 'Tryck eller svep uppåt!'});
+    const area = h('div', {class: 'die-area'}, btn, hint);
+    if (!motionOn && window.DeviceMotionEvent && isTouch) area.append(h('button', {class: 'btn small', type: 'button', text: 'Skaka mobilen för att kasta', onclick: e => { e.currentTarget.remove(); enableMotion(); }}));
+    return area;
+  }
+  function throwDie(flick) {
+    if (!offer || offer.spec.type !== 'actions' || dieBusy) return;
+    unlockAudio();
+    dieBusy = true;
+    const d = document.querySelector('.die');
+    if (d) d.classList.add('rolling');
+    rattle();
+    buzz(60);
+    pickOffer(armed || 'roll', {flick});
+    setTimeout(() => { dieBusy = false; }, 5000);
+  }
+  const PIPS = {1: [5], 2: [1, 9], 3: [1, 5, 9], 4: [1, 3, 7, 9], 5: [1, 3, 5, 7, 9], 6: [1, 3, 4, 6, 7, 9]};
+  const FACE_ROT = {1: [0, 0], 2: [0, -90], 3: [-90, 0], 4: [90, 0], 5: [0, 90], 6: [0, 180]};
+  function buildDie() {
+    const die = h('span', {class: 'die'});
+    for (let f = 1; f <= 6; f++) {
+      const face = h('span', {class: 'face f' + f});
+      PIPS[f].forEach(k => face.append(h('i', {class: 'pip', style: {'grid-area': `${Math.ceil(k / 3)} / ${((k - 1) % 3) + 1}`}})));
+      die.append(face);
+    }
+    return die;
+  }
+  // Slaget från den stora skärmen visas på tärningen i mobilen
+  function showDie(v) {
+    let d = document.querySelector('.die');
+    if (!d) {
+      const box = $('gPanel');
+      box.hidden = false; $('gIdle').hidden = true;
+      box.innerHTML = '';
+      box.append(h('div', {class: 'die-area'}, h('div', {class: 'die-btn', 'aria-hidden': 'true'}, h('span', {class: 'die-stage'}, h('span', {class: 'die-tilt'}, buildDie())))));
+      d = document.querySelector('.die');
+    }
+    const [rx, ry] = FACE_ROT[v] || [0, 0];
+    d.classList.remove('rolling');
+    d.style.transform = `rotateX(${rx + 720}deg) rotateY(${ry + 360}deg)`;
+    setTimeout(() => { if (!offer) renderOffer(); }, 2400);
+  }
+
+  // Vart man ska gå: välj i listan (vägen visas på skärmen) och bekräfta
+  function renderDest(box, s) {
+    box.append(h('h2', {text: s.title}));
+    box.append(h('p', {class: 'sub', text: 'Tryck på ett mål så syns vägen på den stora skärmen.'}));
+    const list = h('div', {class: 'choices'});
+    const go = h('button', {class: 'btn big primary wide', type: 'button', text: 'Gå hit!', disabled: selected == null, onclick: () => { if (selected != null) { tap(); pickOffer(selected); } }});
+    s.opts.forEach(o => {
+      if (o.back) return;
+      const b = h('button', {class: 'choice' + (o.city ? ' city' : ''), type: 'button', 'aria-pressed': String(selected === o.k)}, h('span', {text: o.label}), o.extra ? h('em', {text: o.extra}) : '');
+      b.onclick = () => { selected = o.k; list.querySelectorAll('.choice').forEach(x => x.setAttribute('aria-pressed', String(x === b))); go.disabled = false; send({t: 'hover', id: offer.id, k: o.k}); tap(); };
+      b.dataset.k = o.k;
+      list.append(b);
+    });
+    box.append(list);
+    const row = h('div', {class: 'stack go-row'}, go);
+    if (s.tip != null && s.tip >= 0) row.append(h('button', {class: 'btn small', type: 'button', text: 'Tips: vart ska jag gå?', onclick: () => { const b = list.querySelector(`[data-k="${s.tip}"]`); if (b) { b.classList.add('tip'); b.click(); b.scrollIntoView({block: 'center'}); } }}));
+    const back = s.opts.find(o => o.back);
+    if (back) row.append(h('button', {class: 'btn', type: 'button', text: back.label, onclick: () => { tap(); pickOffer(back.k); }}));
+    box.append(row);
+  }
+  function renderQuiz(box, s) {
+    box.append(h('h2', {text: s.title}), h('p', {class: 'quizq', text: s.q}));
+    if (s.clue) box.append(h('p', {class: 'clue', text: s.clue}));
+    const list = h('div', {class: 'choices'});
+    s.options.forEach((o, i) => list.append(h('button', {class: 'choice', type: 'button', disabled: quizPicked != null, onclick: e => { if (quizPicked != null) return; quizPicked = i; e.currentTarget.setAttribute('aria-pressed', 'true'); list.querySelectorAll('button').forEach(b => { b.disabled = true; }); tap(); pickOffer(i); }}, h('span', {text: o}))));
+    box.append(list, h('p', {class: 'result', id: 'quizRes', text: `Rätt svar ger ${s.reward}.`}));
+  }
+  function showQuizResult(e) {
+    let r = $('quizRes');
+    if (!r) {
+      const box = $('gPanel');
+      box.hidden = false; $('gIdle').hidden = true;
+      box.innerHTML = '';
+      r = h('p', {class: 'result', id: 'quizRes'});
+      box.append(r);
+    }
+    r.className = 'result ' + (e.ok ? 'ok' : 'no');
+    r.textContent = e.ok ? e.text : `Nästan! Rätt svar: ${e.answer}. ${e.text}`;
+    document.querySelectorAll('.choices .choice').forEach(b => { if (b.textContent === e.answer) b.classList.add('right'); else if (b.getAttribute('aria-pressed') === 'true') b.classList.add('wrong'); });
+    buzz(e.ok ? [50, 40, 50] : 150);
+    setTimeout(() => { if (!offer) renderOffer(); }, 3800);
+  }
+  function renderBid(box, s) {
+    box.append(h('h2', {text: s.title}));
+    box.append(h('div', {class: 'bid'}, h('p', {text: 'Högsta bud'}), h('p', {class: 'high', text: s.high ? `${kr(s.high)}` : 'inget än'}), h('p', {class: 'sub', text: s.leader ? (s.lead ? 'Du leder!' : `av ${s.leader}`) : 'Bjud först!'})));
+    box.append(h('button', {class: 'btn big primary wide', type: 'button', disabled: !s.can, text: s.lead ? 'Du leder!' : s.money >= s.next ? `Bjud ${kr(s.next)}` : 'Du har inte råd', onclick: () => { tap(); pickOffer('bid'); }}));
+    const bar = h('div', {class: 'timebar'}, h('i'));
+    box.append(bar, h('p', {class: 'sub', text: `Du har ${kr(s.money)}. Den som bjuder mest när tiden tar slut får vända brickan och betalar till banken.`}));
+    const t0 = performance.now(), total = Math.max(1, s.ends);
+    bidTimer = setInterval(() => { const k = Math.max(0, 1 - (performance.now() - t0) / total); bar.firstChild.style.transform = `scaleX(${k})`; if (k <= 0) clearInterval(bidTimer); }, 100);
+  }
+  function renderSecret(s) {
+    $('secretToken').innerHTML = s.svg || '';
+    $('secretTitle').textContent = s.title;
+    $('secretText').textContent = s.text;
+    $('secret').hidden = false;
+    buzz([40, 40, 40]);
+  }
+  $('bSecretOk').onclick = () => { tap(); $('secret').hidden = true; pickOffer(0); };
+
+  /* ---------- Slutet ---------- */
+  function renderOver(g) {
+    const w = g.players[g.winner];
+    $('overAv').style.setProperty('--pc', w.color);
+    $('overAv').innerHTML = thumbs['player:' + w.i] ? `<img src="${thumbs['player:' + w.i]}" alt="">` : '';
+    $('overTitle').textContent = g.winner === g.me ? 'Du vann!' : `${w.name} vann!`;
+    $('overText').textContent = g.how || '';
+    const d = $('overDiary');
+    d.innerHTML = '';
+    (g.diary || []).forEach(r => d.append(h('div', {class: 'prow', style: {'--pc': r.color}}, h('span', {class: 'n', text: r.name + (r.winner ? ' 🏆' : '')}),
+      h('span', {text: `${r.km.toLocaleString('sv-SE')} km · ${r.cities} städer`}))));
+    $('overLeader').hidden = !st.leader;
+    $('overWait').hidden = st.leader;
+    if (!render.overBuzzed) { render.overBuzzed = true; buzz(g.winner === g.me ? [100, 60, 100, 60, 300] : 80); }
+  }
+  $('bAgain').onclick = () => { tap(); render.overBuzzed = false; send({t: 'again'}); };
+  $('bReplay').onclick = () => { tap(); send({t: 'replay'}); };
+  $('bToLobby').onclick = () => { tap(); render.overBuzzed = false; send({t: 'menu'}); };
+
+  /* ---------- Spelledarens meny ---------- */
+  $('bMenu').innerHTML = '⋯';
+  $('bMenu').onclick = () => { $('mPause').textContent = st && st.game && st.game.paused ? 'Fortsätt spelet' : 'Pausa spelet'; $('menu').hidden = false; };
+  $('mClose').onclick = () => { $('menu').hidden = true; };
+  $('mPause').onclick = () => { send({t: 'pause', on: !(st && st.game && st.game.paused)}); $('menu').hidden = true; };
+  $('mEnd').onclick = () => { if (confirm('Avsluta spelet och gå tillbaka till lobbyn? Spelet sparas på den stora skärmen.')) { send({t: 'menu'}); $('menu').hidden = true; } };
+
+  /* ---------- Kod ---------- */
+  $('bChangeCode').onclick = () => { $('codeInput').value = code || ''; show('vCode'); };
+  $('bCode').onclick = () => {
+    const v = $('codeInput').value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+    if (v.length < 4) { $('codeErr').textContent = 'Koden har fem tecken.'; return; }
+    code = v; history.replaceState(null, '', '#' + code);
+    st = null; joinedOnce = false;
+    if (peer) { try { peer.destroy(); } catch (e) { /* stängd */ } peer = null; }
+    connect();
+  };
+  $('codeInput').addEventListener('keydown', e => { if (e.key === 'Enter') $('bCode').click(); });
+
+  /* ---------- Känsel, ljud och skakning ---------- */
+  const isTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+  const buzz = p => { try { if (navigator.vibrate) navigator.vibrate(p); } catch (e) { /* stöds inte */ } };
+  const tap = () => buzz(12);
+  let actx = null;
+  function unlockAudio() { try { if (!actx) actx = new (window.AudioContext || window.webkitAudioContext)(); if (actx.state === 'suspended') actx.resume(); } catch (e) { /* inget ljud */ } }
+  function beep(f, t0, dur, vol = .08, type = 'sine') {
+    if (!actx) return;
+    const o = actx.createOscillator(), g = actx.createGain(), t = actx.currentTime + t0;
+    o.type = type; o.frequency.value = f;
+    g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(vol, t + .01); g.gain.exponentialRampToValueAtTime(.0001, t + dur);
+    o.connect(g).connect(actx.destination); o.start(t); o.stop(t + dur + .02);
+  }
+  const ding = () => { beep(784, 0, .25); beep(1175, .12, .35); };
+  const rattle = () => { for (let i = 0; i < 6; i++) beep(300 + Math.random() * 500, i * .05, .05, .05, 'triangle'); };
+  let motionOn = false, lastShake = 0;
+  function enableMotion() {
+    const DME = window.DeviceMotionEvent;
+    if (!DME) return;
+    const go = () => { if (!motionOn) window.addEventListener('devicemotion', onMotion); motionOn = true; store.set('motion', true); renderOffer(); };
+    if (typeof DME.requestPermission === 'function') DME.requestPermission().then(r => { if (r === 'granted') go(); else toast('Skakning är avstängd. Tryck på tärningen i stället.'); }).catch(() => toast('Skakning fungerar inte här. Tryck på tärningen i stället.'));
+    else go();
+  }
+  function onMotion(e) {
+    const a = e.accelerationIncludingGravity || e.acceleration;
+    if (!a) return;
+    const m = Math.hypot(a.x || 0, a.y || 0, a.z || 0);
+    if (m > 24 && Date.now() - lastShake > 1500 && offer && offer.spec.type === 'actions' && offer.spec.acts.some(x => x.die)) {
+      lastShake = Date.now();
+      throwDie({dx: (a.x || 0) * 25, dy: -260 - Math.abs(a.y || 0) * 25, speed: 700 + m * 55});
+    }
+  }
+  // Android kan slå på skakningen direkt; iPhone måste fråga när man trycker på knappen
+  if (store.get('motion') && window.DeviceMotionEvent && typeof window.DeviceMotionEvent.requestPermission !== 'function') enableMotion();
+  let lock = null;
+  async function wake() { try { if ('wakeLock' in navigator && !lock && !document.hidden) { lock = await navigator.wakeLock.request('screen'); lock.addEventListener('release', () => { lock = null; }); } } catch (e) { /* frivilligt */ } }
+  document.addEventListener('pointerdown', () => { unlockAudio(); wake(); }, {once: true});
+
+  /* ---------- Småmeddelanden ---------- */
+  let toastT = 0;
+  function toast(title, text, svg) {
+    const t = $('toast');
+    t.innerHTML = '';
+    if (svg) t.append(h('span', {html: svg}));
+    t.append(h('div', null, title, text ? h('small', {text}) : ''));
+    t.hidden = false;
+    t.onclick = () => { t.hidden = true; };
+    clearTimeout(toastT);
+    toastT = setTimeout(() => { t.hidden = true; }, text && text.length > 60 ? 9000 : 4500);
+  }
+  function floatMoney(delta) {
+    if (!delta) return;
+    const el = h('div', {class: 'float' + (delta < 0 ? ' neg' : ''), text: (delta > 0 ? '+' : '−') + kr(Math.abs(delta))});
+    document.body.append(el);
+    setTimeout(() => el.remove(), 1600);
+    const m = $('barMoney');
+    m.classList.remove('up', 'down'); void m.offsetWidth; m.classList.add(delta > 0 ? 'up' : 'down');
+    setTimeout(() => m.classList.remove('up', 'down'), 1500);
+    buzz(delta > 0 ? 30 : [60, 40, 60]);
+  }
+
+  window.DJC = {state: () => st, offer: () => offer, send, dev: () => dev, connected: () => connected, throwDie, pickOffer};
+  connect();
+})();
+</script>
+</body>
+</html>
