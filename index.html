@@ -404,7 +404,8 @@ button{cursor:pointer}
 .remote-row span{flex:1;color:var(--ink-soft)}
 .remote-sheet{width:min(820px,100%);max-height:100%;overflow:auto}
 .remote-sheet .remote-host{margin:0}
-@media (max-width:700px){.remote-host{grid-template-columns:1fr;justify-items:center;text-align:center}}
+@media (max-width:700px){.remote-host{grid-template-columns:minmax(0,1fr);justify-items:center;text-align:center}}
+.remote-code{overflow-wrap:anywhere}
 .chip .av{position:relative;overflow:visible}
 .chip .av img{border-radius:50%}
 .chip .dev{display:none;position:absolute;right:-8px;bottom:-6px;width:24px;height:24px;border-radius:50%;background:#7fe0a6;border:2px solid var(--line);place-items:center}
@@ -779,6 +780,122 @@ body{background:radial-gradient(120% 90% at 50% 20%,#1d4652 0%,#0c222a 60%,#0613
 .tile.has-new::after{content:"";position:absolute;top:6px;right:calc(50% - 30px);width:14px;height:14px;border-radius:50%;background:#ff5a4e;box-shadow:0 0 0 2.5px #fff6e4,0 0 0 4px var(--ink)}
 @media (max-width:760px){.menu-tiles{grid-template-columns:repeat(3,minmax(0,1fr))}.challenge{grid-template-columns:80px minmax(0,1fr) 40px}}
 @media (prefers-reduced-motion: reduce){.lg-rays,.lg-sweep,.title-glints,.win-rays{animation:none!important}}
+
+/* ---------- Telefonen som spelskärm ---------- */
+/* Rutor som ska ligga ovanför panelen eller under brickorna följer deras verkliga storlek (mäts i 11-main.js) */
+.stamp-card{bottom:calc(var(--dock-h,190px) + 10px)}
+body:not(.table-mode) .storm-badge,body:not(.table-mode) .challenge-badge{top:calc(var(--hud-h,90px) + 8px)}
+#scrGame > .dock{width:min(860px,calc(100% - 24px - env(safe-area-inset-left) - env(safe-area-inset-right)))}
+/* Stående: brickorna i två kolumner, knapparna i en smal kolumn till höger och en kompakt panel där knapparna får hela bredden */
+@media (max-width:520px){
+  .game-tools{grid-template-columns:40px;gap:10px}
+  .game-tools .tool{width:40px;height:40px}
+  .players{right:66px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 6px}
+  .chip{grid-template-columns:34px minmax(0,1fr);column-gap:7px;padding:4px 8px 4px 4px;border-radius:16px;min-width:0}
+  .chip .av{width:34px;height:34px}
+  .chip .nm{font-size:12.5px;overflow:hidden}
+  .chip .nm small,.chip .stack{display:none}
+  .chip .mn{font-size:15px;gap:3px;white-space:nowrap}
+  .chip .items img,.chip .items svg{width:17px;height:17px}
+  .chip .tag{font-size:10px;padding:1px 5px}
+  .chip .dev{width:18px;height:18px;right:-5px;bottom:-4px}
+  .chip .dev .ico{width:11px;height:11px}
+  .chip.on{transform:scale(1.04)}
+  #scrGame > .dock{grid-template-areas:"die talk" "actions actions";gap:6px 10px;padding:8px 10px 10px 18px;border-radius:22px}
+  #scrGame > .dock .die-btn{width:60px;height:60px}
+  #scrGame > .dock .die-stage{scale:.76}
+  #scrGame > .dock .prompt{font-size:19px}
+  #scrGame > .dock .sub{font-size:13px;margin-top:2px}
+  .actions{gap:8px}
+  .actions .btn{min-height:44px;font-size:16px;padding:8px 14px}
+  .actions > .btn:not(.small){flex:1 1 auto}
+  .dest-list{max-height:92px}
+  .dest-btn{padding:5px 11px}
+  .actions .hint{display:none}
+  .workshop .sheet-head{flex-wrap:wrap;row-gap:10px}
+  .workshop .sheet-head h2{font-size:25px}
+  .workshop .tabs{flex-basis:100%}
+  .workshop .tab{flex:1}
+}
+/* Liggande: allt i panelen på en rad (tärning, text, knappar) så att brädet får mesta höjden */
+@media (max-height:520px) and (min-width:521px){
+  .game-tools{grid-template-columns:40px;gap:10px}
+  .game-tools .tool{width:40px;height:40px}
+  .players{right:66px;gap:8px}
+  .chip{grid-template-columns:34px auto;column-gap:8px;padding:4px 12px 4px 4px;border-radius:16px}
+  .chip .av{width:34px;height:34px}
+  .chip .nm{font-size:13px}
+  .chip .mn{font-size:16px;gap:3px}
+  .chip .stack{display:none}
+  .chip .items img,.chip .items svg{width:18px;height:18px}
+  .chip .dev{width:18px;height:18px;right:-5px;bottom:-4px}
+  .chip .dev .ico{width:11px;height:11px}
+  .chip.on{transform:scale(1.04)}
+  #scrGame > .dock{grid-template-columns:auto minmax(0,1fr) auto;grid-template-areas:"die talk actions";gap:6px 12px;padding:6px 10px 6px 18px;border-radius:22px;bottom:max(8px,env(safe-area-inset-bottom))}
+  #scrGame > .dock .die-btn{width:58px;height:58px}
+  #scrGame > .dock .die-stage{scale:.74}
+  #scrGame > .dock .prompt{font-size:19px}
+  #scrGame > .dock .sub{font-size:13px;margin-top:2px}
+  .actions{gap:8px;max-width:min(440px,52vw);justify-content:flex-end}
+  .actions .btn{min-height:44px;font-size:16px;padding:8px 14px}
+  .dest-list{max-height:76px;justify-content:flex-end;flex:1 1 auto;min-width:0}
+  .actions:has(.dest-list){flex-wrap:nowrap;align-items:flex-end}
+  .dest-btn{padding:5px 11px}
+  .actions .hint{display:none}
+  .feed{display:none}
+}
+/* Låg skärm: dialogerna blir kompaktare så att knapparna syns utan att man behöver skrolla */
+@media (max-height:520px){
+  .modal{padding:10px}
+  .sheet{padding:12px 16px}
+  .sheet-head{margin-bottom:8px;padding-bottom:6px}
+  .sheet-head h2{font-size:25px}
+  .center-sheet > h2{font-size:27px;margin:0 0 8px}
+  #dlgPause .sheet{width:min(600px,100%)}
+  #dlgPause .menu{grid-template-columns:1fr 1fr;width:100%;gap:10px}
+  #dlgPause .btn.big{min-height:48px;font-size:19px;padding:8px 12px}
+  #dlgPause .note{margin:10px 0 0;font-size:12px}
+  .win{padding-top:40px}
+  .win-sheet{width:min(760px,100%);max-height:none;padding-top:10px}
+  .win-avatar{width:76px;height:76px;margin-top:-40px}
+  .win-rays{width:260px;height:260px;margin:-110px 0 0 -130px}
+  .win-ribbon{margin-top:10px;font-size:16px;padding:4px 24px;min-width:150px}
+  .win-sheet h2{font-size:30px;margin:2px 0}
+  .win-sheet p{margin:4px 0;font-size:14px}
+  .stats{grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin-top:6px}
+  .stat{padding:4px 6px;font-size:11px}
+  .stat b{font-size:18px}
+  .win-sheet .sheet-foot{margin-top:10px;gap:8px}
+  .win-sheet .sheet-foot .btn.big{min-height:46px;font-size:18px;padding:8px 12px;flex:1 1 0}
+  .intro-gem svg{width:64px;height:64px}
+  .intro-map{font-size:clamp(44px,8vw,72px)}
+  .intro-text{font-size:17px}
+  .intro-av{width:50px;height:50px}
+  .flip{width:min(230px,50vw,calc(100vh - 230px));width:min(230px,50vw,calc(100dvh - 230px))}
+  .reveal-title{font-size:36px}
+  .reveal-text{font-size:16px}
+  .card-box{gap:8px}
+  .card-flip{width:min(300px,72vw,calc((100vh - 96px) * .714));width:min(300px,72vw,calc((100dvh - 96px) * .714))}
+  .card-front{padding:10px 12px}
+  .card-face{width:48%}
+  .card-front h3{font-size:22px}
+  .card-front p{font-size:13px}
+  .card-front .card-who{font-size:13px}
+  .card-buttons .btn{min-height:44px}
+}
+/* Liggande telefon i verkstaden: ritytan till vänster med verktygen bredvid, förhandsvisningen till höger */
+@media (max-height:520px) and (min-width:600px){
+  .workshop{padding:10px 14px}
+  .workshop .sheet-head h2{font-size:24px}
+  .ws-body{grid-template-columns:minmax(0,1.7fr) minmax(0,1fr);gap:14px}
+  .ws-left{display:grid;grid-template-columns:auto minmax(0,1fr);gap:12px;align-items:start}
+  .ws-left .canvas-box{width:min(44vw,calc(100vh - 118px));width:min(44vw,calc(100dvh - 118px));max-height:none;margin:0}
+  .ws-left .canvas-box{grid-row:span 2}
+  .ws-left .tools-row{margin-top:0;grid-column:2}
+  .ws-left .photo-intro{padding:12px;gap:10px;font-size:13px}
+  .preview{height:150px}
+  .preview img{max-height:104px;margin-bottom:20px}
+}
 </style>
 </head>
 <body>
@@ -3542,6 +3659,7 @@ const S3 = (() => {
     camera.aspect = w / h;
     camera.updateProjectionMatrix();
     Cam.limits();
+    Cam.lens(true);
   }
 
   /* ---------- Laddning av en karta ---------- */
@@ -4334,7 +4452,7 @@ const S3 = (() => {
     if (!root || !pts || pts.length < 2) { res(); return; }
     const curve = new THREE.CatmullRomCurve3(pts, false, 'centripetal');
     Cam.stop(); Cam.followFn = null;
-    const d0 = Cam.d, d = clamp(Cam.dFit * .36, Cam.dMin * 1.5, Cam.dFit), t0 = performance.now(), u0 = Cam.userT, T = ms * Time.scale;
+    const d0 = Cam.d, d = clamp(Cam.dRef * .36, Cam.dMin * 1.5, Cam.dFit), t0 = performance.now(), u0 = Cam.userT, T = ms * Time.scale;
     const glow = new THREE.Sprite(new THREE.SpriteMaterial({map: radialTexture('rgba(255,255,255,1)', 'rgba(255,220,120,0)'), transparent: true, depthWrite: false, blending: THREE.AdditiveBlending}));
     glow.scale.setScalar(.34);
     root.add(glow);
@@ -4407,8 +4525,10 @@ const S3 = (() => {
 
   /* ---------- Kameran ---------- */
   const Cam = S.cam = {
-    tx: 0, tz: 0, d: 12, dMin: 1.4, dMax: 14, anim: null, userT: 0, followFn: null, attract: false, table: false,
-    tilt() { if (this.table) return Math.PI / 2 - .0001; const k = clamp((this.d - this.dMin) / (this.dMax - this.dMin), 0, 1); return lerp(.6, 1.25, Math.pow(k, .8)); },
+    tx: 0, tz: 0, d: 12, dMin: 1.4, dMax: 14, dFit: 12, dRef: 12, anim: null, userT: 0, followFn: null, attract: false, table: false,
+    // iT/iB: hur stor del av skärmen spelarnas brickor (uppe) och panelen (nere) täcker; gT/gB är målet de glider mot
+    iT: 0, iB: 0, gT: 0, gB: 0, lensY: 0, tMin: .6,
+    tilt() { if (this.table) return Math.PI / 2 - .0001; const k = clamp((this.d - this.dMin) / (this.dMax - this.dMin), 0, 1); return lerp(this.tMin, 1.25, Math.pow(k, .8)); },
     limits() {
       if (!camera) return;
       // I bordsläget vrids en hög karta (Sverige) så att den fyller en liggande skärm
@@ -4417,8 +4537,23 @@ const S3 = (() => {
       const v = THREE.MathUtils.degToRad(camera.fov) / 2, hfov = Math.atan(Math.tan(v) * camera.aspect);
       const fitH = (bh / 2 + .45) / Math.tan(v) * 1.02, fitW = (bw / 2 + .45) / Math.tan(hfov) * 1.02;
       this.dFit = Math.max(fitH, fitW);
+      // dRef är avståndet som visar hela brädet på en skärm som är minst kvadratisk. Inzoomade vyer räknas från det,
+      // annars skulle en smal stående skärm (där hela bredden kräver ett långt avstånd) zooma ut i onödan.
+      this.dRef = Math.max(fitH, (bw / 2 + .45) / Math.tan(Math.atan(Math.tan(v) * Math.max(1, camera.aspect))) * 1.02);
       this.dMax = this.dFit * 1.12;
       this.dMin = Math.max(.9, Math.min(Wb, Hb) * .14);
+      // En stående skärm är smal: kameran tittar mer uppifrån så att den inte ser långt bort över bordet
+      this.tMin = lerp(.6, .98, clamp((1.25 - camera.aspect) / .75, 0, 1));
+      // Dimman döljer bordets bortre kant. På en smal skärm står kameran långt bort (världskartan), då flyttas dimman med.
+      if (scene && scene.fog) { scene.fog.near = Math.max(16, this.dMax * 1.05); scene.fog.far = Math.max(42, this.dMax * 2.6); }
+    },
+    // Sikta mitt i den fria ytan: kamerans mittpunkt flyttas upp när panelen nere är högre än brickorna uppe
+    lens(force) {
+      if (!camera) return;
+      const w = container.clientWidth || 1, h = container.clientHeight || 1, dy = this.table ? 0 : Math.round((this.iB - this.iT) / 2 * h);
+      if (!force && dy === this.lensY) return;
+      this.lensY = dy;
+      if (dy) camera.setViewOffset(w, h, 0, dy, w, h); else camera.clearViewOffset();
     },
     apply() {
       const tl = this.tilt();
@@ -4428,10 +4563,21 @@ const S3 = (() => {
       camera.lookAt(this.tx, gy, this.tz);
     },
     clampT() {
-      // Inzoomad får kameran gå ända ut till kanten, utzoomad hålls brädet i mitten
-      const k = clamp((this.d - this.dMin) / (this.dFit - this.dMin), 0, 1), f = 1 - Math.pow(k, 2.2) * .92;
-      const mx = Wb / 2 * f, mz = Hb / 2 * f;
-      this.tx = clamp(this.tx, -mx, mx); this.tz = clamp(this.tz, -mz, mz);
+      if (this.table) {
+        // Inzoomad får kameran gå ända ut till kanten, utzoomad hålls brädet i mitten
+        const k = clamp((this.d - this.dMin) / (this.dFit - this.dMin), 0, 1), f = 1 - Math.pow(k, 2.2) * .92;
+        const mx = Wb / 2 * f, mz = Hb / 2 * f;
+        this.tx = clamp(this.tx, -mx, mx); this.tz = clamp(this.tz, -mz, mz);
+        return;
+      }
+      // Det man ser mellan brickorna uppe och panelen nere ska vara bräde (ramen och en liten bit bord får synas).
+      // far/near: hur långt bort respektive nära den fria ytans över- och underkant träffar bordet, räknat från siktpunkten.
+      const M = .55, tl = this.tilt(), tv = Math.tan(THREE.MathUtils.degToRad(camera.fov) / 2);
+      const a = Math.atan(Math.max(.3, 1 - this.iT - this.iB) * tv), hc = this.d * Math.sin(tl), c = this.d * Math.cos(tl);
+      const far = tl - a > .04 ? Math.min(hc / Math.tan(tl - a) - c, Hb * 2) : Hb * 2, near = c - hc / Math.tan(tl + a);
+      const lo = -Hb / 2 - M + far, hi = Hb / 2 + M - near, mx = Wb / 2 + M - this.d * tv * camera.aspect;
+      this.tz = lo > hi ? (lo + hi) / 2 : clamp(this.tz, lo, hi);
+      this.tx = mx > 0 ? clamp(this.tx, -mx, mx) : 0;
     },
     to(x, z, d, ms = 900) {
       const from = {x: this.tx, z: this.tz, d: this.d};
@@ -4453,21 +4599,29 @@ const S3 = (() => {
         if (f) { const k = 1 - Math.exp(-dt * 3.2); this.tx += (f.x - this.tx) * k; this.tz += (f.z - this.tz) * k; if (f.d) this.d += (f.d - this.d) * k; }
       } else if (this.attract && performance.now() - this.userT > 4000) {
         const t = performance.now() / 1000;
-        this.tx = Math.sin(t * .05) * Wb * .22; this.tz = Math.cos(t * .037) * Hb * .18; this.d = this.dFit * (.55 + Math.sin(t * .07) * .12);
+        this.tx = Math.sin(t * .05) * Wb * .22; this.tz = Math.cos(t * .037) * Hb * .18; this.d = this.dRef * (.55 + Math.sin(t * .07) * .12);
       }
+      const ki = 1 - Math.exp(-dt * 5);
+      this.iT += (this.gT - this.iT) * ki; this.iB += (this.gB - this.iB) * ki;
+      this.lens();
       this.clampT();
       this.apply();
     }
   };
-  S.focusNode = (id, d, ms) => { const p = S.nodePos(id); return Cam.to(p.x, p.z, d != null ? d : Cam.dFit * .42, ms); };
+  // Hur mycket av skärmen (i pixlar) som täcks av spelarnas brickor uppe och panelen nere
+  S.setInsets = (top, bottom) => { const h = container ? container.clientHeight || 1 : 1; Cam.gT = clamp(top / h, 0, .45); Cam.gB = clamp(bottom / h, 0, .5); };
+  S.focusNode = (id, d, ms) => { const p = S.nodePos(id); return Cam.to(p.x, p.z, d != null ? d : Cam.dRef * .42, ms); };
   S.focusWorld = (p, d, ms) => Cam.to(p.x, p.z, d, ms);
   S.fitNodes = (ids, ms = 800) => {
     const ps = ids.map(id => S.nodePos(id));
     let x0 = Infinity, x1 = -Infinity, z0 = Infinity, z1 = -Infinity;
     ps.forEach(p => { x0 = Math.min(x0, p.x); x1 = Math.max(x1, p.x); z0 = Math.min(z0, p.z); z1 = Math.max(z1, p.z); });
     const span = Math.max(x1 - x0, (z1 - z0) * camera.aspect * .9, .8);
-    const d = clamp(span * 1.35 + 1.2, Math.max(Cam.dMin * 1.6, Cam.dFit * .34), Cam.dFit);
-    return Cam.to((x0 + x1) / 2, (z0 + z1) / 2 + d * .06, d, ms);
+    // På en smal (stående) skärm måste kameran längre bort för att alla städer ska få plats i bredd och i den fria höjden
+    const tv = Math.tan(THREE.MathUtils.degToRad(camera.fov) / 2), free = Math.max(.35, 1 - Cam.gT - Cam.gB);
+    const dw = ((x1 - x0) / 2 + .6) / (tv * camera.aspect), dz = ((z1 - z0) / 2 + .6) * Math.sin(Cam.tMin) / (tv * free);
+    const d = clamp(Math.max(span * 1.35 + 1.2, dw, dz), Math.max(Cam.dMin * 1.6, Cam.dRef * .34), Cam.dFit);
+    return Cam.to((x0 + x1) / 2, (z0 + z1) / 2 + d * .02, d, ms);
   };
   S.overview = ms => Cam.overview(ms);
   S.follow = fn => { Cam.followFn = fn; };
@@ -7281,7 +7435,7 @@ const Game = (() => {
       bday.forEach(p => { UI.toast(p, `Grattis på födelsedagen, ${p.name}! 🎂`); Remote.event(p, {kind: 'birthday', name: p.name}); });
     }
     S3.overview(0);
-    S3.focusNode(G.players[0].node, Math.min(S3.cam.dFit * .75, 7), 4400 * Time.scale);
+    S3.focusNode(G.players[0].node, Math.min(S3.cam.dRef * .75, 7), 4400 * Time.scale);
     await new Promise(res => {
       let t = 0;
       const end = () => { clearTimeout(t); box.onclick = null; document.removeEventListener('keydown', end, true); res(); };
@@ -7467,7 +7621,7 @@ const Game = (() => {
     if (G.options.challenge) UI.challenge(Challenges.label(G));
     else if (G.options.coop) UI.challenge(coopLabel());
     G.players.forEach(q => pieces[q.i].setActive(q === p));
-    if (follows()) S3.focusNode(p.node, Math.min(S3.cam.dFit * .6, 5.4), 900);
+    if (follows()) S3.focusNode(p.node, Math.min(S3.cam.dRef * .6, 5.4), 900);
     Bus.emit('turn', p);
   }
   const DIE_ACTS = ['roll', 'escape', 'try'];
@@ -7797,7 +7951,7 @@ const Game = (() => {
     const pc = pieces[p.i], c = airCurveDir(board, p.node, to), fromId = p.node;
     pc.moving = true; pc.setActive(false); pc.setVehicle('plane');
     Sound.play('plane');
-    if (follows()) S3.follow(() => ({x: pc.outer.position.x, z: pc.outer.position.z, d: S3.cam.dFit * .6}));
+    if (follows()) S3.follow(() => ({x: pc.outer.position.x, z: pc.outer.position.z, d: S3.cam.dRef * .6}));
     const from = S3.nodePos(p.node), dest = S3.nodePos(to);
     let lx = from.x, lz = from.z;
     try {
@@ -7917,7 +8071,7 @@ const Game = (() => {
   }
   async function flipToken(gen, p, cityId) {
     if (!G.tokens[cityId]) return;
-    if (follows()) await S3.focusNode(cityId, Math.min(S3.cam.dFit * .4, 3.6), 700);
+    if (follows()) await S3.focusNode(cityId, Math.min(S3.cam.dRef * .4, 3.6), 700);
     Flow.alive(gen);
     const th0 = themeOf(board), cname = board.cityById[cityId].name;
     if (Tips.open(p, `Vad ligger under brickan i ${cname}?`, ['En ädelsten', th0.thief.the, 'Tom bricka', 'Något annat'], 5000)) {
@@ -8240,7 +8394,7 @@ const Game = (() => {
   async function robOther(gen, p, target) {
     const th = themeOf(board), lost = Math.floor(target.money / 2000) * 1000;
     UI.toast(p, `${p.name} mutade ${th.thief.the.toLowerCase()} som gick till ${target.name}!`);
-    if (follows()) await S3.focusNode(target.node, Math.min(S3.cam.dFit * .5, 4.4), 700);
+    if (follows()) await S3.focusNode(target.node, Math.min(S3.cam.dRef * .5, 4.4), 700);
     Sound.play('thief');
     changeMoney(target, -lost);
     if (lost) target.stats.robbedTimes = (target.stats.robbedTimes || 0) + 1;
@@ -9845,7 +9999,7 @@ const Coach = (() => {
     const ok = h('button', {class: 'btn small primary', type: 'button', text: 'Okej!'});
     box = h('div', {class: 'coach', role: 'status'}, h('span', {class: 'coach-gem', html: icon('bulb')}), h('p', {text: typeof TIPS[id].text === 'function' ? TIPS[id].text() : TIPS[id].text}), ok);
     ok.onclick = () => { Sound.play('click'); C.hide(); };
-    document.body.append(box);
+    ($('app') || document.body).append(box);   // i #app så att pausmenyn och andra dialoger lägger sig över tipset
     const r = el.getBoundingClientRect(), bw = Math.min(360, window.innerWidth - 24);
     box.style.width = bw + 'px';
     const left = clamp(r.left + r.width / 2 - bw / 2, 12, window.innerWidth - bw - 12);
@@ -10377,6 +10531,22 @@ async function boot(hot) {
   $('soundHint').onclick = () => { Sound.unlock(); setTimeout(soundHint, 400); };
   Bus.on('audioState', soundHint);
   setInterval(soundHint, 1000);
+  // Kameran siktar mitt i den fria ytan mellan spelarnas brickor och panelen, så den behöver veta hur mycket de täcker
+  // Samma mått styr var stämpelkortet och märkena lägger sig (--dock-h, --hud-h i style.css)
+  let insetAt = 0, insetKey = '';
+  Bus.on('frame', () => {
+    const now = performance.now();
+    if (now - insetAt < 250) return;
+    insetAt = now;
+    if ($('scrGame').hidden || document.body.classList.contains('table-mode')) { S3.setInsets(0, 0); return; }
+    const pl = $('players').getBoundingClientRect(), dock = $('dock'), dk = dock.getBoundingClientRect();
+    const top = pl.height ? Math.round(pl.bottom) : 0, bottom = dk.height && !dock.hidden ? Math.round(innerHeight - dk.top) : 0;
+    S3.setInsets(top, bottom);
+    if (insetKey === top + '/' + bottom) return;
+    insetKey = top + '/' + bottom;
+    document.documentElement.style.setProperty('--hud-h', top + 'px');
+    document.documentElement.style.setProperty('--dock-h', bottom + 'px');
+  });
   Challenges.markTile();
   UI.birthdayBanner();
   const full = $('tFull');
