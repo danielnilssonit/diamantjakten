@@ -5587,7 +5587,7 @@ const Pieces = (() => {
         built.model.position.y = v === 'boat' ? deck : 0;
         built.model.scale.setScalar(v === 'boat' ? scale * .8 : scale);
       },
-      setActive(on) { this.active = on; arrow.visible = on; ring.visible = on; },
+      setActive(on) { this.active = on; arrow.visible = on && !FLAT; ring.visible = on; },   // uppifrån (2D) skymmer pilen staden, ringen räcker
       setCarry(key) {
         if (this.carry) { hop.remove(this.carry); this.carry = null; }
         if (!key) return;
