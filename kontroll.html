@@ -169,6 +169,10 @@ p{margin:0;font-weight:700;line-height:1.35}
 .prow.turn-on{background:#fff3c4;border-radius:8px}
 .tag{font-size:11px;font-weight:900;padding:2px 7px;border-radius:8px;background:#ffd6a0}
 .claim{display:grid;gap:10px}
+.award-card{display:grid;gap:4px;justify-items:center;text-align:center;padding:12px 14px;border-radius:18px;background:linear-gradient(180deg,#fff6d8,#ffe29a);box-shadow:0 0 0 2.5px var(--ink),0 0 0 5px rgba(242,191,63,.85);color:var(--ink);width:100%;box-sizing:border-box}
+.award-card small{font-weight:900;letter-spacing:.12em;text-transform:uppercase;font-size:12px;color:#9a5b00}
+.award-card b{font-family:var(--display);font-weight:400;font-size:28px;line-height:1.05}
+.award-card span{font-weight:800}
 .fan-join{display:grid;gap:10px;margin-top:10px;padding-top:14px;border-top:2px dashed rgba(255,255,255,.25)}
 .fan-join h2{margin:0}
 .livemap{width:100%;height:auto;max-height:62vh;display:block;border-radius:12px}
@@ -370,7 +374,7 @@ html,body{background:radial-gradient(120% 70% at 50% 0%,#23525e 0%,#0c242c 55%,#
         <h2><span class="crown"></span>Du är spelledare</h2>
         <div class="field"><span>Karta</span><div class="seg wrap" id="lMap" role="group" aria-label="Karta"></div></div>
         <div class="field"><span>Speltid</span><div class="seg" id="lLength" role="group" aria-label="Speltid"><button type="button" data-v="short">Kort</button><button type="button" data-v="normal">Vanligt</button></div></div>
-        <div class="field"><span>Regler</span><div class="seg" id="lRules" role="group" aria-label="Regler"><button type="button" data-v="family">Familj</button><button type="button" data-v="expert">Expert</button></div></div>
+        <div class="field"><span>Regler</span><div class="seg" id="lRules" role="group" aria-label="Regler"><button type="button" data-v="family">Familj</button><button type="button" data-v="expert">Expert</button><button type="button" data-v="coop">Tillsammans</button></div></div>
         <div class="field"><span>Extra</span><div class="toggles"><button type="button" class="toggle" id="lCards">Äventyrskort</button><button type="button" class="toggle" id="lQuiz">Frågesport</button></div></div>
         <div class="field"><span>Datorspelare</span><div class="seg" id="lBot" role="group" aria-label="Lägg till datorspelare"><button type="button" data-v="1">+ lätt</button><button type="button" data-v="2">+ lagom</button><button type="button" data-v="3">+ klurig</button></div></div>
         <button id="bStart" class="btn big primary wide" type="button">Starta spelet!</button>
@@ -417,6 +421,7 @@ html,body{background:radial-gradient(120% 70% at 50% 0%,#23525e 0%,#0c242c 55%,#
       <div class="over-av" id="overAv"></div>
       <h1 id="overTitle"></h1>
       <p id="overText"></p>
+      <div id="overAward" class="award-card" hidden></div>
       <div id="overDiary" class="diary"></div>
       <div id="overPostcard" class="postcard" hidden></div>
       <div id="overLeader" class="stack" hidden>
@@ -603,6 +608,7 @@ html,body{background:radial-gradient(120% 70% at 50% 0%,#23525e 0%,#0c242c 55%,#
     }
     else if (e.kind === 'quiz') { showQuizResult(e); say(e.ok ? e.text : `Nästan! Rätt svar är ${e.answer}. ${e.text}`, e.ok ? 'happy' : 'normal'); }
     else if (e.kind === 'badge') { toast(`Nytt märke: ${e.name}!`, e.text); buzz([60, 40, 60]); say(`Nytt märke: ${e.name}!`, 'happy'); }
+    else if (e.kind === 'birthday') { toast('Grattis på födelsedagen! 🎂', 'Idag har du partyhatt på brädet.'); buzz([80, 40, 80, 40, 240]); ding(); say(`Grattis på födelsedagen, ${e.name}! Hurra, hurra, hurra!`, 'happy'); }
     else if (e.kind === 'mission') { toast('Uppdraget är klart!', `${e.text}. Du får ${e.reward}.`); buzz([100, 50, 100, 50, 200]); ding(); say(`Hurra! Uppdraget är klart! Du får ${e.reward}.`, 'happy'); }
   }
 
@@ -1008,7 +1014,7 @@ html,body{background:radial-gradient(120% 70% at 50% 0%,#23525e 0%,#0c242c 55%,#
     }
     const ot = $('others');
     ot.innerHTML = '';
-    ot.append(h('h3', {text: g.storm ? `Spelarna · storm till sjöss (${g.storm})` : 'Spelarna'}));
+    ot.append(h('h3', {text: (g.coop ? `Laget · runda ${Math.min(g.round, g.coop.limit)} av ${g.coop.limit}` : 'Spelarna') + (g.storm ? ` · storm till sjöss (${g.storm})` : '')}));
     g.players.forEach(p => {
       const tags = [p.star ? g.treasure : '', p.pass ? `${g.pass}${p.pass > 1 ? ' ×' + p.pass : ''}` : '', p.stuck ? 'fast' : '', p.skip ? 'står över' : ''].filter(Boolean);
       ot.append(h('div', {class: 'prow' + (p.i === g.turn ? ' turn-on' : ''), style: {'--pc': p.color}}, avatar('player:' + p.i, p.color), h('span', {class: 'n', text: p.name + (p.i === g.me ? ' (du)' : '')}),
@@ -1267,8 +1273,11 @@ html,body{background:radial-gradient(120% 70% at 50% 0%,#23525e 0%,#0c242c 55%,#
     const w = g.players[g.winner];
     $('overAv').style.setProperty('--pc', w.color);
     $('overAv').innerHTML = thumbs['player:' + w.i] ? `<img src="${thumbs['player:' + w.i]}" alt="">` : '';
-    $('overTitle').textContent = g.winner === g.me ? 'Du vann!' : `${w.name} vann!`;
+    $('overTitle').textContent = g.coop ? 'Ni vann tillsammans!' : g.winner === g.me ? 'Du vann!' : `${w.name} vann!`;
     $('overText').textContent = g.how || '';
+    const aw = (g.awards || []).find(a => a && a.i === g.me), ab = $('overAward');
+    ab.hidden = !aw;
+    if (aw) { ab.innerHTML = ''; ab.append(h('small', {text: 'Ditt pris'}), h('b', {text: '🏅 ' + aw.title}), h('span', {text: aw.text})); }
     const d = $('overDiary');
     d.innerHTML = '';
     (g.diary || []).forEach(r => d.append(h('div', {class: 'prow', style: {'--pc': r.color}}, h('span', {class: 'n', text: r.name + (r.winner ? ' 🏆' : '')}),
@@ -1295,7 +1304,7 @@ html,body{background:radial-gradient(120% 70% at 50% 0%,#23525e 0%,#0c242c 55%,#
     }
     $('overLeader').hidden = !st.leader;
     $('overWait').hidden = st.leader;
-    if (!render.overBuzzed) { render.overBuzzed = true; buzz(g.winner === g.me ? [100, 60, 100, 60, 300] : 80); say(`${$('overTitle').textContent} ${g.how || ''}`); }
+    if (!render.overBuzzed) { render.overBuzzed = true; buzz(g.winner === g.me ? [100, 60, 100, 60, 300] : 80); say(`${$('overTitle').textContent} ${g.how || ''}`); if (aw) say(`Ditt pris: ${aw.title}! ${aw.text}`, 'happy'); }
   }
   $('bAgain').onclick = () => { tap(); render.overBuzzed = false; postcard = null; send({t: 'again'}); };
   $('bReplay').onclick = () => { tap(); send({t: 'replay'}); };

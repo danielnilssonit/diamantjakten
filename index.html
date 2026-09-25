@@ -103,6 +103,14 @@ button{cursor:pointer}
 .opt input[type=range]{accent-color:var(--sun);width:100%}
 .opt.grow{flex:1}
 .voice-row{display:flex;gap:8px;align-items:center}
+.bday-list{display:flex;gap:6px;flex-wrap:wrap}
+.bday-list:empty{display:none}
+.bday-chip{display:inline-flex;align-items:center;gap:6px;padding:4px 6px 4px 12px;border-radius:999px;background:#fff3d0;box-shadow:0 0 0 2px rgba(29,43,51,.25);font-weight:800;font-size:14px}
+.bday-chip button{border:0;width:24px;height:24px;border-radius:50%;background:#1d2b33;color:#fff;font-weight:900;line-height:1;cursor:pointer}
+.bday-row{display:grid;grid-template-columns:minmax(0,1fr) 64px minmax(0,110px) auto;gap:6px;align-items:center}
+.bday-row input,.bday-row select{min-width:0}
+.bday-banner{margin:6px 0 0;font-family:var(--display);font-weight:400;font-size:clamp(20px,2.6vw,30px);color:#fff;text-shadow:0 3px 0 #1d2b33,0 6px 16px rgba(0,0,0,.45);animation:introGem 2.4s ease-in-out infinite}
+.party-confetti{position:fixed;inset:0;width:100vw;height:100vh;z-index:16;pointer-events:none}
 .voice-row select{flex:1;min-width:0}
 .opt-note{font-weight:700;font-size:13px;color:var(--ink-soft);line-height:1.35}
 .check-list{display:grid;gap:8px;margin:10px 0 14px}
@@ -347,6 +355,33 @@ button{cursor:pointer}
 .remote-list{display:grid;gap:6px}
 .remote-fans,.diary-fans{display:flex;align-items:center;gap:8px;margin:0;font-weight:800;font-size:14px}
 .remote-fans svg,.diary-fans svg{width:20px;height:20px;flex:none}
+.intro{position:fixed;inset:0;z-index:13;display:grid;place-items:center;padding:24px;cursor:pointer;background:radial-gradient(circle at 50% 45%,rgba(10,28,34,.2),rgba(10,28,34,.74));animation:introIn .5s ease-out}
+.intro.out{animation:introOut .45s ease-in forwards}
+.intro-box{max-width:min(780px,92vw);text-align:center;color:#fff6e4;display:grid;justify-items:center;gap:10px}
+.intro-gem svg{width:96px;height:96px;display:block;filter:drop-shadow(0 6px 14px rgba(0,0,0,.45));animation:introGem 2.4s ease-in-out infinite}
+.intro-kicker{margin:0;font-weight:900;letter-spacing:.16em;text-transform:uppercase;font-size:15px;color:#ffd24d}
+.intro-map{margin:0;font-family:var(--display);font-weight:400;font-size:clamp(56px,9vw,112px);line-height:.95;color:#fff;text-shadow:0 4px 0 #1d2b33,0 10px 24px rgba(0,0,0,.5)}
+.intro-text{margin:0;max-width:36ch;font-weight:800;font-size:clamp(18px,2.2vw,26px);line-height:1.35;text-wrap:balance;text-shadow:0 2px 8px rgba(0,0,0,.6)}
+.intro-players{display:flex;gap:16px;flex-wrap:wrap;justify-content:center;margin-top:8px}
+.intro-p{display:grid;justify-items:center;gap:5px;font-weight:900;font-size:16px;text-shadow:0 2px 6px rgba(0,0,0,.6);animation:introPop .5s cubic-bezier(.3,1.5,.5,1) backwards}
+.intro-av{width:66px;height:66px;border-radius:50%;overflow:hidden;display:grid;place-items:center;background:radial-gradient(circle at 50% 40%,var(--pc),#1d2b33 150%);box-shadow:0 0 0 3px #1d2b33,0 0 0 6px #fff3d0}
+.intro-av img{width:100%;height:100%;object-fit:cover}
+.intro-skip{margin:6px 0 0;font-weight:800;font-size:14px;opacity:.75}
+@keyframes introIn{from{opacity:0}}
+@keyframes introOut{to{opacity:0;transform:scale(1.04)}}
+@keyframes introPop{from{transform:scale(.3);opacity:0}}
+@keyframes introGem{50%{transform:translateY(-6px) rotate(-4deg)}}
+.awards{display:grid;gap:8px;margin-top:12px}
+.awards:empty{display:none}
+.awards h3{display:flex;align-items:center;gap:8px;margin:0;font-family:var(--display);font-weight:400;font-size:21px}
+.awards h3 .ico{width:22px;height:22px}
+.award-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:8px}
+.award{display:grid;grid-template-columns:44px minmax(0,1fr);grid-template-rows:auto auto;column-gap:10px;align-items:center;text-align:left;padding:8px 10px;border-radius:14px;background:#fffdf7;box-shadow:0 0 0 2px rgba(29,43,51,.18),inset 6px 0 0 var(--pc)}
+.award-medal{grid-row:span 2;width:40px;height:40px;border-radius:50%;display:grid;place-items:center;color:#5a3a00;background:radial-gradient(circle at 35% 30%,#fff3bd,#f2bf3f 50%,#c98a14);box-shadow:0 0 0 2px var(--ink)}
+.award-medal .ico{width:22px;height:22px}
+.award b{font-family:var(--display);font-weight:400;font-size:18px;line-height:1.1}
+.award span:last-child{font-weight:700;font-size:13px;color:var(--ink-soft);line-height:1.3}
+@media (prefers-reduced-motion: reduce){.intro,.intro-p,.intro-gem svg{animation:none}}
 .fan-pop{position:fixed;bottom:130px;z-index:14;display:grid;justify-items:center;gap:2px;pointer-events:none;animation:fanup 3.3s ease-out forwards}
 .fan-emo{font-size:56px;line-height:1;filter:drop-shadow(0 4px 6px rgba(0,0,0,.35))}
 .fan-pop small{font:900 15px var(--body);color:#fff6e4;background:rgba(10,28,34,.88);padding:3px 11px;border-radius:999px;box-shadow:0 0 0 2px rgba(242,191,63,.75)}
@@ -780,6 +815,7 @@ body{background:radial-gradient(120% 90% at 50% 20%,#1d4652 0%,#0c222a 60%,#0613
         </svg>
       </h1>
       <p class="tagline"><span>Jaga skatten i Afrika, Sverige, Skandinavien och Europa</span></p>
+      <p class="bday-banner" id="bdayBanner" hidden></p>
       <div class="menu title-menu">
         <button id="bContinue" class="btn big blue" type="button" hidden>Fortsätt spelet</button>
         <button id="bPlay" class="btn big primary glint" type="button">Nytt spel</button>
@@ -818,6 +854,7 @@ body{background:radial-gradient(120% 90% at 50% 20%,#1d4652 0%,#0c222a 60%,#0613
         <div class="seg" role="group" aria-label="Regler" id="optRules">
           <button type="button" data-v="family" aria-pressed="true">Familj</button>
           <button type="button" data-v="expert" aria-pressed="false">Expert, mer taktik</button>
+          <button type="button" data-v="coop" aria-pressed="false">Tillsammans</button>
         </div>
         <span class="toggles">
           <button type="button" class="toggle" id="optCards" aria-pressed="true">Äventyrskort</button>
@@ -944,6 +981,7 @@ body{background:radial-gradient(120% 90% at 50% 20%,#1d4652 0%,#0c222a 60%,#0613
       <h2 id="winTitle"></h2>
       <p id="winText"></p>
       <div class="stats" id="winStats"></div>
+      <div class="awards" id="winAwards"></div>
       <div class="diary" id="winDiary"></div>
       <div class="sheet-foot center">
         <button class="btn big" id="bWinReplay" type="button">Visa resan</button>
@@ -951,6 +989,16 @@ body{background:radial-gradient(120% 90% at 50% 20%,#1d4652 0%,#0c222a 60%,#0613
         <button class="btn big" id="bWinMenu" type="button">Till menyn</button>
         <button class="btn big primary" id="bWinAgain" type="button">Spela igen</button>
       </div>
+    </div>
+  </div>
+  <div id="introCard" class="intro" hidden role="dialog" aria-label="Äventyret börjar">
+    <div class="intro-box">
+      <div class="intro-gem" id="introGem" aria-hidden="true"></div>
+      <p class="intro-kicker" id="introKicker">Äventyret börjar</p>
+      <h2 class="intro-map" id="introMap"></h2>
+      <p class="intro-text" id="introText"></p>
+      <div class="intro-players" id="introPlayers"></div>
+      <p class="intro-skip">Tryck för att börja</p>
     </div>
   </div>
   <div id="dlgPause" class="modal" hidden><div class="sheet small-sheet center-sheet"><h2>Paus</h2>
@@ -972,6 +1020,11 @@ body{background:radial-gradient(120% 90% at 50% 20%,#1d4652 0%,#0c222a 60%,#0613
       <label class="opt"><span>Högtider</span><select id="sXmas"><option value="auto">efter datum</option><option value="jul">jul</option><option value="halloween">halloween</option><option value="off">av</option></select></label>
       <button class="btn small" id="bCoachReset" type="button">Visa guiden igen</button>
       <button class="btn small" id="bCheck" type="button">Testa skärmen</button>
+      <div class="opt bday-opt"><span>Födelsedagar</span>
+        <div class="bday-list" id="bdayList"></div>
+        <div class="bday-row"><input type="text" id="bdayName" maxlength="14" placeholder="Namn" autocomplete="off" aria-label="Namn"><select id="bdayDay" aria-label="Dag"></select><select id="bdayMonth" aria-label="Månad"></select><button class="btn small" id="bdayAdd" type="button">Lägg till</button></div>
+        <small class="opt-note">Den som fyller år får partyhatt och ett grattis när ni spelar. Skriv namnet som i spelet.</small>
+      </div>
       <details class="more"><summary>Avancerat: server för mobiler på krångliga nät</summary>
         <p class="note">Behövs bara om mobilerna inte får kontakt, till exempel på gästnät. Fyll i en egen TURN-server (från till exempel Metered eller Twilio). Uppgifterna följer med i QR-koden.</p>
         <label class="opt"><span>TURN-adress</span><input type="text" id="sTurnUrl" placeholder="turn:server:3478" autocomplete="off"></label>
@@ -1229,7 +1282,8 @@ const ACCESSORIES = [
   {id: 'monocle', name: 'Monokel', badge: 'tips5'},
   {id: 'cape', name: 'Mantel', badge: 'treasure'},
   {id: 'santa', name: 'Tomteluva', badge: 'xmas'},
-  {id: 'witch', name: 'Häxhatt', badge: 'halloween'}
+  {id: 'witch', name: 'Häxhatt', badge: 'halloween'},
+  {id: 'party', name: 'Partyhatt', badge: 'birthday'}
 ];
 // Färger att välja på för egna pjäser
 const PIECE_COLORS = ['#e5484d', '#3b7ce0', '#25a466', '#f2b705', '#9b5de5', '#ff8a1f', '#ff5fa2', '#1fb5c9'];
@@ -4451,16 +4505,26 @@ const Pieces = (() => {
       g.position.set(0, top - .1, 0);
       g.rotation.z = -.14;
       return g;
+    },
+    party(top = 3.15) {
+      // Randig strut med en tofs, fyra färger nerifrån och upp
+      const g = new THREE.Group(), cols = ['#ff5fa2', '#39a0ff', '#ffc233', '#2fb56a'];
+      for (let k = 0; k < 4; k++) g.add(mesh(new THREE.CylinderGeometry(Math.max(.012, .3 * (1 - (k + 1) / 4)), .3 * (1 - k / 4), .2, 20), mat(cols[k], {roughness: .45}), 0, .1 + k * .2, 0));
+      g.add(mesh(new THREE.SphereGeometry(.1, 12, 8), mat('#ffffff', {roughness: .8}), 0, .86, 0));
+      g.position.set(-.04, top - .1, 0);
+      g.rotation.z = .2;
+      return g;
     }
   };
   P.accessory = (id, top) => ACC[id] ? ACC[id](top) : null;
-  // Tillbehör på pjäsen: valt tillbehör, tomteluva i december och häxhatt på halloween
-  function dress(built, acc, kind) {
+  // Tillbehör på pjäsen: valt tillbehör, partyhatt på födelsedagen, tomteluva i december och häxhatt på halloween
+  function dress(built, acc, kind, party) {
     if (!built || built.standee || kind === 'custom') return;
     if (acc && ACC[acc]) built.model.add(ACC[acc]());
     const season = typeof Season !== 'undefined' ? Season.now() : null;
-    if (acc === 'santa' || acc === 'witch') return;
-    if (season === 'jul') built.model.add(ACC.santa());
+    if (acc === 'santa' || acc === 'witch' || acc === 'party') return;
+    if (party) built.model.add(ACC.party());
+    else if (season === 'jul') built.model.add(ACC.santa());
     else if (season === 'halloween') built.model.add(ACC.witch());
   }
 
@@ -4683,7 +4747,7 @@ const Pieces = (() => {
     outer.add(hop); hop.add(face);
     const ch = CHARACTERS.find(c => c.id === spec.id) || CHARACTERS[0];
     const built = spec.type === 'custom' ? safePuffy(spec.piece, player.color) : (buildPawnLib(ch, player.color) || buildPawn(ch));
-    dress(built, player.acc, spec.type);
+    dress(built, player.acc, spec.type, typeof Birthday !== 'undefined' && Birthday.is(player.name));
     const scale = .38 / built.height;
     face.add(built.model);
     built.model.scale.setScalar(scale);
@@ -4839,7 +4903,7 @@ const Pieces = (() => {
   let thumbR = null, thumbScene = null, thumbCam = null;
   const thumbCache = {};
   P.thumb = (spec, color) => {
-    const key = (spec.type === 'char' ? 'c:' + spec.id : 'u:' + spec.piece.id) + ':' + color + ':' + (spec.acc || '') + ':' + (typeof Season !== 'undefined' && Season.now() || '');
+    const key = (spec.type === 'char' ? 'c:' + spec.id : 'u:' + spec.piece.id) + ':' + color + ':' + (spec.acc || '') + ':' + (typeof Season !== 'undefined' && Season.now() || '') + (spec.party ? ':party' : '');
     if (thumbCache[key]) return thumbCache[key];
     try {
       if (!thumbR) {
@@ -4854,7 +4918,7 @@ const Pieces = (() => {
       }
       const ch = CHARACTERS.find(c => c.id === spec.id) || CHARACTERS[0];
       const built = spec.type === 'custom' ? safePuffy(spec.piece, color) : (buildPawnLib(ch, color || ch.color) || buildPawn(ch));
-      dress(built, spec.acc, spec.type);
+      dress(built, spec.acc, spec.type, spec.party);
       const s = 1 / built.height;
       built.model.scale.setScalar(s);
       thumbScene.add(built.model);
@@ -5711,6 +5775,7 @@ Object.assign(ICON_PATHS, {
   storm: '<path d="M7 15a4 4 0 010-8 5 5 0 019.5-1A4 4 0 0117 15z"/><path d="M12 13l-2 4h3l-2 4"/>',
   gavel: '<path d="M14 4l6 6M11 7l6 6M12.5 5.5l-5 5 3 3 5-5M9 12l-6 6 2 2 6-6"/>',
   gem: '<path d="M6 4h12l4 5-10 11L2 9z"/><path d="M2 9h20M8 4l4 16 4-16"/>',
+  gift: '<rect x="4" y="10" width="16" height="10" rx="1.5"/><path d="M3 10h18M12 10v10M12 10c-3.5 0-5.5-1.2-5.5-3S9 4.5 12 10zm0 0c3.5 0 5.5-1.2 5.5-3S15 4.5 12 10z"/>',
   cheer: '<path d="M4 10v4h3l7 4V6L7 10z"/><path d="M17 9a4 4 0 010 6M19.5 7a7 7 0 010 10"/>',
   pumpkin: '<path d="M12 7C6 7 3 10 3 14s4 6 9 6 9-2 9-6-3-7-9-7z"/><path d="M12 7c-2.5 3-2.5 10 0 13M12 7c2.5 3 2.5 10 0 13M12 7V4.5l2-1.5"/>'
 });
@@ -5948,6 +6013,16 @@ const UI = (() => {
     });
   };
 
+  // Priser till alla, under vinnarens siffror
+  U.awards = (list, players) => {
+    const box = $('winAwards');
+    box.innerHTML = '';
+    if (!list || !list.length) return;
+    box.append(h('h3', {html: icon('trophy') + '<span>Priser till alla</span>'}));
+    const grid = h('div', {class: 'award-grid'});
+    list.forEach(a => grid.append(h('div', {class: 'award', style: {'--pc': players[a.i].color}}, h('span', {class: 'award-medal', html: icon(a.icon)}), h('b', {text: a.title}), h('span', {text: a.text}))));
+    box.append(grid);
+  };
   // Hejarklackens stjärnor under resedagboken
   U.diaryFans = () => {
     const fans = Remote.fans(true).filter(f => f.stats.stars);
@@ -5967,7 +6042,8 @@ const UI = (() => {
   };
 
   /* ---------- Vinst ---------- */
-  U.win = (p, title, text, stats, thumb) => {
+  U.win = (p, title, text, stats, thumb, ribbon = 'Vinnare') => {
+    document.querySelector('#winBox .win-ribbon span').textContent = ribbon;
     $('winAvatar').style.setProperty('--pc', p.color);
     $('winAvatar').innerHTML = thumb ? `<img src="${thumb}" alt="">` : '';
     $('winTitle').textContent = title; $('winText').textContent = text;
@@ -5977,6 +6053,43 @@ const UI = (() => {
     U.modal('dlgWin', true);
     confetti();
   };
+  // Konfetti över hela skärmen (födelsedagar)
+  U.partyConfetti = () => {
+    if (reduceMotion) return;
+    const cv = h('canvas', {class: 'party-confetti'});
+    document.body.append(cv);
+    const ctx = cv.getContext('2d'), W = window.innerWidth, H = window.innerHeight, dpr = Math.min(2, window.devicePixelRatio || 1);
+    cv.width = W * dpr; cv.height = H * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    const cols = ['#ffc233', '#ff5a4e', '#39a0ff', '#2fb56a', '#9b5de5', '#ff5fa2', '#ffffff'];
+    const parts = Array.from({length: 260}, () => ({x: Math.random() * W, y: -20 - Math.random() * H * .6, vx: (Math.random() - .5) * 3, vy: 2 + Math.random() * 4, s: 6 + Math.random() * 8, a: Math.random() * 6, va: (Math.random() - .5) * .3, c: cols[Math.floor(Math.random() * cols.length)]}));
+    const t0 = performance.now();
+    const step = now => {
+      const e = now - t0;
+      ctx.clearRect(0, 0, W, H);
+      parts.forEach(q => { q.x += q.vx + Math.sin(e / 300 + q.a) * .6; q.y += q.vy; q.a += q.va; ctx.save(); ctx.translate(q.x, q.y); ctx.rotate(q.a); ctx.fillStyle = q.c; ctx.globalAlpha = Math.max(0, 1 - Math.max(0, e - 4000) / 1500); ctx.fillRect(-q.s / 2, -q.s / 4, q.s, q.s / 2); ctx.restore(); });
+      if (e < 5500) requestAnimationFrame(step); else cv.remove();
+    };
+    requestAnimationFrame(step);
+    Sound.play('win');
+  };
+  // Gratulationen på titelskärmen
+  U.birthdayBanner = () => {
+    const names = Birthday.today(), el = $('bdayBanner');
+    el.hidden = !names.length;
+    if (names.length) el.textContent = `🎂 Grattis på födelsedagen, ${names.join(' och ')}!`;
+  };
+  // Födelsedagarna i inställningarna
+  const MONTHS = ['januari', 'februari', 'mars', 'april', 'maj', 'juni', 'juli', 'augusti', 'september', 'oktober', 'november', 'december'];
+  function fillBirthdays() {
+    const list = $('bdayList');
+    list.innerHTML = '';
+    Birthday.list().forEach(b => list.append(h('span', {class: 'bday-chip'}, `${b.name}, ${b.d} ${MONTHS[b.m - 1]}`,
+      h('button', {type: 'button', 'aria-label': `Ta bort ${b.name}`, text: '×', onclick: () => { Birthday.remove(b.name); fillBirthdays(); U.birthdayBanner(); }}))));
+    if (!$('bdayDay').options.length) {
+      for (let d = 1; d <= 31; d++) $('bdayDay').append(h('option', {value: String(d), text: String(d)}));
+      MONTHS.forEach((m, k) => $('bdayMonth').append(h('option', {value: String(k + 1), text: m})));
+    }
+  }
   function confetti() {
     const cv = $('confetti'), ctx = cv.getContext('2d');
     if (!ctx || reduceMotion) return;
@@ -6044,7 +6157,8 @@ const UI = (() => {
       h('h3', {text: 'Tärningen'}),
       h('p', {text: 'Tryck på tärningen eller svep uppåt från den för att kasta den ut på brädet. Ju snabbare svep, desto hårdare kast.'}),
       h('h3', {text: 'Vinna'}),
-      h('p', {text: `Den som först tar skatten till ${startNames(b)} vinner. När skatten är hittad kan man också vinna med ett ${th.pass.name.toLowerCase()}.`})
+      h('p', {text: `Den som först tar skatten till ${startNames(b)} vinner. När skatten är hittad kan man också vinna med ett ${th.pass.name.toLowerCase()}.`}),
+      h('p', {text: 'Spelar ni Tillsammans är alla i samma lag med en gemensam kassa. Den som tar hem skatten vinner för hela laget, men bara om det sker innan rundorna tar slut.'})
     );
     U.modal('dlgRules', true);
   };
@@ -6057,6 +6171,7 @@ const UI = (() => {
     $('sDie3d').checked = Settings.die3d !== false; $('sDof').checked = Settings.dof !== false;
     $('sCoach').checked = Settings.coach !== false; $('sXmas').value = Settings.xmas === 'on' ? 'jul' : Settings.xmas || 'auto';
     fillVoices();
+    fillBirthdays();
     const t = Settings.turn || {}; $('sTurnUrl').value = t.url || ''; $('sTurnUser').value = t.user || ''; $('sTurnPass').value = t.pass || '';
     U.modal('dlgSettings', true);
   };
@@ -6097,6 +6212,13 @@ const UI = (() => {
     };
     ['sMusic', 'sSfx', 'sVoice', 'sDaynight', 'sFollow', 'sTable', 'sFast', 'sDie3d', 'sDof', 'sCoach', 'sXmas', 'sVoiceId', 'sTurnUrl', 'sTurnUser', 'sTurnPass'].forEach(id => $(id).addEventListener('input', upd));
     $('bVoiceTest').onclick = () => Sound.testVoice();
+    $('bdayAdd').onclick = () => {
+      if (!Birthday.add($('bdayName').value, +$('bdayDay').value, +$('bdayMonth').value)) { UI.toast(null, 'Skriv ett namn och välj dag och månad.'); return; }
+      Sound.play('click');
+      $('bdayName').value = '';
+      fillBirthdays();
+      U.birthdayBanner();
+    };
     $('bCoachReset').onclick = () => { Coach.reset(); Sound.play('click'); UI.toast(null, 'Guiden visas igen nästa gång ni spelar.'); };
   };
   return U;
@@ -6431,9 +6553,17 @@ const Game = (() => {
     if (saved) Object.assign(G, saved.G);
     upgrade();
     G.config = config;
+    if (!saved && G.options.coop) {
+      // Kassan är gemensam, så rövaren tar bara hälften (annars står hela laget utan pengar)
+      G.options.robber = 'half';
+      const n = G.players.length, purse = COST.start * (1 + (n - 1) / 2);
+      G.players.forEach(p => { p.money = purse; p.stats.maxMoney = purse; });
+      G.coopLimit = coopLimit(board, G.options.length, n);
+    }
     if (!saved) Missions.assign(G, board);
     for (const p of G.players) {
       p.spec = await specFor(p, saved);
+      if (Birthday.is(p.name)) p.spec.party = true;
       const pc = Pieces.create(p, p.spec);
       pc.outer.scale.setScalar(G.options.table ? 1.35 : 1);   // uppifrån syns pjäserna sämre
       S3.root().add(pc.outer);
@@ -6464,8 +6594,51 @@ const Game = (() => {
     wakeLock();
     save();
     Bus.emit('gameStart', G);
+    // Nya partier börjar med en kort filmisk start (inte när ett sparat parti fortsätter)
+    if (!saved) { try { await intro(gen); } catch (e) { if (!(e instanceof Cancel)) console.error(e); return; } }
+    if (gen !== Flow.gen) return;
     run(gen);
   };
+  // Tillsammans: så många rundor har laget på sig. Simuleringar (tools/sim-length.mjs) ger att laget hinner i ungefär
+  // tre partier av fyra. Färre spelare vänder färre brickor per runda och får därför fler rundor.
+  const COOP = {short: {afrika: 13, sverige: 10, norden: 13, europa: 13}, normal: {afrika: 25, sverige: 20, norden: 23, europa: 25}}, COOP_F = {2: 1.8, 3: 1.3, 4: 1};
+  const coopLimit = (b, len, n) => Math.round((COOP[len === 'short' ? 'short' : 'normal'][b.map.id] || 20) * (COOP_F[n] || 1));
+  const coopLabel = () => `Tillsammans: runda ${Math.min(G.round, G.coopLimit)} av ${G.coopLimit}`;
+  // Kartan, äventyret och spelarna. Berättaren läser upp. Ett tryck eller en knapp hoppar över.
+  async function intro(gen) {
+    const m = board.map, box = $('introCard'), ch = G.options.challenge ? Challenges.get(G.options.challenge) : null;
+    $('introGem').innerHTML = tokenSVG(tokenArtKey(board, 'star'));
+    $('introKicker').textContent = G.options.coop ? 'Tillsammans' : ch ? (ch.daily ? 'Dagens utmaning' : 'Utmaning') : 'Äventyret börjar';
+    $('introMap').textContent = m.name;
+    const text = G.options.coop ? `${m.blurb} Hjälps åt och ta hem ${starShort(board)} på högst ${G.coopLimit} rundor!` : ch ? `${ch.name}. ${ch.text}` : m.blurb;
+    $('introText').textContent = text;
+    const row = $('introPlayers');
+    row.innerHTML = '';
+    G.players.forEach((p, k) => row.append(h('div', {class: 'intro-p', style: {'--pc': p.color, 'animation-delay': (.25 + k * .12) + 's'}},
+      h('span', {class: 'intro-av'}, thumbs[p.i] ? h('img', {src: thumbs[p.i], alt: ''}) : ''), h('span', {text: p.name + (!p.bot && Birthday.is(p.name) ? ' 🎂' : '')}))));
+    box.classList.remove('out');
+    box.hidden = false;
+    Sound.play('stamp');
+    // Fyller någon år idag? Konfetti, ett grattis och en hälsning i mobilen.
+    const bday = G.players.filter(p => !p.bot && Birthday.is(p.name));
+    Sound.say(`${m.name}! ${text}` + (bday.length ? ` Och idag fyller ${bday.map(p => p.name).join(' och ')} år! Grattis på födelsedagen!` : ''), 'happy');
+    if (bday.length) {
+      UI.partyConfetti();
+      bday.forEach(p => { UI.toast(p, `Grattis på födelsedagen, ${p.name}! 🎂`); Remote.event(p, {kind: 'birthday', name: p.name}); });
+    }
+    S3.overview(0);
+    S3.focusNode(G.players[0].node, Math.min(S3.cam.dFit * .75, 7), 4400 * Time.scale);
+    await new Promise(res => {
+      let t = 0;
+      const end = () => { clearTimeout(t); box.onclick = null; document.removeEventListener('keydown', end, true); res(); };
+      t = setTimeout(end, 4400 * Time.scale);
+      box.onclick = end;
+      document.addEventListener('keydown', end, true);
+    });
+    box.classList.add('out');
+    setTimeout(() => { box.hidden = true; box.classList.remove('out'); }, 450);
+    Flow.alive(gen);
+  }
   // Äldre sparade spel saknar några av de nya fälten
   function upgrade() {
     G.options = Object.assign({robber: 'all', cards: true, quiz: true, expert: false}, G.options);
@@ -6494,7 +6667,7 @@ const Game = (() => {
     G.players.forEach(p => { if (p.spec && p.spec.type === 'custom') { custom[p.piece.id] = p.spec.piece.data; customEyes[p.piece.id] = p.spec.piece.eyes; } });
     const players = G.players.map(p => { const o = Object.assign({}, p); delete o.spec; delete o.flyTo; return o; });
     Store.set('save', {v: 3, config: G.config, when: Date.now(), custom, customEyes,
-      G: {startedAt: G.startedAt, turn: G.turn, round: G.round, tokens: G.tokens, starFound: G.starFound, bonusTaken: G.bonusTaken, extraTaken: G.extraTaken, options: G.options, players,
+      G: {startedAt: G.startedAt, turn: G.turn, round: G.round, coopLimit: G.coopLimit, tokens: G.tokens, starFound: G.starFound, bonusTaken: G.bonusTaken, extraTaken: G.extraTaken, options: G.options, players,
         cards: G.cards, storm: G.storm, trails: G.trails}});
   }
   Gm.save = save;
@@ -6521,6 +6694,7 @@ const Game = (() => {
     Tips.cancel();
     Coach.hide();
     UI.challenge('');
+    $('introCard').hidden = true;
     releaseWake();
     Bus.emit('gameClear');
   };
@@ -6597,6 +6771,7 @@ const Game = (() => {
         if (p.extraTurn) { p.extraTurn = false; UI.toast(p, `${p.name} får en extra tur!`); save(); continue; }
         G.turn = (G.turn + 1) % G.players.length;
         if (G.turn === 0) G.round++;
+        if (G.options.coop && G.round > G.coopLimit) { await coopLost(gen); return; }
         if (G.storm > 0) {
           G.storm--;
           UI.storm(G.storm);
@@ -6619,9 +6794,24 @@ const Game = (() => {
     if (gen !== Flow.gen) return;
     if (again) Gm.start(cfg); else Bus.emit('toTitle');
   }
+  // Tillsammans: tiden tog slut innan skatten kom hem
+  async function coopLost(gen) {
+    const cfg = G.config, text = `${starName(board)} kom inte hem på ${G.coopLimit} rundor.`;
+    Store.del('save');
+    Sound.mood('off');
+    Sound.play('blank');
+    UI.challenge('');
+    UI.prompt('Tiden tog slut!', text);
+    Sound.say(`Åh nej, tiden tog slut! ${text} Men ni var nära!`, 'sad');
+    G.players.forEach(q => emote(q, 'sad'));
+    const again = await UI.confirm('Tiden tog slut', `${text} Vill ni försöka igen?`);
+    if (gen !== Flow.gen) return;
+    if (again) Gm.start(cfg); else Bus.emit('toTitle');
+  }
   function setActive(p) {
     UI.setActive(p);
     if (G.options.challenge) UI.challenge(Challenges.label(G));
+    else if (G.options.coop) UI.challenge(coopLabel());
     G.players.forEach(q => pieces[q.i].setActive(q === p));
     if (follows()) S3.focusNode(p.node, Math.min(S3.cam.dFit * .6, 5.4), 900);
     Bus.emit('turn', p);
@@ -6987,6 +7177,8 @@ const Game = (() => {
     const from = p.money;
     p.money = Math.max(0, p.money + delta);
     p.stats.maxMoney = Math.max(p.stats.maxMoney || 0, p.money);
+    // Tillsammans: alla har samma kassa
+    if (G.options.coop) G.players.forEach(q => { if (q !== p) q.money = p.money; });
     if (p.money >= 20000) badge(p, 'rich');
     const real = p.money - from;
     if (real > 0) p.stats.earned += real; else p.stats.robbed -= real;
@@ -6999,6 +7191,7 @@ const Game = (() => {
     UI.money(p, from, from + real);
     UI.float(anchor(p), (real > 0 ? '+' : '−') + kr(Math.abs(real)), real > 0 ? '#7df0b8' : '#ff9aa8');
     Remote.event(p, {kind: 'money', delta: real, total: p.money});
+    if (G.options.coop) G.players.forEach(q => { if (q !== p) { Props.setMoney(q.i, q.money); UI.money(q, from, q.money); } });
   }
   function changeMoney(p, delta) { const from = p.money, real = moneyData(p, delta); moneyShow(p, from, real); return real; }
   async function arrive(gen, p, depth = 0) {
@@ -7408,28 +7601,76 @@ const Game = (() => {
   async function win(gen, p, c) {
     G.winner = p;
     Store.del('save');
-    Top.record(G, board, p);
+    if (!G.options.coop) Top.record(G, board, p);
+    if (G.options.coop) G.coopStars = G.round <= G.coopLimit * .6 ? 3 : G.round <= G.coopLimit * .8 ? 2 : 1;
     G.challengeResult = G.options.challenge ? Challenges.result(G, p) : null;
-    G.newBadges = Badges.endOfGame(G, p);
+    G.newBadges = Badges.endOfGame(G, p, !!G.options.coop);
+    G.awards = awards();
     G.players.forEach(q => { (G.newBadges[q.i] || []).forEach(b => Remote.event(q, {kind: 'badge', name: b.name, text: b.text})); });
     UI.updateHUD();
     UI.dieReady(null);
     Sound.mood('win');
     Sound.play('win');
     S3.focusNode(p.node, S3.cam.dMin * 1.8, 1200);
-    const how = p.star ? `${starName(board)} är i säkerhet i ${c.name}!` : `Med ${themeOf(board).pass.name.toLowerCase()} hela vägen till ${c.name}!`;
-    Sound.say(Line.win(p.name, how), 'happy');
-    UI.prompt(`${p.name} vann!`, how, p);
+    let how = p.star ? `${starName(board)} är i säkerhet i ${c.name}!` : `Med ${themeOf(board).pass.name.toLowerCase()} hela vägen till ${c.name}!`;
+    if (G.options.coop) {
+      how += ` Ni klarade det på ${G.round} av ${G.coopLimit} rundor. ${'⭐'.repeat(G.coopStars)}`;
+      UI.challenge('');
+      Sound.say(`Hurra! Ni klarade det tillsammans! ${p.name} tog hem skatten.`, 'happy');
+      UI.prompt('Ni vann tillsammans!', how, p);
+    } else {
+      Sound.say(Line.win(p.name, how), 'happy');
+      UI.prompt(`${p.name} vann!`, how, p);
+    }
     Bus.emit('gameOver', p);
-    G.players.forEach(q => { if (q !== p) setTimeout(() => emote(q, 'cheer'), (300 + Math.random() * 700) * Time.scale); });
+    G.players.forEach(q => { if (q !== p) setTimeout(() => emote(q, G.options.coop ? 'dance' : 'cheer'), (300 + Math.random() * 700) * Time.scale); });
     await pieces[p.i].emote('dance');
     Flow.alive(gen);
     G.how = how + (G.challengeResult ? ' ' + G.challengeResult.text : '');
     await diary(gen, p);
     Flow.alive(gen);
     showWin(p);
+    if (G.awards && G.awards.length) setTimeout(() => { if (G && G.winner) Sound.say('Och alla får ett pris! ' + G.awards.map(a => `${G.players[a.i].name}: ${a.title}.`).join(' '), 'happy'); }, 2600);
     if (G.players.some(q => q.dev)) Postcard.send().catch(() => {});
     setTimeout(() => { if (G && G.winner && !Sound.tracks.has('vinst')) Sound.mood('menu'); }, 4000);
+  }
+  // Priser till alla: var och en får det hen var bäst på, så att alla har något att vara stolt över
+  const times = v => v === 1 ? 'en gång' : `${v} gånger`;
+  const AWARDS = [
+    {title: 'Långfärdsresenären', icon: 'map', v: q => Math.round(q.stats.km / 10) * 10, top: v => `reste längst av alla, ${v.toLocaleString('sv-SE')} km`, plain: v => `reste ${v.toLocaleString('sv-SE')} km`},
+    {title: 'Upptäckaren', icon: 'stamp', v: q => q.stats.cities.length, top: v => `besökte flest städer, ${v} stycken`, plain: v => `besökte ${v} ${v === 1 ? 'stad' : 'städer'}`},
+    {title: 'Brickvändaren', icon: 'gem', v: q => q.stats.flips, top: v => `vände flest brickor, ${v} stycken`, plain: v => `vände ${v} ${v === 1 ? 'bricka' : 'brickor'}`},
+    {title: 'Guldgrävaren', icon: 'coin', v: q => q.stats.earned, top: v => `tjänade mest pengar, ${kr(v)}`, plain: v => `tjänade ${kr(v)}`},
+    {title: 'Sjöbjörnen', icon: 'boat', v: q => q.stats.boats, top: v => `åkte båt flest gånger, ${times(v)}`, plain: v => `åkte båt ${times(v)}`},
+    {title: 'Högflygaren', icon: 'plane', v: q => q.stats.flights, top: v => `flög flest gånger, ${times(v)}`, plain: v => `flög ${times(v)}`},
+    {title: 'Frågeproffset', icon: 'help', v: q => q.stats.quiz, top: v => `svarade rätt på flest frågor, ${v} stycken`, plain: v => `svarade rätt på ${v} ${v === 1 ? 'fråga' : 'frågor'}`},
+    {title: 'Spåkulan', icon: 'bulb', v: q => q.stats.stars || 0, top: v => `gissade rätt flest gånger, ${times(v)}`, plain: v => `gissade rätt ${times(v)}`},
+    {title: 'Kortsamlaren', icon: 'card', v: q => q.stats.cards, top: v => `drog flest äventyrskort, ${v} stycken`, plain: v => `drog ${v} äventyrskort`},
+    {title: 'Otursfågeln', icon: 'storm', v: q => q.stats.robbedTimes || 0, top: v => `råkade ut för ${themeOf(board).thief.the.toLowerCase()} ${times(v)} men gav aldrig upp`, plain: v => `råkade ut för ${themeOf(board).thief.the.toLowerCase()} ${times(v)} men gav aldrig upp`},
+    {title: 'Sparbössan', icon: 'coin', solo: true, v: q => q.money, top: v => `hade mest pengar kvar, ${kr(v)}`, plain: v => `hade ${kr(v)} kvar`},
+    {title: 'Maratonvandraren', icon: 'dice', v: q => q.stats.steps, top: v => `gick flest steg, ${v} stycken`, plain: v => `gick ${v} steg`}
+  ];
+  function awards() {
+    const ps = G.players, list = AWARDS.filter(a => !(a.solo && G.options.coop)), out = new Map(), used = new Set();
+    // Först de tydligaste ledarna: den som är bäst på något får det priset, ett pris per spelare
+    list.map(a => {
+      const vals = ps.map(a.v), sorted = vals.slice().sort((x, y) => y - x), max = sorted[0], second = sorted[1] || 0;
+      return {a, max, tops: ps.filter((q, k) => vals[k] === max && max > 0), margin: max > 0 ? (max - second) / max : 0};
+    }).filter(c => c.tops.length).sort((x, y) => y.margin - x.margin || y.max - x.max).forEach(c => {
+      const q = c.tops.find(t => !out.has(t.i));
+      if (!q || used.has(c.a.title)) return;
+      // Delad förstaplats: då står det bara vad hen gjorde, inte "flest"
+      out.set(q.i, {i: q.i, title: c.a.title, icon: c.a.icon, text: `${q.name} ${c.tops.length > 1 ? c.a.plain(c.max) : c.a.top(c.max)}.`});
+      used.add(c.a.title);
+    });
+    // Sedan får resten sitt bästa kvarvarande pris, eller ett glatt pris om de inte har gjort något av det
+    ps.forEach(q => {
+      if (out.has(q.i)) return;
+      const best = list.filter(a => !used.has(a.title)).map(a => ({a, v: a.v(q), k: a.v(q) / Math.max(1, ...ps.map(a.v))})).filter(x => x.v > 0).sort((x, y) => y.k - x.k)[0];
+      if (best) { out.set(q.i, {i: q.i, title: best.a.title, icon: best.a.icon, text: `${q.name} ${best.a.plain(best.v)}.`}); used.add(best.a.title); }
+      else out.set(q.i, {i: q.i, title: 'Glada resenären', icon: 'crown', text: `${q.name} var med hela vägen och hade roligt!`});
+    });
+    return ps.map(q => out.get(q.i));
   }
   function diaryRows(w) {
     return G.players.map(q => ({name: q.name, color: q.color, thumb: thumbs[q.i], km: Math.round(q.stats.km / 10) * 10, cities: q.stats.cities.length, flights: q.stats.flights, boats: q.stats.boats, cards: q.stats.cards, stars: q.stats.stars || 0,
@@ -7440,7 +7681,8 @@ const Game = (() => {
   function showWin(p) {
     const stats = [['rundor', String(G.round)], ['vända brickor', String(p.stats.flips)], ['tjänade', kr(p.stats.earned)], ['steg', String(p.stats.steps)]];
     if (!p.bot) stats.push(['nya stämplar', String(Passport.newCount(p.name, G.startedAt || 0))]);
-    UI.win(p, `${p.name} vann!`, G.how || '', stats, thumbs[p.i]);
+    UI.win(p, G.options.coop ? 'Ni vann tillsammans!' : `${p.name} vann!`, G.how || '', stats, thumbs[p.i], G.options.coop ? 'Tillsammans' : 'Vinnare');
+    UI.awards(G.awards, G.players);
     UI.diary(diaryRows(p));
     UI.diaryFans();
     Bus.emit('hud');
@@ -7560,6 +7802,7 @@ const Setup = (() => {
     $('optQuiz').setAttribute('aria-pressed', String(o.quiz !== false));
     $('rulesNote').textContent = o.rules === 'expert'
       ? 'Expert: köp ledtrådar och kika under brickor, buda på brickor som ingen vänder och muta rövaren att gå till någon annan. Mindre tur, mer taktik.'
+      : o.rules === 'coop' ? 'Tillsammans: alla är i samma lag och har en gemensam kassa, och rövaren tar bara hälften. Hjälps åt att hitta skatten och ta hem den innan rundorna tar slut. Ni vinner eller förlorar tillsammans!'
       : 'Familj: de vanliga reglerna.' + (o.cards !== false ? ' Äventyrskorten ger överraskningar på brädet.' : '') + (o.quiz !== false ? ' Frågorna om städerna ger extra pengar.' : '');
   }
   function newSeat(bot = 0) {
@@ -7717,7 +7960,7 @@ const Setup = (() => {
     Store.set('setup', Object.assign({}, cfg, {seats: cfg.seats.filter(s => !s.dev)}));
     Store.set('lastMap', cfg.mapId);
     const o = cfg.options;
-    Bus.emit('start', {mapId: cfg.mapId, seats, options: {robber: o.robber, speed: o.speed, table: !!Settings.table, length: o.length || 'normal', cards: o.cards !== false, quiz: o.quiz !== false, expert: o.rules === 'expert'}});
+    Bus.emit('start', {mapId: cfg.mapId, seats, options: {robber: o.robber, speed: o.speed, table: !!Settings.table, length: o.length || 'normal', cards: o.cards !== false, quiz: o.quiz !== false, expert: o.rules === 'expert', coop: o.rules === 'coop'}});
     return true;
   }
 
@@ -7796,7 +8039,7 @@ const Setup = (() => {
     if (!patch) return;
     if (patch.map) setMap(patch.map);
     if (patch.length === 'short' || patch.length === 'normal') cfg.options.length = patch.length;
-    if (patch.rules === 'family' || patch.rules === 'expert') cfg.options.rules = patch.rules;
+    if (['family', 'expert', 'coop'].includes(patch.rules)) cfg.options.rules = patch.rules;
     if (typeof patch.cards === 'boolean') cfg.options.cards = patch.cards;
     if (typeof patch.quiz === 'boolean') cfg.options.quiz = patch.quiz;
     if (patch.addBot && cfg.seats.length < 4) cfg.seats.push(newSeat(clamp(+patch.addBot || 2, 1, 3)));
@@ -8512,6 +8755,8 @@ const Remote = (() => {
         remote: !!p.dev, online: R.online(p.dev), free: !!p.freeFlight, dbl: !!p.doubleRoll, stars: p.stats.stars || 0})),
       mine: me ? {stars: me.stats.stars || 0, mission: me.mission ? {text: me.mission.text, progress: me.mission.progress, target: me.mission.target, done: me.mission.done} : null} : null,
       diary: G.winner ? Game.diaryRows() : null,
+      awards: G.winner && G.awards ? G.awards : null,
+      coop: G.options.coop ? {limit: G.coopLimit, stars: G.coopStars || 0} : null,
       fans: R.fans(true).map(f => ({name: f.name, stars: f.stats.stars || 0}))
     };
   }
@@ -8794,6 +9039,25 @@ const Season = {
   }
 };
 const Xmas = {on: () => Season.now() === 'jul'};
+// Födelsedagar (sparas bara på den här enheten). Den som fyller år får partyhatt, konfetti och ett grattis.
+const Birthday = (() => {
+  const B = {};
+  let list = Store.get('birthdays', []);
+  const norm = s => String(s || '').trim().toLowerCase();
+  const isToday = x => { const t = new Date(); return x.d === t.getDate() && x.m === t.getMonth() + 1; };
+  B.list = () => list.slice().sort((a, b) => a.m - b.m || a.d - b.d);
+  B.add = (name, d, m) => {
+    name = String(name || '').trim().slice(0, 14);
+    if (!name || !(d >= 1 && d <= 31) || !(m >= 1 && m <= 12)) return false;
+    list = list.filter(x => norm(x.name) !== norm(name)).concat([{name, d, m}]);
+    Store.set('birthdays', list);
+    return true;
+  };
+  B.remove = name => { list = list.filter(x => norm(x.name) !== norm(name)); Store.set('birthdays', list); };
+  B.is = name => list.some(x => norm(x.name) === norm(name) && isToday(x));
+  B.today = () => list.filter(isToday).map(x => x.name);
+  return B;
+})();
 const Halloween = {on: () => Season.now() === 'halloween'};
 
 const Badges = (() => {
@@ -8816,7 +9080,8 @@ const Badges = (() => {
     {id: 'tips5', name: 'Spåman', text: 'Gissa rätt fem gånger', icon: 'bulb', count: 'stars', target: 5},
     {id: 'challenge', name: 'Utmanare', text: 'Klara en utmaning', icon: 'crown'},
     {id: 'xmas', name: 'God jul', text: 'Spela i december', icon: 'gem'},
-    {id: 'halloween', name: 'Bus eller godis', text: 'Spela på halloween', icon: 'pumpkin'}
+    {id: 'halloween', name: 'Bus eller godis', text: 'Spela på halloween', icon: 'pumpkin'},
+    {id: 'birthday', name: 'Födelsedagsbarn', text: 'Spela på din födelsedag', icon: 'gift'}
   ];
   B.list = LIST;
   const rec = name => (data.players[name] = data.players[name] || {got: {}, n: {}});
@@ -8833,10 +9098,11 @@ const Badges = (() => {
     return def;
   };
   // Tillbehör som spelaren får välja (tomteluvan i december får alla)
-  B.accessories = name => ACCESSORIES.filter(a => B.has(name, a.badge) || (a.id === 'santa' && Xmas.on()) || (a.id === 'witch' && Halloween.on()));
+  B.accessories = name => ACCESSORIES.filter(a => B.has(name, a.badge) || (a.id === 'santa' && Xmas.on()) || (a.id === 'witch' && Halloween.on()) || (a.id === 'party' && Birthday.is(name)));
   B.accessoryName = id => (ACCESSORIES.find(a => a.id === id) || {}).name || 'Inget';
   // Efter ett parti: räknarna läggs ihop och alla nya märken delas ut
-  B.endOfGame = (G, winner) => {
+  // Tillsammans (team) räknas som en vinst för alla i laget
+  B.endOfGame = (G, winner, team = false) => {
     const out = {};
     G.players.filter(p => !p.bot).forEach(p => {
       const got = [], give = id => { const b = B.award(p.name, id); if (b) got.push(b); };
@@ -8844,11 +9110,12 @@ const Badges = (() => {
       [['boats', p.stats.boats], ['quiz', p.stats.quiz], ['cards', p.stats.cards], ['robbed', p.stats.robbedTimes], ['stars', p.stats.stars]].forEach(([k, v]) => { r.n[k] = (r.n[k] || 0) + (v || 0); });
       save();
       give('first');
-      if (p === winner) { give('winner'); if (G.round < 10) give('fast'); }
+      if (p === winner || team) { give('winner'); if (G.round < 10) give('fast'); }
       LIST.filter(b => b.count).forEach(b => { if (B.count(p.name, b.count) >= b.target) give(b.id); });
       if (Passport.countFor(p.name) >= 25) give('stamps25');
       if (Xmas.on()) give('xmas');
       if (Halloween.on()) give('halloween');
+      if (Birthday.is(p.name)) give('birthday');
       if (got.length) out[p.i] = got;
     });
     return out;
@@ -8975,7 +9242,7 @@ const Postcard = (() => {
     g.fillText(`${board.map.name} · ${new Date().toLocaleDateString('sv-SE', {day: 'numeric', month: 'long', year: 'numeric'})}`, tx, 256);
     g.fillStyle = G.winner.color;
     g.font = '46px "Lilita One", "Trebuchet MS", sans-serif';
-    g.fillText(`${G.winner.name} vann!`, tx, 330);
+    g.fillText(G.options.coop ? 'Vi vann tillsammans!' : `${G.winner.name} vann!`, tx, 330);
     let y = 390;
     const rows = Game.diaryRows() || [];
     g.font = '900 24px Nunito, "Segoe UI", sans-serif';
@@ -9253,6 +9520,7 @@ function toTitle() {
   $('bContinue').hidden = !ok;
   if (ok) $('bContinue').innerHTML = icon('play') + `<span>Fortsätt spelet <small>${MAPS[s.config.mapId].name}</small></span>`;
   UI.show('scrTitle');
+  UI.birthdayBanner();
   Sound.mood('menu');
 }
 
@@ -9418,6 +9686,7 @@ async function boot(hot) {
   document.body.classList.toggle('halloween', Halloween.on());
   UI.initIcons();
   Challenges.markTile();
+  UI.birthdayBanner();
   const full = $('tFull');
   if (full) { full.innerHTML = icon('full'); full.hidden = !document.fullscreenEnabled; }
   UI.buildDie();
