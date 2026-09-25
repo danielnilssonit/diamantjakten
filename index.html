@@ -252,6 +252,13 @@ button{cursor:pointer}
 .brushes{display:flex;flex-wrap:wrap;gap:6px}
 .tbtn{width:44px;height:44px;border-radius:12px;border:3px solid var(--line);background:#fff;display:grid;place-items:center;padding:0;box-shadow:0 3px 0 var(--line)}
 .tbtn.on{background:var(--sun)}
+.photo-tools{align-items:center}
+.cut-tools{display:flex;gap:8px;flex-wrap:wrap}
+.cut-tool{display:inline-flex;align-items:center;gap:6px}
+.cut-tool .ico{width:18px;height:18px}
+.cut-tool[aria-pressed="true"]{background:var(--sun)!important;box-shadow:0 0 0 2.5px var(--ink),0 3px 0 var(--ink)}
+.cut-tool:disabled{opacity:.45}
+.cut-hint{margin:0;flex-basis:100%;font-weight:700;font-size:13px;color:var(--ink-soft);line-height:1.35}
 .tbtn i{display:block;border-radius:50%;background:var(--ink)}
 .ws-right{display:grid;gap:12px;align-content:start}
 .preview{position:relative;height:220px;border:3px solid var(--line);border-radius:18px;background:linear-gradient(#bfe6f2,#e9f7fb 60%,#d8c49a 60%);display:grid;place-items:end center;overflow:hidden}
@@ -958,8 +965,14 @@ body{background:radial-gradient(120% 90% at 50% 20%,#1d4652 0%,#0c222a 60%,#0613
               <button class="tbtn" id="bClear" type="button" aria-label="Börja om"></button>
             </div>
           </div>
-          <div class="tools-row" id="photoTools" hidden>
-            <label class="opt grow"><span>Ta bort bakgrund</span><input type="range" id="bgTol" min="10" max="90" value="42"></label>
+          <div class="tools-row photo-tools" id="photoTools" hidden>
+            <label class="opt grow"><span>Ta bort bakgrund</span><input type="range" id="bgTol" min="10" max="90" value="45"></label>
+            <div class="cut-tools" id="cutTools">
+              <button class="btn small cut-tool" id="bWand" type="button" aria-pressed="false">Trollstav</button>
+              <button class="btn small cut-tool" id="bCutErase" type="button" aria-pressed="false">Måla bort</button>
+              <button class="btn small cut-tool" id="bCutRestore" type="button" aria-pressed="false">Måla tillbaka</button>
+            </div>
+            <p class="cut-hint" id="cutHint">Tryck med trollstaven på bakgrund som blev kvar. Med penslarna målar du bort mer, eller tillbaka det som försvann.</p>
             <button class="btn small" id="bNewPhoto" type="button">Nytt foto</button>
             <button class="tbtn" id="bEyes2" type="button" aria-label="Lägg till ögon"></button>
           </div>
@@ -3275,6 +3288,7 @@ const ICON_PATHS = {
   pause: '<rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/>',
   help: '<circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 015 .5c0 1.5-2.5 2-2.5 3.5"/><circle cx="12" cy="17" r=".9" fill="currentColor"/>',
   camera: '<path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/>',
+  wand: '<path d="M4 20L15 9"/><path d="M13 7l4 4"/><path d="M17 2v3M20.5 4.5l-2 2M22 8h-3M12.5 3.5l1.5 1.5"/>',
   brush: '<path d="M18 3l3 3-9 9-3-3z"/><path d="M9 12c-3 0-5 2-5 5 0 2-1 3-2 4 4 0 8-1 8-5z"/>',
   eraser: '<path d="M3 17l8-8 7 7-4 4H7z"/><path d="M11 9l4-4 6 6-4 4"/>',
   undo: '<path d="M9 14L4 9l5-5"/><path d="M4 9h11a5 5 0 010 10h-3"/>',
@@ -6615,7 +6629,9 @@ const PieceStore = (() => {
 const Workshop = (() => {
   const W = {};
   const COLORS = ['#1d2b33', '#e5484d', '#ff8a1f', '#f2b705', '#25a466', '#1fb5c9', '#3b7ce0', '#9b5de5', '#ff5fa2', '#8a5a28', '#f1c9a0', '#ffffff'];
-  let cv, g, color = COLORS[1], size = 14, mode = 'brush', undo = [], eyes = [], baseColor = PIECE_COLORS[0], onDone = null, photoSrc = null, dirty = false;
+  let cv, g, color = COLORS[1], size = 14, mode = 'brush', undo = [], eyes = [], baseColor = PIECE_COLORS[0], onDone = null, dirty = false;
+  // Fotot: utklippningen (Cutout), var den ritas på duken och verktyget som används på den
+  let photo = null, cutTool = null, photoBaked = false;
 
   W.init = () => {
     cv = $('drawCanvas'); g = cv.getContext('2d', {willReadFrequently: true});
@@ -6627,28 +6643,53 @@ const Workshop = (() => {
     [['bSize1', 6], ['bSize2', 14], ['bSize3', 26]].forEach(([id, s]) => { $(id).onclick = () => { size = s; if (mode !== 'brush' && mode !== 'eraser') setMode('brush'); ['bSize1', 'bSize2', 'bSize3'].forEach(x => $(x).classList.toggle('on', x === id)); }; });
     $('bFill').onclick = () => setMode(mode === 'fill' ? 'brush' : 'fill');
     $('bEraser').onclick = () => setMode(mode === 'eraser' ? 'brush' : 'eraser');
-    $('bUndo').onclick = () => { if (undo.length) { g.putImageData(undo.pop(), 0, 0); changed(); } };
+    $('bUndo').onclick = () => {
+      // Ändringar i fotot ångras i fotots mask (så att reglaget fortfarande fungerar)
+      if (photo && !photoBaked && photo.st.edits.length) { photo.st.edits.pop(); recut(); return; }
+      if (undo.length) {
+        g.putImageData(undo.pop(), 0, 0);
+        // Ångrade man hela fotot försvinner också fotots verktyg
+        if (photo && undo.length < photo.undoAt) { photo = null; photoBaked = false; setCutTool(null); }
+        changed();
+      }
+    };
     $('bClear').onclick = async () => { if (await UI.confirm('Börja om?', 'Teckningen och ögonen tas bort.')) { pushUndo(); g.clearRect(0, 0, cv.width, cv.height); eyes = []; renderEyes(); changed(); } };
     $('bEyes').onclick = $('bEyes2').onclick = () => { addEyes(); };
     $('tabDraw').onclick = () => tab('draw');
     $('tabPhoto').onclick = () => tab('photo');
     $('photoInput').onchange = e => { const f = e.target.files && e.target.files[0]; if (f) loadPhoto(f); e.target.value = ''; };
     $('bNewPhoto').onclick = () => { $('photoIntro').hidden = false; };
-    $('bgTol').oninput = () => { if (photoSrc) applyPhoto(); };
+    $('bgTol').oninput = () => { if (photo && !photoBaked) recut(); };
+    [['bWand', 'wand', 'wand', 'Trollstav'], ['bCutErase', 'erase', 'eraser', 'Måla bort'], ['bCutRestore', 'restore', 'brush', 'Måla tillbaka']].forEach(([id, t, ic, label]) => {
+      $(id).innerHTML = icon(ic) + `<span>${label}</span>`;
+      $(id).onclick = () => { setCutTool(cutTool === t ? null : t); Sound.play('click'); };
+    });
     $('bSavePiece').onclick = save;
     $('bWsBack').onclick = () => close(null);
     bindDrawing();
   };
   function setMode(m) { mode = m; $('bFill').classList.toggle('on', m === 'fill'); $('bEraser').classList.toggle('on', m === 'eraser'); }
+  function setCutTool(t) {
+    cutTool = photo && !photoBaked ? t : null;
+    [['bWand', 'wand'], ['bCutErase', 'erase'], ['bCutRestore', 'restore']].forEach(([id, k]) => { $(id).setAttribute('aria-pressed', String(cutTool === k)); $(id).disabled = !photo || photoBaked; });
+    $('bgTol').disabled = !photo || photoBaked;
+    $('cutHint').textContent = !photo ? 'Ta ett foto av en teckning eller en leksak.' : photoBaked
+      ? 'Du har ritat på fotot. Ta ett nytt foto om du vill klippa om det.'
+      : cutTool === 'wand' ? 'Tryck på bakgrund som blev kvar, så försvinner den.'
+      : cutTool === 'erase' ? 'Måla över bakgrund som ska bort.'
+      : cutTool === 'restore' ? 'Måla över det som försvann, så kommer det tillbaka.'
+      : 'Tryck med trollstaven på bakgrund som blev kvar. Med penslarna målar du bort mer, eller tillbaka det som försvann.';
+  }
   function tab(t) {
     $('tabDraw').classList.toggle('on', t === 'draw'); $('tabPhoto').classList.toggle('on', t === 'photo');
-    $('photoIntro').hidden = t !== 'photo' || !!photoSrc;
+    $('photoIntro').hidden = t !== 'photo' || !!photo;
     $('drawTools').hidden = false; $('photoTools').hidden = t !== 'photo';
   }
   W.open = async (opts = {}) => {
     onDone = opts.onDone || null;
     g.clearRect(0, 0, cv.width, cv.height);
-    undo = []; eyes = []; photoSrc = null; dirty = false;
+    undo = []; eyes = []; photo = null; photoBaked = false; dirty = false;
+    setCutTool(null);
     renderEyes();
     $('pieceName').value = '';
     tab('draw');
@@ -6670,21 +6711,49 @@ const Workshop = (() => {
   function pos(e) { const r = cv.getBoundingClientRect(); return [(e.clientX - r.left) * cv.width / r.width, (e.clientY - r.top) * cv.height / r.height]; }
   function bindDrawing() {
     let drawing = false, last = null;
+    let cutStroke = null;
     cv.addEventListener('pointerdown', e => {
       try { cv.setPointerCapture(e.pointerId); } catch (err) { /* pekaren finns inte längre */ }
       const p = pos(e);
+      if (photo && !photoBaked && cutTool) {
+        const [x, y] = toPhoto(p);
+        if (cutTool === 'wand') {
+          const strength = +$('bgTol').value;
+          if (Cutout.wand(photo.st, photo.mask, x, y, strength)) { photo.st.edits.push({k: 'wand', x, y}); drawPhoto(); Sound.play('pop'); }
+          return;
+        }
+        const r = 16 / photo.xf.s;
+        cutStroke = {k: 'brush', v: cutTool === 'restore' ? 1 : 0, r, pts: [[x, y]]};
+        Cutout.brush(photo.st, photo.mask, x, y, r, cutStroke.v);
+        drawPhotoSoon();
+        return;
+      }
+      if (photo && !photoBaked) { photoBaked = true; setCutTool(null); }
       pushUndo();
       if (mode === 'fill') { floodFill(Math.round(p[0]), Math.round(p[1]), color); changed(); return; }
       drawing = true; last = p;
       stroke(p, p, e.pressure);
     });
     cv.addEventListener('pointermove', e => {
+      if (cutStroke) {
+        let evs = e.getCoalescedEvents ? e.getCoalescedEvents() : [];
+        if (!evs.length) evs = [e];
+        evs.forEach(ev => {
+          const [x, y] = toPhoto(pos(ev)), [lx, ly] = cutStroke.pts[cutStroke.pts.length - 1], steps = Math.max(1, Math.ceil(Math.hypot(x - lx, y - ly) / (cutStroke.r * .4)));
+          for (let k = 1; k <= steps; k++) { const px = lx + (x - lx) * k / steps, py = ly + (y - ly) * k / steps; cutStroke.pts.push([px, py]); Cutout.brush(photo.st, photo.mask, px, py, cutStroke.r, cutStroke.v); }
+        });
+        drawPhotoSoon();
+        return;
+      }
       if (!drawing) return;
       let evs = e.getCoalescedEvents ? e.getCoalescedEvents() : [];
       if (!evs.length) evs = [e];
       evs.forEach(ev => { const p = pos(ev); stroke(last, p, ev.pressure); last = p; });
     });
-    const end = () => { if (drawing) { drawing = false; changed(); } };
+    const end = () => {
+      if (cutStroke) { photo.st.edits.push(cutStroke); cutStroke = null; drawPhoto(); return; }
+      if (drawing) { drawing = false; changed(); }
+    };
     cv.addEventListener('pointerup', end); cv.addEventListener('pointercancel', end);
   }
   function stroke(a, b, pressure) {
@@ -6737,54 +6806,41 @@ const Workshop = (() => {
     });
   }
 
-  /* ---------- Foto: klipp bort pappret ---------- */
+  /* ---------- Foto: klipp bort bakgrunden (se 09a-cutout.js) ---------- */
   function loadPhoto(file) {
     const url = URL.createObjectURL(file);
-    loadImage(url).then(img => { photoSrc = img; Sound.play('photo'); applyPhoto(); $('photoIntro').hidden = true; }).catch(() => UI.toast(null, 'Bilden gick inte att öppna.'));
+    loadImage(url).then(img => {
+      const st = Cutout.prepare(img), mask = Cutout.cut(st, +$('bgTol').value);
+      photo = {st, mask, xf: fitPhoto(st, mask)};
+      photoBaked = false;
+      setCutTool(null);
+      Sound.play('photo');
+      pushUndo();
+      photo.undoAt = undo.length;
+      drawPhoto();
+      $('photoIntro').hidden = true;
+    }).catch(() => UI.toast(null, 'Bilden gick inte att öppna.'));
   }
-  function applyPhoto() {
-    const img = photoSrc, max = 900, k = Math.min(1, max / Math.max(img.width, img.height));
-    const w = Math.round(img.width * k), hh = Math.round(img.height * k);
-    const c = document.createElement('canvas'); c.width = w; c.height = hh;
-    const cg = c.getContext('2d', {willReadFrequently: true});
-    cg.drawImage(img, 0, 0, w, hh);
-    const id = cg.getImageData(0, 0, w, hh), d = id.data;
-    // Pappersfärgen: medianen längs kanterna
-    const border = [];
-    for (let x = 0; x < w; x += 3) { border.push(x, x + (hh - 1) * w); }
-    for (let y = 0; y < hh; y += 3) { border.push(y * w, y * w + w - 1); }
-    const med = ch => { const v = border.map(i => d[i * 4 + ch]).sort((a, b) => a - b); return v[v.length >> 1]; };
-    const paper = [med(0), med(1), med(2)];
-    const tol = +$('bgTol').value;
-    const dist = new Float32Array(w * hh);
-    for (let i = 0; i < w * hh; i++) {
-      const r = d[i * 4], gg = d[i * 4 + 1], b = d[i * 4 + 2];
-      dist[i] = Math.hypot(r - paper[0], gg - paper[1], b - paper[2]) + Math.max(0, (paper[0] + paper[1] + paper[2]) / 3 - (r + gg + b) / 3) * .6;
-    }
-    // Fyll från kanterna genom allt som liknar papper
-    const bg = new Uint8Array(w * hh), q = [];
-    const tryPush = i => { if (!bg[i] && dist[i] < tol) { bg[i] = 1; q.push(i); } };
-    for (let x = 0; x < w; x++) { tryPush(x); tryPush(x + (hh - 1) * w); }
-    for (let y = 0; y < hh; y++) { tryPush(y * w); tryPush(y * w + w - 1); }
-    while (q.length) {
-      const i = q.pop(), x = i % w, y = (i / w) | 0;
-      if (x > 0) tryPush(i - 1); if (x < w - 1) tryPush(i + 1); if (y > 0) tryPush(i - w); if (y < hh - 1) tryPush(i + w);
-    }
-    for (let i = 0; i < w * hh; i++) {
-      if (bg[i]) { d[i * 4 + 3] = 0; continue; }
-      // Lite klarare färger på själva teckningen
-      for (let ch = 0; ch < 3; ch++) { const v = d[i * 4 + ch]; d[i * 4 + ch] = clamp((v - 128) * 1.18 + 128 + (v - (d[i * 4] + d[i * 4 + 1] + d[i * 4 + 2]) / 3) * .35, 0, 255); }
-      let n = 0; if (i % w > 0 && bg[i - 1]) n++; if (i % w < w - 1 && bg[i + 1]) n++; if (i >= w && bg[i - w]) n++; if (i < w * (hh - 1) && bg[i + w]) n++;
-      if (n) d[i * 4 + 3] = 255 - n * 50;
-    }
-    cg.putImageData(id, 0, 0);
-    pushUndo();
+  // Motivet (med lite luft runt) fyller duken. Placeringen ändras inte när man klipper vidare, så att penslarna hamnar rätt.
+  function fitPhoto(st, mask) {
+    const b = Cutout.bbox(st, mask) || {x0: 0, y0: 0, x1: st.w - 1, y1: st.h - 1}, pad = Math.round(Math.max(st.w, st.h) * .08);
+    const cx = Math.max(0, b.x0 - pad), cy = Math.max(0, b.y0 - pad), cw = Math.min(st.w, b.x1 + pad + 1) - cx, ch = Math.min(st.h, b.y1 + pad + 1) - cy;
+    const s = Math.min(cv.width * .92 / cw, cv.height * .92 / ch);
+    return {cx, cy, cw, ch, s, x: (cv.width - cw * s) / 2, y: (cv.height - ch * s) / 2};
+  }
+  const toPhoto = p => { const f = photo.xf; return [f.cx + (p[0] - f.x) / f.s, f.cy + (p[1] - f.y) / f.s]; };
+  function drawPhoto() {
+    const f = photo.xf;
     g.clearRect(0, 0, cv.width, cv.height);
-    const s = Math.min(cv.width * .9 / w, cv.height * .9 / hh);
-    g.drawImage(c, (cv.width - w * s) / 2, (cv.height - hh * s) / 2, w * s, hh * s);
+    g.drawImage(Cutout.render(photo.st, photo.mask), f.cx, f.cy, f.cw, f.ch, f.x, f.y, f.cw * f.s, f.ch * f.s);
     changed();
   }
-
+  let drawRaf = 0;
+  const drawPhotoSoon = () => { if (!drawRaf) drawRaf = requestAnimationFrame(() => { drawRaf = 0; if (photo) drawPhoto(); }); };
+  function recut() {
+    photo.mask = Cutout.replay(photo.st, +$('bgTol').value);
+    drawPhoto();
+  }
   /* ---------- Spara som klistermärke ---------- */
   function bbox() {
     const d = g.getImageData(0, 0, cv.width, cv.height).data;
@@ -6842,7 +6898,7 @@ const Workshop = (() => {
     UI.toast(null, `${name} är sparad!`);
     dirty = false;
     if (onDone) { close(piece); return; }
-    g.clearRect(0, 0, cv.width, cv.height); eyes = []; renderEyes(); $('pieceName').value = ''; undo = []; photoSrc = null;
+    g.clearRect(0, 0, cv.width, cv.height); eyes = []; renderEyes(); $('pieceName').value = ''; undo = []; photo = null; photoBaked = false; setCutTool(null);
     await renderGallery(); updatePreview(); dirty = false;
   }
   async function renderGallery() {
@@ -6857,6 +6913,256 @@ const Workshop = (() => {
     });
   }
   return W;
+})();
+
+/* ---- 09a-cutout.js ---- */
+/* ================= Klipp ut: ta bort bakgrunden från ett foto ================= */
+// Används av Pjäsverkstaden och av mobilen (tools/build-game.mjs lägger den också i kontroll.html). Fungerar utan internet:
+// 1. Bakgrundens färg uppskattas i ett rutnät över bilden, så att papper i skugga eller ojämnt ljus fortfarande räknas som papper.
+// 2. Bakgrunden växer in från bildens kanter så länge färgen liknar bakgrunden och stannar vid motivets konturer.
+// 3. Små prickar tas bort, kanten mjukas upp och den ljusa ramen av papper runt motivet tvättas bort.
+// Trollstaven och penslarna ändrar sedan masken för hand. Färgerna jämförs i Lab, som liknar hur ögat ser skillnader.
+const Cutout = (() => {
+  const C = {};
+  const LIN = new Float32Array(256);
+  for (let i = 0; i < 256; i++) { const c = i / 255; LIN[i] = c <= .04045 ? c / 12.92 : Math.pow((c + .055) / 1.055, 2.4); }
+  const lab = t => t > .008856 ? Math.cbrt(t) : 7.787 * t + 16 / 116;
+  const clamp01 = v => v < 0 ? 0 : v > 1 ? 1 : v;
+
+  // Förbered ett foto: skala ner, räkna Lab-färger, konturer och bakgrundens färg en gång (sedan går reglaget snabbt)
+  C.prepare = (img, max = 720) => {
+    const k = Math.min(1, max / Math.max(img.width || img.naturalWidth, img.height || img.naturalHeight));
+    const w = Math.max(8, Math.round((img.width || img.naturalWidth) * k)), h = Math.max(8, Math.round((img.height || img.naturalHeight) * k)), n = w * h;
+    const canvas = document.createElement('canvas'); canvas.width = w; canvas.height = h;
+    const cg = canvas.getContext('2d', {willReadFrequently: true});
+    cg.drawImage(img, 0, 0, w, h);
+    const data = cg.getImageData(0, 0, w, h).data;
+    const L = new Float32Array(n), A = new Float32Array(n), B = new Float32Array(n);
+    for (let i = 0; i < n; i++) {
+      const r = LIN[data[i * 4]], g = LIN[data[i * 4 + 1]], b = LIN[data[i * 4 + 2]];
+      const fx = lab((r * .4124 + g * .3576 + b * .1805) / .95047), fy = lab(r * .2126 + g * .7152 + b * .0722), fz = lab((r * .0193 + g * .1192 + b * .9505) / 1.08883);
+      L[i] = 116 * fy - 16; A[i] = 500 * (fx - fy); B[i] = 200 * (fy - fz);
+    }
+    // Konturer: hur snabbt färgen ändras (Sobel på L och färgen)
+    const E = new Float32Array(n);
+    for (let y = 1; y < h - 1; y++) for (let x = 1; x < w - 1; x++) {
+      const i = y * w + x;
+      let m = 0;
+      for (const ch of [L, A, B]) {
+        const gx = ch[i - w + 1] + 2 * ch[i + 1] + ch[i + w + 1] - ch[i - w - 1] - 2 * ch[i - 1] - ch[i + w - 1];
+        const gy = ch[i + w - 1] + 2 * ch[i + w] + ch[i + w + 1] - ch[i - w - 1] - 2 * ch[i - w] - ch[i - w + 1];
+        m = Math.max(m, Math.hypot(gx, gy) / 8);
+      }
+      E[i] = m;
+    }
+    // Bakgrundens färg längs kanterna (median) som utgångspunkt
+    const band = Math.max(1, Math.round(Math.min(w, h) * .025)), bord = [];
+    for (let x = 0; x < w; x += 2) for (let t = 0; t < band; t++) bord.push(t * w + x, (h - 1 - t) * w + x);
+    for (let y = 0; y < h; y += 2) for (let t = 0; t < band; t++) bord.push(y * w + t, y * w + w - 1 - t);
+    const med = arr => { const v = bord.map(i => arr[i]).sort((a, b) => a - b); return v[v.length >> 1]; };
+    const bg0 = [med(L), med(A), med(B)];
+    // Rutnät: i varje ruta det ljusare av det som liknar bakgrunden (papper i skugga är mörkare men lika färglöst)
+    const cs = Math.max(12, Math.round(Math.max(w, h) / 26)), gw = Math.ceil(w / cs), gh = Math.ceil(h / cs), gn = gw * gh;
+    let cL = new Float32Array(gn).fill(NaN), cA = new Float32Array(gn), cB = new Float32Array(gn);
+    for (let gy = 0; gy < gh; gy++) for (let gx = 0; gx < gw; gx++) {
+      const Ls = [], As = [], Bs = [];
+      for (let y = gy * cs; y < Math.min(h, (gy + 1) * cs); y += 2) for (let x = gx * cs; x < Math.min(w, (gx + 1) * cs); x += 2) {
+        const i = y * w + x;
+        if (Math.hypot(A[i] - bg0[1], B[i] - bg0[2]) < 16 && L[i] > bg0[0] - 50 && E[i] < 6) { Ls.push(L[i]); As.push(A[i]); Bs.push(B[i]); }
+      }
+      if (Ls.length >= 8) {
+        Ls.sort((a, b) => a - b); As.sort((a, b) => a - b); Bs.sort((a, b) => a - b);
+        const c = gy * gw + gx;
+        cL[c] = Ls[Math.floor(Ls.length * .65)]; cA[c] = As[As.length >> 1]; cB[c] = Bs[Bs.length >> 1];
+      }
+    }
+    // Rutor utan bakgrund (mitt i motivet) får grannarnas värden
+    if (!cL.some(v => !isNaN(v))) { cL.fill(bg0[0]); cA.fill(bg0[1]); cB.fill(bg0[2]); }
+    for (let pass = 0; pass < gw + gh && cL.some(v => isNaN(v)); pass++) {
+      const known = cL.map(v => isNaN(v) ? 0 : 1);
+      for (let c = 0; c < gn; c++) {
+        if (known[c]) continue;
+        const x = c % gw, y = (c / gw) | 0;
+        let sL = 0, sA = 0, sB = 0, m = 0;
+        for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) {
+          const X = x + dx, Y = y + dy;
+          if ((dx || dy) && X >= 0 && Y >= 0 && X < gw && Y < gh && known[Y * gw + X]) { const o = Y * gw + X; sL += cL[o]; sA += cA[o]; sB += cB[o]; m++; }
+        }
+        if (m) { cL[c] = sL / m; cA[c] = sA / m; cB[c] = sB / m; }
+      }
+    }
+    // Mjuka övergångar mellan rutorna
+    const blur = src => { const out = new Float32Array(gn); for (let c = 0; c < gn; c++) { const x = c % gw, y = (c / gw) | 0; let s = 0, m = 0; for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) { const X = x + dx, Y = y + dy; if (X >= 0 && Y >= 0 && X < gw && Y < gh) { s += src[Y * gw + X] * (dx || dy ? 1 : 2); m += dx || dy ? 1 : 2; } } out[c] = s / m; } return out; };
+    cL = blur(cL); cA = blur(cA); cB = blur(cB);
+    const bgL = new Float32Array(n), bgA = new Float32Array(n), bgB = new Float32Array(n);
+    for (let y = 0; y < h; y++) {
+      const fy = Math.max(0, Math.min(gh - 1.001, (y + .5) / cs - .5)), y0 = Math.floor(fy), ty = fy - y0, y1 = Math.min(gh - 1, y0 + 1);
+      for (let x = 0; x < w; x++) {
+        const fx = Math.max(0, Math.min(gw - 1.001, (x + .5) / cs - .5)), x0 = Math.floor(fx), tx = fx - x0, x1 = Math.min(gw - 1, x0 + 1);
+        const a = y0 * gw + x0, b = y0 * gw + x1, c = y1 * gw + x0, d = y1 * gw + x1, i = y * w + x;
+        const mix = arr => (arr[a] * (1 - tx) + arr[b] * tx) * (1 - ty) + (arr[c] * (1 - tx) + arr[d] * tx) * ty;
+        bgL[i] = mix(cL); bgA[i] = mix(cA); bgB[i] = mix(cB);
+      }
+    }
+    // Pappersfärgen i RGB (för att tvätta bort ljus kant runt motivet)
+    const rgbMed = ch => { const v = bord.map(i => data[i * 4 + ch]).sort((a, b) => a - b); return v[v.length >> 1]; };
+    const paper = bg0[0] > 62 && Math.hypot(bg0[1], bg0[2]) < 18;
+    return {w, h, n, data, L, A, B, E, bgL, bgA, bgB, bgRGB: [rgbMed(0), rgbMed(1), rgbMed(2)], paper, edits: []};
+  };
+
+  // Hur mycket en pixel skiljer sig från bakgrunden just där. Mörkare än bakgrunden väger tyngre än ljusare (blänk och ljus).
+  function diffMap(st) {
+    if (st.d) return st.d;
+    const {n, L, A, B, bgL, bgA, bgB} = st, d = new Float32Array(n);
+    for (let i = 0; i < n; i++) { const dl = L[i] - bgL[i]; d[i] = Math.hypot(dl * (dl > 0 ? .3 : .6), A[i] - bgA[i], B[i] - bgB[i]); }
+    return (st.d = d);
+  }
+
+  // Klipp ut med en viss styrka (10–90). Ger en mask med 0–255 per pixel.
+  C.cut = (st, strength = 45) => {
+    const {w, h, n, L, A, B, E} = st, d = diffMap(st);
+    const T = 4 + strength * .3, Tmax = T * 1.9, Tstep = T * .32, Ecut = 5 + T * .3;
+    const bg = new Uint8Array(n), q = new Int32Array(n);
+    let qn = 0;
+    // Bakgrunden börjar bara från längre bitar av bildkanten. En kort bit mellan två delar av motivet
+    // (till exempel en ljus mage som når ut i kanten) är troligen en del av motivet.
+    const ring = [];
+    for (let x = 0; x < w; x++) ring.push(x);
+    for (let y = 1; y < h; y++) ring.push(y * w + w - 1);
+    for (let x = w - 2; x >= 0; x--) ring.push((h - 1) * w + x);
+    for (let y = h - 2; y > 0; y--) ring.push(y * w);
+    const ok = ring.map(i => d[i] < T * 1.25), R = ring.length, minRun = Math.max(12, R * .03);
+    const start = ok.indexOf(false);
+    if (start < 0) ring.forEach(i => { bg[i] = 1; q[qn++] = i; });
+    else {
+      for (let k = 0, run = []; k <= R; k++) {
+        const j = (start + k) % R;
+        if (k < R && ok[j]) { run.push(ring[j]); continue; }
+        if (run.length >= minRun) run.forEach(i => { if (!bg[i]) { bg[i] = 1; q[qn++] = i; } });
+        run = [];
+      }
+    }
+    const grow = (i, j) => {
+      if (bg[j]) return;
+      const dj = d[j];
+      if (dj >= Tmax) return;
+      if (E[j] > Ecut && dj > T * .45) return;                 // en tydlig kontur stoppar bakgrunden
+      if (dj < T || Math.hypot(L[j] - L[i], A[j] - A[i], B[j] - B[i]) < Tstep) { bg[j] = 1; q[qn++] = j; }
+    };
+    while (qn) {
+      const i = q[--qn], x = i % w;
+      if (x > 0) grow(i, i - 1);
+      if (x < w - 1) grow(i, i + 1);
+      if (i >= w) grow(i, i - w);
+      if (i < n - w) grow(i, i + w);
+    }
+    // Små öar av "motiv" (fläckar, smuts, brus) blir bakgrund. Det största motivet och allt som är en bra bit av det får vara kvar.
+    const comp = new Int32Array(n).fill(-1), areas = [];
+    for (let s = 0; s < n; s++) {
+      if (bg[s] || comp[s] >= 0) continue;
+      const id = areas.length;
+      let area = 0; qn = 0; q[qn++] = s; comp[s] = id;
+      while (qn) {
+        const i = q[--qn], x = i % w; area++;
+        if (x > 0 && !bg[i - 1] && comp[i - 1] < 0) { comp[i - 1] = id; q[qn++] = i - 1; }
+        if (x < w - 1 && !bg[i + 1] && comp[i + 1] < 0) { comp[i + 1] = id; q[qn++] = i + 1; }
+        if (i >= w && !bg[i - w] && comp[i - w] < 0) { comp[i - w] = id; q[qn++] = i - w; }
+        if (i < n - w && !bg[i + w] && comp[i + w] < 0) { comp[i + w] = id; q[qn++] = i + w; }
+      }
+      areas.push(area);
+    }
+    const big = Math.max(0, ...areas), keep = Math.max(30, big * .025, n * .0004);
+    const mask = new Uint8ClampedArray(n);
+    for (let i = 0; i < n; i++) if (!bg[i] && areas[comp[i]] >= keep) mask[i] = 255;
+    // Mjuk kant: kantpixlar som liknar bakgrunden blir halvgenomskinliga
+    for (let i = 0; i < n; i++) {
+      if (!mask[i]) continue;
+      const x = i % w;
+      if ((x > 0 && !mask[i - 1]) || (x < w - 1 && !mask[i + 1]) || (i >= w && !mask[i - w]) || (i < n - w && !mask[i + w])) mask[i] = 255 * (.3 + .7 * clamp01((d[i] - T * .55) / (T * .9)));
+    }
+    return mask;
+  };
+
+  // Trollstaven: tar bort det område som hänger ihop med punkten och liknar den
+  C.wand = (st, mask, x, y, strength = 45) => {
+    const {w, h, n, L, A, B, E} = st;
+    x = Math.max(0, Math.min(w - 1, x | 0)); y = Math.max(0, Math.min(h - 1, y | 0));
+    const s = y * w + x;
+    if (!mask[s]) return 0;
+    const T = 5 + strength * .22, r0 = [L[s], A[s], B[s]];
+    const dist = j => { const dl = L[j] - r0[0]; return Math.hypot(dl * .55, A[j] - r0[1], B[j] - r0[2]); };
+    const seen = new Uint8Array(n), q = new Int32Array(n);
+    let qn = 0, count = 0;
+    seen[s] = 1; q[qn++] = s;
+    while (qn) {
+      const i = q[--qn], xi = i % w;
+      mask[i] = 0; count++;
+      for (const j of [xi > 0 ? i - 1 : -1, xi < w - 1 ? i + 1 : -1, i >= w ? i - w : -1, i < n - w ? i + w : -1]) {
+        if (j < 0 || seen[j] || !mask[j]) continue;
+        seen[j] = 1;
+        const dj = dist(j);
+        if (dj > T * 2 || (E[j] > 6 + T * .3 && dj > T * .5)) continue;
+        if (dj < T || Math.hypot(L[j] - L[i], A[j] - A[i], B[j] - B[i]) < T * .35) q[qn++] = j;
+      }
+    }
+    return count;
+  };
+
+  // Pensel: målar tillbaka (255) eller bort (0) i en rund fläck med mjuk kant
+  C.brush = (st, mask, x, y, r, value) => {
+    const {w, h} = st;
+    for (let yy = Math.max(0, Math.floor(y - r)); yy <= Math.min(h - 1, Math.ceil(y + r)); yy++) {
+      for (let xx = Math.max(0, Math.floor(x - r)); xx <= Math.min(w - 1, Math.ceil(x + r)); xx++) {
+        const k = 1 - clamp01((Math.hypot(xx - x, yy - y) - r * .75) / (r * .25 + .001)), i = yy * w + xx;
+        mask[i] = value ? Math.max(mask[i], 255 * k) : Math.min(mask[i], 255 * (1 - k));
+      }
+    }
+  };
+
+  // Gör om utklippningen med samma styrka och alla ändringar för hand (efter att reglaget har flyttats eller något ångrats)
+  C.replay = (st, strength) => {
+    const mask = C.cut(st, strength);
+    st.edits.forEach(e => {
+      if (e.k === 'wand') C.wand(st, mask, e.x, e.y, strength);
+      else e.pts.forEach(([x, y]) => C.brush(st, mask, x, y, e.r, e.v));
+    });
+    return mask;
+  };
+
+  // Motivets ram (i fotots pixlar)
+  C.bbox = (st, mask) => {
+    const {w, h} = st;
+    let x0 = w, y0 = h, x1 = -1, y1 = -1;
+    for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) if (mask[y * w + x] > 60) { if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y; }
+    return x1 < 0 ? null : {x0, y0, x1, y1};
+  };
+
+  // Bilden med genomskinlig bakgrund. Teckningar på papper får lite klarare färger, och kanten tvättas från pappersfärg.
+  C.render = (st, mask) => {
+    const {w, h, n, data, bgRGB, paper} = st;
+    const out = document.createElement('canvas'); out.width = w; out.height = h;
+    const og = out.getContext('2d');
+    const id = og.createImageData(w, h), o = id.data;
+    for (let i = 0; i < n; i++) {
+      const a = mask[i];
+      o[i * 4 + 3] = a;
+      if (!a) continue;
+      let r = data[i * 4], g = data[i * 4 + 1], b = data[i * 4 + 2];
+      if (a < 250) {
+        // Ta bort bakgrundens bidrag i kantpixlarna (annars blir det en ljus ram)
+        const al = Math.max(.35, a / 255);
+        r = (r - (1 - al) * bgRGB[0]) / al; g = (g - (1 - al) * bgRGB[1]) / al; b = (b - (1 - al) * bgRGB[2]) / al;
+      }
+      if (paper) {
+        const m = (r + g + b) / 3;
+        r = (r - 128) * 1.14 + 128 + (r - m) * .3; g = (g - 128) * 1.14 + 128 + (g - m) * .3; b = (b - 128) * 1.14 + 128 + (b - m) * .3;
+      }
+      o[i * 4] = r; o[i * 4 + 1] = g; o[i * 4 + 2] = b;
+    }
+    og.putImageData(id, 0, 0);
+    return out;
+  };
+  return C;
 })();
 
 /* ---- 10-game.js ---- */
