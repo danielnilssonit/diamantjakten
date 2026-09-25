@@ -110,6 +110,12 @@ button{cursor:pointer}
 .bday-row{display:grid;grid-template-columns:minmax(0,1fr) 64px minmax(0,110px) auto;gap:6px;align-items:center}
 .bday-row input,.bday-row select{min-width:0}
 .bday-banner{margin:6px 0 0;font-family:var(--display);font-weight:400;font-size:clamp(20px,2.6vw,30px);color:#fff;text-shadow:0 3px 0 #1d2b33,0 6px 16px rgba(0,0,0,.45);animation:introGem 2.4s ease-in-out infinite}
+.sound-hint{display:inline-flex;align-items:center;gap:8px;margin:10px auto 0;border:0;border-radius:999px;padding:9px 18px;font:900 16px var(--body);color:var(--gold-ink,#5a3a00);cursor:pointer;
+  background:radial-gradient(circle at 35% 30%,#fff3bd,#f2bf3f 55%,#c98a14);box-shadow:0 0 0 2.5px var(--ink),0 5px 0 rgba(0,0,0,.35);animation:hintPulse 1.8s ease-in-out infinite}
+.sound-hint[hidden]{display:none}
+.sound-hint .ico{width:20px;height:20px}
+@keyframes hintPulse{50%{transform:scale(1.06)}}
+@media (prefers-reduced-motion: reduce){.sound-hint{animation:none}}
 .party-confetti{position:fixed;inset:0;width:100vw;height:100vh;z-index:16;pointer-events:none}
 .voice-row select{flex:1;min-width:0}
 .opt-note{font-weight:700;font-size:13px;color:var(--ink-soft);line-height:1.35}
@@ -823,6 +829,7 @@ body{background:radial-gradient(120% 90% at 50% 20%,#1d4652 0%,#0c222a 60%,#0613
       </h1>
       <p class="tagline"><span>Jaga skatten i Afrika, Sverige, Skandinavien, Europa och hela världen</span></p>
       <p class="bday-banner" id="bdayBanner" hidden></p>
+      <button class="sound-hint" id="soundHint" type="button" hidden></button>
       <div class="menu title-menu">
         <button id="bContinue" class="btn big blue" type="button" hidden>Fortsätt spelet</button>
         <button id="bPlay" class="btn big primary glint" type="button">Nytt spel</button>
@@ -2725,20 +2732,34 @@ const Sound = (() => {
     A.setVolumes();
     setInterval(schedule, 25);
     // iPhone och iPad kan pausa ljudet (uppläsning, samtal, andra appar). Då försöker vi väcka det igen.
-    ctx.onstatechange = () => { if (ctx.state !== 'running' && ctx.state !== 'closed') { clearTimeout(wakeT); wakeT = setTimeout(A.restore, 700); } };
+    ctx.onstatechange = () => {
+      Bus.emit('audioState');
+      if (ctx.state !== 'running' && ctx.state !== 'closed') { clearTimeout(wakeT); wakeT = setTimeout(A.restore, 700); }
+    };
     return ctx;
   }
-  let wakeT = 0, speechPrimed = false;
-  // Anropas vid varje tryck: iPhone och iPad släpper bara fram ljud (och uppläsning) som startas av ett tryck
+  let wakeT = 0, speechPrimed = false, speechTries = 0;
+  // Ljud i spel ska höras även när iPhone står på ljudlöst (Safari 16.4 och senare)
+  try { if (navigator.audioSession) navigator.audioSession.type = 'playback'; } catch (e) { /* stöds inte */ }
+  // Anropas vid tryck som räknas som en handling: när fingret släpps, klick och tangenter. iPhone och iPad släpper bara
+  // fram ljud och uppläsning som startas då (inte när fingret trycks ner). Allt görs om tills det har lyckats.
   A.unlock = () => {
     try {
       ensure();
-      if (ctx && ctx.state !== 'running') ctx.resume().catch(() => {});
+      if (ctx && ctx.state !== 'running') ctx.resume().then(() => Bus.emit('audioState'), () => {});
       Tracks.prime();
-      Tracks.kick();
-      if (Settings.voice && hasSpeech && !speechPrimed) { speechPrimed = true; const u = new SpeechSynthesisUtterance(' '); u.volume = 0; speechSynthesis.speak(u); }
+      if (Tracks.ready()) Tracks.kick();
+      if (Settings.voice && hasSpeech && !speechPrimed && speechTries < 3) {
+        speechTries++;
+        const u = new SpeechSynthesisUtterance(' ');
+        u.volume = 0;
+        u.onstart = u.onend = () => { speechPrimed = true; };
+        speechSynthesis.speak(u);
+      }
     } catch (e) { /* ljud är valfritt */ }
   };
+  // Väntar ljudet fortfarande på ett första tryck? (då visar startsidan en knapp för ljud)
+  A.locked = () => !ctx || ctx.state !== 'running' || Tracks.pending();
   // Väck ljudet igen efter ett avbrott, utan att vänta på ett tryck (fungerar inte alltid på iPhone, då räcker nästa tryck)
   A.restore = () => {
     try {
@@ -2890,6 +2911,7 @@ const Sound = (() => {
       d.key = key; d.a.src = url; d.a.currentTime = 0;
       try { await d.a.play(); } catch (e) { return; }
       active = inc;
+      setTimeout(() => Bus.emit('audioState'), 0);
       level(d, 1, 2.2);
       if (out) { level(out, 0, 2.2); clearTimeout(fadeT); fadeT = setTimeout(() => { if (deck[active] !== out) out.a.pause(); }, 2600); }
       cur = key;
@@ -2903,7 +2925,7 @@ const Sound = (() => {
     T.stop = () => { if (!cur) return; cur = null; const d = deck[active]; if (d) { level(d, 0, 1.5); setTimeout(() => { if (!cur) d.a.pause(); }, 1800); } };
     T.retry = () => { if (wantKey && !cur) next(wantKey); };
     // Spela ett kort tyst ljud i båda spelarna vid första trycket (iPhone kräver att varje spelare startas av ett tryck en gång)
-    let primed = false, silent = null;
+    let primed = false, priming = false, silent = null;
     function silentUrl() {
       const n = 800, b = new Uint8Array(44 + n), v = new DataView(b.buffer), w = (o, str) => [...str].forEach((c, i) => { b[o + i] = c.charCodeAt(0); });
       w(0, 'RIFF'); v.setUint32(4, 36 + n, true); w(8, 'WAVE'); w(12, 'fmt '); v.setUint32(16, 16, true); v.setUint16(20, 1, true); v.setUint16(22, 1, true);
@@ -2911,16 +2933,18 @@ const Sound = (() => {
       return URL.createObjectURL(new Blob([b], {type: 'audio/wav'}));
     }
     T.prime = () => {
-      if (primed || !files.length) return;
-      primed = true;
+      if (primed || priming || !files.length) return;
       if (!deck.length) deck = [makeDeck(), makeDeck()];
       silent = silent || silentUrl();
-      deck.forEach((d, k) => {
-        if (k === active && cur) return;
-        d.a.src = silent;
-        d.a.play().then(() => { if (d.a.src === silent) d.a.pause(); }).catch(() => {});
-      });
+      priming = true;
+      const list = deck.filter((d, k) => !(k === active && cur));
+      // Klart först när spelarna verkligen har startat, annars görs det om vid nästa tryck
+      Promise.all(list.map(d => { d.a.src = silent; return d.a.play().then(() => { if (d.a.src === silent) d.a.pause(); }); }))
+        .then(() => { primed = true; priming = false; T.kick(); Bus.emit('audioState'); }, () => { priming = false; });
     };
+    T.ready = () => primed || !files.length;
+    // Musiken borde spela men har inte kunnat starta
+    T.pending = () => !!wantKey && !cur && Settings.music > 0 && T.has(wantKey);
     // Starta om musiken om den borde spela men har stannat (till exempel efter uppläsning på iPhone)
     T.kick = () => {
       const d = deck[active];
@@ -10040,7 +10064,13 @@ async function boot(hot) {
   document.body.classList.toggle('xmas', Xmas.on());
   document.body.classList.toggle('halloween', Halloween.on());
   UI.initIcons();
-  ['pointerdown', 'touchend', 'keydown'].forEach(ev => document.addEventListener(ev, () => Sound.unlock(), {capture: true, passive: true}));
+  ['touchend', 'pointerup', 'click', 'keydown'].forEach(ev => document.addEventListener(ev, () => Sound.unlock(), {capture: true, passive: true}));
+  // Knappen "Tryck för ljud" på startsidan syns tills ljudet är igång (iPhone spelar inget ljud före första trycket)
+  const soundHint = () => { $('soundHint').hidden = !Sound.locked() || $('scrTitle').hidden || (Settings.music <= 0 && Settings.sfx <= 0); };
+  $('soundHint').innerHTML = icon('sound') + '<span>Tryck för ljud</span>';
+  $('soundHint').onclick = () => { Sound.unlock(); setTimeout(soundHint, 400); };
+  Bus.on('audioState', soundHint);
+  setInterval(soundHint, 1000);
   Challenges.markTile();
   UI.birthdayBanner();
   const full = $('tFull');
