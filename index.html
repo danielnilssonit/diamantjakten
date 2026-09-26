@@ -785,6 +785,86 @@ body{background:radial-gradient(120% 90% at 50% 20%,#1d4652 0%,#0c222a 60%,#0613
 @media (max-width:760px){.menu-tiles{grid-template-columns:repeat(3,minmax(0,1fr))}.challenge{grid-template-columns:80px minmax(0,1fr) 40px}}
 @media (prefers-reduced-motion: reduce){.lg-rays,.lg-sweep,.title-glints,.win-rays{animation:none!important}}
 
+/* ---------- Finputs: premiumkänsla hela vägen ---------- */
+/* Rullningslister: tunna och guldfärgade i stället för webbläsarens grå */
+*{scrollbar-width:thin;scrollbar-color:#c7963f rgba(120,80,20,.1)}
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-track{background:rgba(120,80,20,.08);border-radius:10px}
+::-webkit-scrollbar-thumb{background:linear-gradient(180deg,#f0c75a,#b07a22);border-radius:10px;border:2px solid transparent;background-clip:padding-box}
+::-webkit-scrollbar-corner{background:transparent}
+/* Nytt spel: bredare på stora skärmar (hela kartnamnen syns), korten linjerar och startknappen syns alltid */
+.setup{width:min(1400px,100%)}
+.map-card b{font-size:clamp(18px,1.1vw + 6px,23px);white-space:nowrap}
+.seat{align-content:start}
+.step-title{flex-wrap:wrap;row-gap:8px}
+.setup > .sheet-foot{position:sticky;bottom:-20px;z-index:3;margin:14px -24px -20px;padding:14px 24px 16px;border-radius:0 0 21px 21px;
+  background:linear-gradient(180deg,rgba(236,214,160,0),var(--parch-3) 24px);box-shadow:0 -1px 0 rgba(140,96,20,.18)}
+.setup > .sheet-foot .btn:disabled{opacity:1;filter:grayscale(.75) brightness(1.04)}
+.sheet-head h2,.center-sheet > h2,#confirmTitle,.seg button{text-wrap:balance}
+.pass-page:has(.pass-empty) + .pass-fact{display:none}
+.seat-body{display:contents}
+/* Inställningar i grupper */
+.settings-sheet{width:min(920px,100%)}
+.opt-groups{display:grid;grid-template-columns:minmax(0,1fr);gap:14px}
+.opt-col{display:grid;grid-template-columns:minmax(0,1fr);grid-template-rows:auto 1fr;gap:14px;min-width:0}
+@media (min-width:760px){.opt-groups{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.opt-group{display:grid;gap:12px;align-content:start;min-width:0;padding:14px 16px 16px;border-radius:18px;background:linear-gradient(180deg,#fffdf7,#f3e5c2);box-shadow:0 0 0 2.5px var(--ink),inset 0 3px 0 var(--gold)}
+.opt-group h3{margin:0 0 2px;display:flex;align-items:center;gap:9px;font-family:var(--display);font-weight:400;font-size:21px}
+.opt-group h3 .ico{width:22px;height:22px;color:#b07a22}
+.opt-group > .btn{justify-self:start}
+.opt-group .opt,.opt-group select{min-width:0}
+.settings-sheet .more{margin-top:14px}
+.bday-opt{gap:10px}
+/* Reglage i spelets stil i stället för kryssrutor */
+.opt.switch{flex-direction:row-reverse;justify-content:space-between;cursor:pointer}
+.opt.switch input[type=checkbox]{-webkit-appearance:none;appearance:none;flex:none;width:50px;height:28px;margin:0;border-radius:999px;position:relative;cursor:pointer;
+  background:linear-gradient(180deg,#cbbf9f,#e3d8bf);box-shadow:0 0 0 2.5px var(--ink),inset 0 2px 5px rgba(0,0,0,.25);transition:background .2s}
+.opt.switch input[type=checkbox]::before{content:"";position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;
+  background:radial-gradient(circle at 35% 30%,#fff,#efe6d2);box-shadow:0 0 0 2px var(--ink),0 2px 3px rgba(0,0,0,.3);transition:transform .22s cubic-bezier(.3,1.5,.5,1)}
+.opt.switch input[type=checkbox]:checked{background:linear-gradient(180deg,#6fdb9c,#1f9a55)}
+.opt.switch input[type=checkbox]:checked::before{transform:translateX(22px)}
+.opt.switch input[type=checkbox]:focus-visible{outline:3px solid var(--sky,#3b7ce0);outline-offset:3px}
+/* Skjutreglage: guldfyllt spår och en guldkula */
+.opt input[type=range]{-webkit-appearance:none;appearance:none;height:12px;border-radius:999px;margin:6px 0;cursor:pointer;
+  background:linear-gradient(90deg,#f7cf55,#e0a526 var(--v,50%),#d8cbad var(--v,50%));box-shadow:0 0 0 2.5px var(--ink),inset 0 2px 3px rgba(0,0,0,.2)}
+.opt input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;height:28px;border-radius:50%;cursor:grab;
+  background:radial-gradient(circle at 35% 30%,#fff6cc,#f2bf3f 55%,#c98a14);box-shadow:0 0 0 2.5px var(--ink),0 3px 0 2.5px var(--ink)}
+.opt input[type=range]::-moz-range-thumb{width:24px;height:24px;border:2.5px solid #1d2b33;border-radius:50%;cursor:grab;background:radial-gradient(circle at 35% 30%,#fff6cc,#f2bf3f 55%,#c98a14)}
+.opt input[type=range]:disabled{filter:grayscale(.7);opacity:.6}
+/* Ett tomt pass med bild */
+.pass-empty{display:grid;justify-items:center;gap:6px;text-align:center;padding:22px 14px 26px;margin:0}
+.pass-empty svg{width:96px;height:96px;filter:drop-shadow(0 6px 8px rgba(0,0,0,.2))}
+.pass-empty b{font-family:var(--display);font-weight:400;font-size:25px;color:var(--ink)}
+.pass-empty p{margin:0;max-width:44ch;font-weight:700;color:var(--ink-soft);line-height:1.45}
+/* Menyer i smala dialoger (pausen) håller sig innanför arket */
+.center-sheet .menu{width:min(340px,100%)}
+/* Frågor: Nej och Ja bredvid varandra */
+#dlgConfirm .sheet-foot .btn.big{min-width:0;flex:1 1 0}
+/* Resedagboken hamnar under spelarnas brickor när skärmen är liten */
+@media (max-width:900px),(max-height:520px){.diary-bar{top:calc(var(--hud-h,60px) + 8px);max-width:calc(100% - 24px)}}
+/* Mobil: luftigare utmaningar och spelarkort */
+@media (max-width:520px){
+  .challenge{grid-template-columns:72px minmax(0,1fr) 40px;gap:10px;padding:8px 10px 8px 8px}
+  .ch-art{height:56px}
+  .ch-txt b{font-size:18px;line-height:1.1}
+  .ch-txt span{font-size:14px}
+  .seats{grid-template-columns:minmax(0,1fr);gap:14px}
+  .seat:not(.add){grid-template-columns:84px minmax(0,1fr);align-items:center;justify-items:stretch;column-gap:12px;padding:12px}
+  .seat:not(.add) .pick{width:84px;height:84px}
+  .seat-body{display:grid;gap:8px;justify-items:start;min-width:0}
+  .seat-body > input[type=text],.seat-body > select{width:100%}
+  .seat:has(> .x) .seat-body > :first-child{width:calc(100% - 34px)}
+  .seat .x{top:10px;right:10px}
+  .seat .seg{max-width:100%}
+  .seat .seg button{font-size:clamp(11px,3.1vw,13px);padding:6px clamp(6px,2vw,10px);white-space:nowrap}
+  .center-sheet > h2,#confirmTitle{font-size:clamp(22px,6.6vw,30px)}
+  .seat.invite-add,.seat.add{grid-column:1/-1;min-height:0;padding:14px}
+  .seat.invite-add .btn{white-space:normal}
+  .step-title .invite{margin-left:0}
+  .setup > .sheet-foot{margin:12px -16px -14px;padding:12px 16px 14px;bottom:-14px}
+  .setup > .sheet-foot .btn.big{flex:1}
+}
+
 /* ---------- Enkel grafik och TV: inga suddiga bakgrunder eller ständiga animationer, som är tunga för en TV-webbläsare ---------- */
 .lite .modal,.tv .modal{backdrop-filter:none;-webkit-backdrop-filter:none;background:rgba(3,12,16,.8)}
 .lite .lg-rays,.lite .lg-sweep,.lite .lg-stars path,.lite .title-glints,.lite .title-glints i,.lite .win-rays,.lite .logo-gem,.lite .intro-gem svg,.lite .load-gem,
@@ -961,7 +1041,7 @@ body:not(.table-mode) .storm-badge,body:not(.table-mode) .challenge-badge{top:ca
           <g clip-path="url(#lgClip)"><rect class="lg-sweep" x="-260" y="120" width="200" height="170" fill="url(#lgSweep)"/></g>
         </svg>
       </h1>
-      <p class="tagline"><span>Jaga skatten i Afrika, Sverige, Skåne, Skandinavien, Europa och hela världen</span></p>
+      <p class="tagline"><span>Jaga den försvunna diamanten på sex kartor</span></p>
       <p class="bday-banner" id="bdayBanner" hidden></p>
       <button class="sound-hint" id="soundHint" type="button" hidden></button>
       <div class="menu title-menu">
@@ -1161,35 +1241,48 @@ body:not(.table-mode) .storm-badge,body:not(.table-mode) .challenge-badge{top:ca
   <div id="dlgPause" class="modal" hidden><div class="sheet small-sheet center-sheet"><h2>Paus</h2>
     <div class="menu"><button class="btn big primary" id="bResume" type="button">Fortsätt spela</button><button class="btn big" id="bPauseRules" type="button">Så spelar man</button><button class="btn big" id="bPausePass" type="button">Passet</button><button class="btn big" id="bPauseRemote" type="button">Anslut mobiler</button><button class="btn big" id="bPauseSettings" type="button">Inställningar</button><button class="btn big" id="bQuit" type="button">Till menyn</button></div>
     <p class="note">Spelet sparas efter varje tur, så du kan fortsätta senare.</p></div></div>
-  <div id="dlgSettings" class="modal" hidden><div class="sheet small-sheet"><header class="sheet-head"><h2>Inställningar</h2><button class="btn icon" id="bSettingsClose" type="button" aria-label="Stäng"></button></header>
-    <div class="opts">
-      <label class="opt"><span>Musik</span><input type="range" id="sMusic" min="0" max="1" step="0.05"></label>
-      <label class="opt"><span>Ljudeffekter</span><input type="range" id="sSfx" min="0" max="1" step="0.05"></label>
-      <label class="opt switch"><input type="checkbox" id="sVoice"><span>Läs upp vad som händer</span></label>
-      <div class="opt voice-opt"><span>Berättarröst</span><div class="voice-row"><select id="sVoiceId"></select><button class="btn small" id="bVoiceTest" type="button">Testa</button></div><small class="opt-note" id="voiceNote" hidden></small></div>
-      <label class="opt switch"><input type="checkbox" id="sDaynight"><span>Dag och natt under spelet</span></label>
-      <label class="opt switch"><input type="checkbox" id="sFollow"><span>Kameran följer pjäserna</span></label>
-      <label class="opt switch"><input type="checkbox" id="sDie3d"><span>Kasta tärningen på brädet (3D)</span></label>
-      <label class="opt switch"><input type="checkbox" id="sDof"><span>Miniatyrkänsla (oskärpa längre bort)</span></label>
-      <label class="opt switch"><input type="checkbox" id="sTable"><span>Bordsläge (stor pekskärm)</span></label>
-      <label class="opt"><span>Grafik</span><select id="sGfx"><option value="auto">Automatiskt (enkel på TV)</option><option value="3d">3D</option><option value="fast">3D, snabbare (äldre plattor)</option><option value="flat">Enkel 2D (för TV och svaga datorer)</option></select></label>
-      <small class="opt-note" id="gfxNote" hidden></small>
-      <label class="opt switch"><input type="checkbox" id="sCoach"><span>Visa tips för nya spelare</span></label>
-      <label class="opt"><span>Högtider</span><select id="sXmas"><option value="auto">efter datum</option><option value="jul">jul</option><option value="halloween">halloween</option><option value="off">av</option></select></label>
-      <button class="btn small" id="bCoachReset" type="button">Visa guiden igen</button>
-      <button class="btn small" id="bCheck" type="button">Testa skärmen</button>
-      <div class="opt bday-opt"><span>Födelsedagar</span>
-        <div class="bday-list" id="bdayList"></div>
-        <div class="bday-row"><input type="text" id="bdayName" maxlength="14" placeholder="Namn" autocomplete="off" aria-label="Namn"><select id="bdayDay" aria-label="Dag"></select><select id="bdayMonth" aria-label="Månad"></select><button class="btn small" id="bdayAdd" type="button">Lägg till</button></div>
-        <small class="opt-note">Den som fyller år får partyhatt och ett grattis när ni spelar. Skriv namnet som i spelet.</small>
+  <div id="dlgSettings" class="modal" hidden><div class="sheet small-sheet settings-sheet"><header class="sheet-head"><h2>Inställningar</h2><button class="btn icon" id="bSettingsClose" type="button" aria-label="Stäng"></button></header>
+    <div class="opt-groups">
+      <div class="opt-col">
+        <section class="opt-group"><h3 data-icon="sound">Ljud och röst</h3>
+          <label class="opt"><span>Musik</span><input type="range" id="sMusic" min="0" max="1" step="0.05"></label>
+          <label class="opt"><span>Ljudeffekter</span><input type="range" id="sSfx" min="0" max="1" step="0.05"></label>
+          <label class="opt switch"><input type="checkbox" id="sVoice"><span>Läs upp vad som händer</span></label>
+          <div class="opt voice-opt"><span>Berättarröst</span><div class="voice-row"><select id="sVoiceId"></select><button class="btn small" id="bVoiceTest" type="button">Testa</button></div><small class="opt-note" id="voiceNote" hidden></small></div>
+        </section>
+        <section class="opt-group"><h3 data-icon="gear">Skärm och grafik</h3>
+          <label class="opt"><span>Grafik</span><select id="sGfx"><option value="auto">Automatiskt (enkel på TV)</option><option value="3d">3D</option><option value="fast">3D, snabbare (äldre plattor)</option><option value="flat">Enkel 2D (för TV och svaga datorer)</option></select></label>
+          <small class="opt-note" id="gfxNote" hidden></small>
+          <label class="opt switch"><input type="checkbox" id="sTable"><span>Bordsläge (stor pekskärm)</span></label>
+          <button class="btn small" id="bCheck" type="button">Testa skärmen</button>
+        </section>
       </div>
-      <details class="more"><summary>Avancerat: server för mobiler på krångliga nät</summary>
+      <div class="opt-col">
+        <section class="opt-group"><h3 data-icon="dice">Spelet</h3>
+          <label class="opt switch"><input type="checkbox" id="sDaynight"><span>Dag och natt under spelet</span></label>
+          <label class="opt switch"><input type="checkbox" id="sFollow"><span>Kameran följer pjäserna</span></label>
+          <label class="opt switch"><input type="checkbox" id="sDie3d"><span>Kasta tärningen på brädet (3D)</span></label>
+          <label class="opt switch"><input type="checkbox" id="sDof"><span>Miniatyrkänsla (oskärpa längre bort)</span></label>
+          <label class="opt switch"><input type="checkbox" id="sCoach"><span>Visa tips för nya spelare</span></label>
+          <label class="opt"><span>Högtider</span><select id="sXmas"><option value="auto">efter datum</option><option value="jul">jul</option><option value="halloween">halloween</option><option value="off">av</option></select></label>
+          <button class="btn small" id="bCoachReset" type="button">Visa guiden igen</button>
+        </section>
+        <section class="opt-group"><h3 data-icon="gift">Födelsedagar</h3>
+          <div class="opt bday-opt">
+          <div class="bday-list" id="bdayList"></div>
+          <div class="bday-row"><input type="text" id="bdayName" maxlength="14" placeholder="Namn" autocomplete="off" aria-label="Namn"><select id="bdayDay" aria-label="Dag"></select><select id="bdayMonth" aria-label="Månad"></select><button class="btn small" id="bdayAdd" type="button">Lägg till</button></div>
+          <small class="opt-note">Den som fyller år får partyhatt och ett grattis när ni spelar. Skriv namnet som i spelet.</small>
+        </div>
+        </section>
+      </div>
+    </div>
+    <details class="more"><summary>Avancerat: server för mobiler på krångliga nät</summary>
         <p class="note">Behövs bara om mobilerna inte får kontakt, till exempel på gästnät. Fyll i en egen TURN-server (från till exempel Metered eller Twilio). Uppgifterna följer med i QR-koden.</p>
         <label class="opt"><span>TURN-adress</span><input type="text" id="sTurnUrl" placeholder="turn:server:3478" autocomplete="off"></label>
         <label class="opt"><span>Användarnamn</span><input type="text" id="sTurnUser" autocomplete="off"></label>
         <label class="opt"><span>Lösenord</span><input type="text" id="sTurnPass" autocomplete="off"></label>
       </details>
-    </div></div></div>
+    </div></div>
   <div id="dlgPass" class="modal" hidden><div class="sheet pass-sheet"><header class="sheet-head"><h2>Passet</h2><button class="btn icon" id="bPassClose" type="button" aria-label="Stäng"></button></header>
     <div class="pass-who" id="passWho"></div><div class="tabs pass-maps" id="passMaps"></div><div class="pass-page" id="passPage"></div><div class="pass-fact" id="passFact" aria-live="polite"></div></div></div>
   <div id="dlgRules" class="modal" hidden><div class="sheet rules-sheet"><header class="sheet-head"><h2>Så spelar man</h2><button class="btn icon" id="bRulesClose" type="button" aria-label="Stäng"></button></header><div class="rules" id="rulesBody"></div></div></div>
@@ -6666,6 +6759,12 @@ const UI = (() => {
     set('bPieceClose', 'close'); set('bSettingsClose', 'close'); set('bRulesClose', 'close'); set('bPassClose', 'close'); set('stampRead', 'voice');
     set('bTopClose', 'close'); set('bRemoteClose', 'close'); set('bPostcardClose', 'close'); set('bChallengesClose', 'close'); set('bCheckClose', 'close'); set('tRemote', 'phone'); set('cardRead', 'voice'); set('quizRead', 'voice');
     const inv = $('bInvite'); if (inv) inv.innerHTML = icon('phone') + '<span>Bjud in mobiler</span>';
+    document.querySelectorAll('[data-icon]').forEach(e => e.insertAdjacentHTML('afterbegin', icon(e.dataset.icon)));
+    // Skjutreglagen fylls i guld fram till kulan
+    const fill = r => r.style.setProperty('--v', ((r.value - (r.min || 0)) / ((r.max || 100) - (r.min || 0)) * 100) + '%');
+    document.addEventListener('input', e => { if (e.target.type === 'range') fill(e.target); });
+    U.fillRanges = () => document.querySelectorAll('input[type=range]').forEach(fill);
+    U.fillRanges();
     // Startmenyn: ikoner i knapparna och små guldmynt i rutorna
     const lab = (id, name) => { const e = $(id); if (e) e.innerHTML = icon(name) + `<span>${e.textContent}</span>`; };
     lab('bPlay', 'play'); lab('bPhones', 'phone');
@@ -7050,6 +7149,7 @@ const UI = (() => {
     $('sCoach').checked = Settings.coach !== false; $('sXmas').value = Settings.xmas === 'on' ? 'jul' : Settings.xmas || 'auto';
     fillVoices();
     fillBirthdays();
+    U.fillRanges();
     const t = Settings.turn || {}; $('sTurnUrl').value = t.url || ''; $('sTurnUser').value = t.user || ''; $('sTurnPass').value = t.pass || '';
     U.modal('dlgSettings', true);
   };
@@ -9438,9 +9538,10 @@ const Setup = (() => {
       const thumb = Pieces.thumb(Object.assign(specOf(s.piece), {acc: s.acc || null}), color);
       const pickBtn = h('button', {class: 'pick', type: 'button', style: {'--pc': color}, 'aria-label': 'Byt pjäs'}, thumb ? h('img', {src: thumb, alt: ''}) : '');
       pickBtn.onclick = () => openPicker(i);
-      const card = h('div', {class: 'seat' + (s.dev ? ' remote' + (Remote.online(s.dev) ? '' : ' offline') : '')}, pickBtn);
+      const body = h('div', {class: 'seat-body'});
+      const card = h('div', {class: 'seat' + (s.dev ? ' remote' + (Remote.online(s.dev) ? '' : ' offline') : '')}, pickBtn, body);
       if (s.dev) {
-        card.append(h('div', {class: 'seat-name'}, h('b', {text: seatName(s)})),
+        body.append(h('div', {class: 'seat-name'}, h('b', {text: seatName(s)})),
           h('div', {class: 'seat-dev', html: icon('phone') + `<span>${Remote.online(s.dev) ? (Remote.leaderDev() === s.dev ? 'Spelledare, i mobilen' : 'Spelar i mobilen') : 'Tappade kontakten …'}</span>`}));
       } else {
         const name = h('input', {type: 'text', id: 'seatName' + i, maxlength: 14, placeholder: pieceName(s.piece), value: s.name || ''});
@@ -9448,18 +9549,18 @@ const Setup = (() => {
         const who = h('select', {id: 'seatBot' + i, 'aria-label': 'Vem spelar'},
           ...[['0', 'Människa'], ['1', 'Dator: lätt'], ['2', 'Dator: lagom'], ['3', 'Dator: klurig']].map(([v, t]) => h('option', {value: v, text: t, selected: String(s.bot) === v})));
         who.onchange = () => { s.bot = +who.value; renderSeats(); changed(); };
-        card.append(name, who);
+        body.append(name, who);
       }
       const home = h('div', {class: 'seg', role: 'group', 'aria-label': 'Startstad'}, ...starts.map((n, k) => {
         const b = h('button', {type: 'button', 'aria-pressed': String((s.home || 0) === k), text: n});
         b.onclick = () => { s.home = k; renderSeats(); changed(); };
         return b;
       }));
-      card.append(home);
+      body.append(home);
       if (accs.length && !s.bot && s.piece.type === 'char') {
         const b = h('button', {class: 'btn small acc-btn', type: 'button', text: `Tillbehör: ${s.acc ? Badges.accessoryName(s.acc) : 'inget'}`});
         b.onclick = () => { const ids = [null].concat(accs.map(a => a.id)); s.acc = ids[(ids.indexOf(s.acc || null) + 1) % ids.length]; Sound.play('pop'); renderSeats(); changed(); };
-        card.append(b);
+        body.append(b);
       }
       if (cfg.options.quiz !== false && !s.bot) {
         const q = h('div', {class: 'seg small', role: 'group', 'aria-label': 'Frågor'}, ...[['easy', 'Lätta frågor'], ['hard', 'Svåra frågor']].map(([v, t]) => {
@@ -9467,12 +9568,12 @@ const Setup = (() => {
           b.onclick = () => { s.quiz = v; renderSeats(); changed(); };
           return b;
         }));
-        card.append(q);
+        body.append(q);
       }
       if (Settings.table) {
         const side = h('select', {id: 'seatSide' + i, 'aria-label': 'Sida av bordet'}, ...SIDES.map((t, k) => h('option', {value: k, text: t, selected: (s.seat != null ? s.seat : i) === k})));
         side.onchange = () => { s.seat = +side.value; };
-        card.append(side);
+        body.append(side);
       }
       if (cfg.seats.length > (invite ? 0 : 2)) {
         const x = h('button', {class: 'x', type: 'button', 'aria-label': 'Ta bort spelaren', html: icon('close')});
@@ -9735,7 +9836,13 @@ const Passport = (() => {
     who.innerHTML = ''; page.innerHTML = ''; tabs.innerHTML = '';
     $('passFact').textContent = '';
     if (!names.length) {
-      page.append(h('p', {class: 'pass-empty', text: 'Passen är tomma än. Varje gång en spelare kommer fram till en ny stad får hen en stämpel här.'}));
+      page.append(h('div', {class: 'pass-empty'},
+        h('span', {html: '<svg viewBox="0 0 96 96" aria-hidden="true"><rect x="18" y="8" width="60" height="80" rx="8" fill="#23525e" stroke="#1d2b33" stroke-width="4"/>'
+          + '<rect x="24" y="14" width="48" height="68" rx="5" fill="none" stroke="#f2bf3f" stroke-width="2" opacity=".7"/><circle cx="48" cy="40" r="13" fill="none" stroke="#f2bf3f" stroke-width="3"/>'
+          + '<path d="M35 40h26M48 27c-5 4-5 22 0 26M48 27c5 4 5 22 0 26" fill="none" stroke="#f2bf3f" stroke-width="2"/><path d="M34 64h28M38 71h20" stroke="#f2bf3f" stroke-width="3" stroke-linecap="round"/>'
+          + '<circle cx="74" cy="72" r="15" fill="#fff3d0" stroke="#c0392b" stroke-width="3" stroke-dasharray="4 3" transform="rotate(-12 74 72)"/></svg>'}),
+        h('b', {text: 'Inga stämplar än'}),
+        h('p', {text: 'Varje gång en spelare kommer fram till en ny stad får hen en stämpel här, med ett litet fakta om platsen.'})));
       return;
     }
     names.forEach(n => {
