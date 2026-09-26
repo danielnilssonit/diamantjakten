@@ -987,6 +987,211 @@ body:not(.table-mode) .storm-badge,body:not(.table-mode) .challenge-badge{top:ca
   .preview{height:150px}
   .preview img{max-height:104px;margin-bottom:20px}
 }
+
+/* ---------- Premiumlyftet (3.12): startskärmen, familjen, nyheter, laddning och lugnare menyer ---------- */
+/* Startskärmen: inställningar, ljud och helskärm i hörnet */
+.title-tools{position:absolute;top:max(14px,env(safe-area-inset-top));right:max(14px,env(safe-area-inset-right));display:flex;gap:10px;z-index:3}
+.title-tools .tool{position:static}
+.title-tools .tool[hidden]{display:none}
+/* Sex rutor: en rad på datorn, två rader om tre på mobilen */
+.menu-tiles{grid-template-columns:repeat(6,minmax(0,1fr))}
+.menu-tiles .tile{font-size:13px}
+@media (min-width:761px){.title-menu{width:min(580px,92vw)}}
+@media (max-width:760px){.menu-tiles{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.title-menu > :nth-child(5){animation-delay:.34s}
+/* Familjens resa: stämplar och nästa pjäs */
+.title-progress{display:grid;grid-template-columns:38px minmax(0,1fr);column-gap:12px;align-items:center;padding:9px 14px 10px 10px;border:0;border-radius:18px;cursor:pointer;text-align:left;color:var(--cream);
+  background:linear-gradient(180deg,rgba(18,48,57,.86),rgba(8,24,30,.92));box-shadow:0 0 0 2px rgba(242,191,63,.5),0 10px 22px rgba(0,0,0,.32),inset 0 1px 0 rgba(255,255,255,.12);transition:transform .14s,filter .18s}
+.title-progress:hover{filter:brightness(1.1);transform:translateY(-1px)}
+.title-progress[hidden]{display:none}
+.tp-ico,.fprog-ico{grid-row:span 2;width:38px;height:38px;border-radius:50%;display:grid;place-items:center;color:var(--gold-ink);background:radial-gradient(circle at 35% 30%,#fff3bd,#f2bf3f 50%,#c98a14);box-shadow:0 0 0 2px var(--ink)}
+.tp-ico .ico,.fprog-ico .ico{width:20px;height:20px}
+.tp-txt,.fprog-txt{display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:2px 10px}
+.tp-txt b,.fprog-txt b{font-size:14px;font-weight:900}
+.tp-txt small,.fprog-txt small{font-size:12.5px;font-weight:800;color:#f2d68a}
+.tp-bar,.fprog-bar{height:8px;margin-top:6px;border-radius:99px;background:rgba(255,255,255,.14);overflow:hidden;box-shadow:inset 0 1px 2px rgba(0,0,0,.45)}
+.tp-bar i,.fprog-bar i{display:block;height:100%;min-width:6px;border-radius:inherit;background:linear-gradient(90deg,#f7cf55,#e0a526);box-shadow:0 0 10px rgba(247,207,85,.6)}
+/* Versionen och nyheterna längst ner */
+.title-foot{position:absolute;left:50%;bottom:max(12px,env(safe-area-inset-bottom));transform:translateX(-50%);z-index:2;display:inline-flex;align-items:center;gap:7px;border:0;cursor:pointer;white-space:nowrap;
+  padding:7px 15px 7px 11px;border-radius:99px;font:800 13px var(--body);color:#f6e7c1;background:rgba(8,24,30,.62);box-shadow:0 0 0 1.5px rgba(242,191,63,.4);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}
+.title-foot:hover{background:rgba(8,24,30,.8)}
+.title-foot .ico{width:16px;height:16px;color:#f2bf3f}
+@media (max-height:600px){.title-foot{display:none}}
+
+/* Familjens snabbval (Nytt spel och Utmaningar) */
+.family-pick{display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px;margin:0 0 14px}
+.family-pick[hidden]{display:none}
+.fp-label{font:900 12px var(--body);text-transform:uppercase;letter-spacing:.1em;color:var(--ink-soft);margin-right:2px}
+.fp-chip{display:inline-flex;align-items:center;gap:8px;border:0;border-radius:99px;padding:4px 14px 4px 4px;cursor:pointer;font:900 15px var(--body);color:var(--ink);
+  background:linear-gradient(180deg,#fffdf7,#f3e5c2);box-shadow:0 0 0 2px var(--ink),0 3px 0 2px var(--ink);transition:transform .12s cubic-bezier(.3,1.6,.5,1)}
+.fp-chip:hover{transform:translateY(-1px)}
+.fp-chip:active{transform:translateY(2px);box-shadow:0 0 0 2px var(--ink),0 1px 0 2px var(--ink)}
+.fp-chip.on{background:linear-gradient(180deg,#fff4c6,#f4c347)}
+.fp-pic{width:34px;height:34px;flex:none;border-radius:50%;display:grid;place-items:center;overflow:hidden;
+  background:radial-gradient(circle at 50% 70%,rgba(255,255,255,.5) 0%,rgba(255,255,255,0) 55%),radial-gradient(circle at 50% 40%,var(--pc) 0%,var(--pc) 45%,#1d2b33 140%);box-shadow:0 0 0 2px var(--ink)}
+.fp-pic img{width:92%;height:92%;object-fit:contain}
+.fp-check{width:20px;height:20px;border-radius:50%;display:grid;place-items:center;background:#1f9a55;color:#fff;margin-left:-2px;box-shadow:0 0 0 1.5px var(--ink)}
+.fp-check .ico{width:13px;height:13px;stroke-width:3.2}
+.challenges-sheet .family-pick{margin:10px 0 2px}
+
+/* Familjen */
+.family-sheet{width:min(1000px,100%);max-height:100%;overflow:auto}
+.family-intro{margin:0 0 14px}
+.family-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,290px),1fr));gap:16px}
+.member{position:relative;display:grid;grid-template-columns:80px minmax(0,1fr);grid-template-areas:"pic txt" "stats stats" "quiz quiz";gap:8px 14px;align-items:center;padding:16px 14px 14px;border-radius:22px;
+  background:linear-gradient(180deg,#fffdf7,#f3e5c2);box-shadow:0 0 0 2.5px var(--ink),0 5px 0 2.5px var(--ink),0 12px 22px rgba(0,0,0,.14),inset 0 3px 0 var(--gold)}
+.mem-pic{grid-area:pic;position:relative;width:80px;height:80px;border:0;padding:0;border-radius:50%;cursor:pointer;display:grid;place-items:center;
+  background:radial-gradient(circle at 50% 70%,rgba(255,255,255,.55) 0%,rgba(255,255,255,0) 55%),radial-gradient(circle at 50% 40%,var(--pc) 0%,var(--pc) 45%,#1d2b33 140%);
+  box-shadow:0 0 0 3px var(--ink),0 0 0 6px #fffaf0,0 0 0 8.5px var(--ink);transition:transform .15s cubic-bezier(.3,1.6,.5,1)}
+.mem-pic:hover{transform:scale(1.05) rotate(-2deg)}
+.mem-pic img{width:90%;height:90%;object-fit:contain;filter:drop-shadow(0 5px 4px rgba(0,0,0,.35))}
+.mem-edit{position:absolute;right:-6px;bottom:-6px;width:30px;height:30px;border-radius:50%;display:grid;place-items:center;color:var(--gold-ink);
+  background:radial-gradient(circle at 35% 30%,#fff3bd,#f2bf3f 50%,#c98a14);box-shadow:0 0 0 2px var(--ink)}
+.mem-edit .ico{width:15px;height:15px}
+.mem-txt{grid-area:txt;min-width:0;display:grid;gap:2px;padding-right:30px}
+.mem-name{font-family:var(--display);font-weight:400;font-size:25px;line-height:1.05;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mem-sub{font-weight:800;font-size:13px;color:var(--ink-soft);line-height:1.3}
+.mem-stats{grid-area:stats;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:4px}
+.mem-stat{display:grid;justify-items:center;padding:5px 2px 4px;border-radius:12px;background:rgba(255,255,255,.72);box-shadow:inset 0 0 0 1.5px rgba(29,43,51,.16)}
+.mem-stat b{font-family:var(--display);font-weight:400;font-size:21px;line-height:1}
+.mem-stat small{font-size:12px;font-weight:800;color:var(--ink-soft)}
+.member > .seg{grid-area:quiz;justify-self:start}
+.mem-x{position:absolute;top:10px;right:10px;width:30px;height:30px;border-radius:50%;border:0;padding:0;display:grid;place-items:center;cursor:pointer;background:#fffaf0;box-shadow:0 0 0 2px var(--ink)}
+.mem-x .ico{width:14px;height:14px}
+.member.add{grid-template-areas:"pic txt" "row row";background:repeating-linear-gradient(45deg,#fffdf7,#fffdf7 10px,#fbf0d2 10px,#fbf0d2 20px);box-shadow:0 0 0 2.5px var(--ink),0 5px 0 2.5px var(--ink)}
+.mem-pic.add{cursor:default;background:#fffaf0;color:var(--ink)}
+.mem-pic.add .ico{width:32px;height:32px}
+.mem-pic.add:hover{transform:none}
+.mem-add-row{grid-area:row;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center}
+.mem-add-row input{min-width:0;border:0;border-radius:12px;padding:10px 12px;font:800 16px var(--body);background:#fffdf7;box-shadow:0 0 0 2.5px var(--ink),inset 0 3px 6px rgba(120,80,20,.18)}
+.family-progress{margin-top:18px;display:grid;grid-template-columns:38px minmax(0,1fr);column-gap:12px;align-items:center;padding:12px 16px;border-radius:18px;color:var(--cream);
+  background:linear-gradient(180deg,#23525e,#0f2c34);box-shadow:0 0 0 2.5px var(--ink),inset 0 1px 0 rgba(255,255,255,.14)}
+.family-progress:empty{display:none}
+.piece-opt.selected{background:linear-gradient(180deg,#fff4c6,#f4c347)}
+@media (max-width:520px){
+  .member{grid-template-columns:64px minmax(0,1fr);padding:14px 12px 12px}
+  .mem-pic{width:64px;height:64px}
+  .mem-name{font-size:21px}
+  .mem-stat b{font-size:18px}
+}
+
+/* Nytt i spelet */
+.news-sheet{width:min(640px,100%);max-height:100%;overflow:auto}
+.news-ver{margin:-4px 0 12px;font:900 12px var(--body);letter-spacing:.1em;text-transform:uppercase;color:#b07a22}
+.news-list{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+.news-list li{display:grid;grid-template-columns:46px minmax(0,1fr);gap:14px;align-items:center;padding:10px 14px 10px 10px;border-radius:18px;
+  background:linear-gradient(180deg,#fffdf7,#f3e5c2);box-shadow:0 0 0 2px var(--ink),0 3px 0 2px var(--ink)}
+.news-ico{width:46px;height:46px;border-radius:50%;display:grid;place-items:center;color:var(--gold-ink);background:radial-gradient(circle at 35% 30%,#fff3bd,#f2bf3f 50%,#c98a14);box-shadow:0 0 0 2px var(--ink)}
+.news-ico .ico{width:23px;height:23px}
+.news-list li b{display:block;font-family:var(--display);font-weight:400;font-size:20px;line-height:1.1}
+.news-list li span > span{display:block;font-weight:700;color:var(--ink-soft);line-height:1.4;font-size:14.5px}
+.news-thanks{margin-top:16px;padding-top:12px;border-top:2px solid rgba(140,96,20,.2)}
+.news-thanks h3{margin:0 0 4px;font-family:var(--display);font-weight:400;font-size:19px}
+.news-thanks p{margin:0;font-size:13px;font-weight:700;color:var(--ink-soft);line-height:1.5}
+
+/* Laddningen: en glänsande rad och ett faktum om kartan */
+.load-card{display:grid;justify-items:center;gap:12px;max-width:min(560px,88vw)}
+.load-bar{width:min(300px,70vw);height:8px;border-radius:99px;background:rgba(255,255,255,.12);overflow:hidden;box-shadow:inset 0 1px 2px rgba(0,0,0,.5)}
+.load-bar i{display:block;width:38%;height:100%;border-radius:inherit;background:linear-gradient(90deg,rgba(247,207,85,0),#f7cf55,rgba(247,207,85,0));animation:loadslide 1.25s ease-in-out infinite}
+@keyframes loadslide{from{transform:translateX(-110%)}to{transform:translateX(270%)}}
+.load-card .load-fact{margin:6px 0 0;font:700 15px/1.5 var(--body);letter-spacing:0;text-transform:none;color:#d4e6ea;max-width:48ch;text-wrap:balance}
+.load-card .load-fact b{color:#f7cf55;font-weight:900}
+.load-fact:empty{display:none}
+
+/* Mindre rörelser: inga ständiga glimtar och nästan inga inflygningar */
+.calm .lg-rays,.calm .lg-sweep,.calm .lg-stars path,.calm .title-glints i,.calm .win-rays,.calm .logo-gem,.calm .intro-gem svg,.calm .load-gem,.calm .sound-hint,.calm .bday-banner,
+.calm .btn.glint::after,.calm #bStart::after{animation:none!important}
+.calm .title-glints{display:none}
+.calm .modal:not([hidden]) > .sheet,.calm .screen:not([hidden]) > .sheet,.calm .title-menu > *{animation-duration:.01s!important;animation-delay:0s!important}
+.calm .load-bar i{animation-duration:2.6s}
+
+/* Så spelar man: kort med ikoner och snabbknappar */
+.rules-sheet{width:min(1060px,100%)}
+.rules{grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;align-items:stretch}
+.rules-nav{grid-column:1/-1;position:sticky;top:-18px;z-index:3;display:flex;flex-wrap:wrap;gap:6px;margin:-4px -4px 0;padding:10px 4px 10px;
+  background:linear-gradient(180deg,#f8edd3 70%,rgba(248,237,211,0))}
+.rn-chip{border:0;border-radius:99px;padding:6px 12px;font:900 13px var(--body);color:var(--ink);cursor:pointer;background:#fffaf0;box-shadow:0 0 0 2px var(--ink),0 2px 0 2px var(--ink);transition:transform .12s}
+.rn-chip:hover{transform:translateY(-1px);background:#fff4c6}
+.rule-card{display:grid;gap:8px;align-content:start;padding:14px 16px 16px;border-radius:20px;scroll-margin-top:108px;
+  background:linear-gradient(180deg,#fffdf7,#f3e5c2);box-shadow:0 0 0 2.5px var(--ink),0 4px 0 2.5px var(--ink),inset 0 3px 0 var(--gold)}
+.rule-card.wide{grid-column:1/-1}
+.rules .rule-card h3{margin:0;display:flex;align-items:center;gap:10px;font-size:22px}
+.rc-ico{width:38px;height:38px;flex:none;border-radius:50%;display:grid;place-items:center;color:var(--gold-ink);background:radial-gradient(circle at 35% 30%,#fff3bd,#f2bf3f 50%,#c98a14);box-shadow:0 0 0 2px var(--ink)}
+.rc-ico .ico{width:20px;height:20px}
+.rule-card p{font-size:15px;line-height:1.5}
+.rule-card .rule-tokens{grid-template-columns:repeat(auto-fill,minmax(220px,1fr))}
+@media (max-width:760px){.rules{grid-template-columns:minmax(0,1fr)}.rules-nav{top:-12px;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;margin-right:-16px;padding-right:16px}
+  .rules-nav::-webkit-scrollbar{display:none}.rn-chip{flex:none}.rule-card{scroll-margin-top:64px}}
+
+/* Topplistan: prispall, stämplar, rekord per karta och de senaste partierna */
+.top-sheet{width:min(1060px,100%)}
+.top-body{grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);align-items:start}
+.top-card{display:grid;gap:10px;align-content:start;padding:14px 16px 16px;border-radius:20px;background:linear-gradient(180deg,#fffdf7,#f3e5c2);box-shadow:0 0 0 2.5px var(--ink),0 4px 0 2.5px var(--ink),inset 0 3px 0 var(--gold)}
+.top-card.wide{grid-column:1/-1}
+.top-card h3{margin:0;display:flex;align-items:center;gap:10px;font-family:var(--display);font-weight:400;font-size:22px}
+.tp-pic,.pod-pic{flex:none;width:36px;height:36px;border-radius:50%;display:grid;place-items:center;overflow:hidden;
+  background:radial-gradient(circle at 50% 70%,rgba(255,255,255,.5) 0%,rgba(255,255,255,0) 55%),radial-gradient(circle at 50% 40%,var(--pc) 0%,var(--pc) 45%,#1d2b33 140%);box-shadow:0 0 0 2px var(--ink)}
+.tp-pic img,.pod-pic img{width:92%;height:92%;object-fit:contain}
+.top-rows{display:grid;gap:8px}
+.top-row{grid-template-columns:30px 36px minmax(0,1fr) auto;gap:0 10px}
+.top-row .top-place{width:30px;height:30px;font-size:15px;grid-row:span 2}
+.top-row .tp-pic{grid-row:span 2}
+.top-row .top-sub{grid-column:3/5}
+.top-row:not(:has(.top-sub)) .top-place,.top-row:not(:has(.top-sub)) .tp-pic{grid-row:auto}
+.podium{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));align-items:end;gap:10px;padding:6px 4px 0}
+.pod{display:grid;justify-items:center;gap:4px;text-align:center;min-width:0}
+.pod .pod-pic{width:78px;height:78px;box-shadow:0 0 0 3px var(--ink),0 0 0 6px #fffaf0,0 0 0 8.5px var(--ink);margin-bottom:6px}
+.pod.p1 .pod-pic{width:96px;height:96px}
+.pod-name{font-family:var(--display);font-weight:400;font-size:21px;line-height:1.05;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pod-val{font-weight:900;font-size:14px;color:var(--ink-soft)}
+.pod-step{width:100%;display:grid;place-items:center;margin-top:4px;border-radius:12px 12px 4px 4px;color:#fff;font-family:var(--display);font-size:30px;text-shadow:0 2px 0 rgba(0,0,0,.35);
+  box-shadow:0 0 0 2.5px var(--ink),inset 0 3px 0 rgba(255,255,255,.45),inset 0 -6px 0 rgba(0,0,0,.15)}
+.pod.p1 .pod-step{height:92px;background:linear-gradient(180deg,#ffe07a,#e3a51c)}
+.pod.p2 .pod-step{height:66px;background:linear-gradient(180deg,#eef2f6,#aab6c2)}
+.pod.p3 .pod-step{height:48px;background:linear-gradient(180deg,#f0bd8c,#bf7a3f)}
+.pod-empty{min-height:48px}
+.top-progress{display:grid;gap:6px;padding-top:6px;border-top:2px solid rgba(140,96,20,.18)}
+.top-progress small{font-weight:800;color:var(--ink-soft)}
+.top-progress .tp-bar{margin-top:0;background:rgba(29,43,51,.14)}
+.map-records{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,230px),1fr));gap:10px}
+.map-rec{display:grid;grid-template-columns:74px minmax(0,1fr);gap:10px;align-items:center;padding:8px;border-radius:14px;background:rgba(255,255,255,.72);box-shadow:inset 0 0 0 1.5px rgba(29,43,51,.16)}
+.map-rec.none{opacity:.72}
+.mr-art{width:74px;height:50px;border-radius:9px;overflow:hidden;box-shadow:0 0 0 2px var(--ink);background:#23525e}
+.mr-art img{width:100%;height:100%;object-fit:cover}
+.mr-txt{display:grid;gap:1px;min-width:0}
+.mr-name{display:flex;align-items:center;gap:6px;font-weight:900}
+.mr-name svg,.mr-name img{width:20px;height:14px;flex:none}
+.mr-line{font-size:13px;font-weight:700;color:var(--ink-soft);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mr-line b{color:var(--ink);font-weight:900}
+.map-rec small{font-size:13px;font-weight:700;color:var(--ink-soft)}
+.recent{display:grid;gap:8px}
+.rc-row{display:grid;grid-template-columns:36px minmax(0,1fr) auto;gap:12px;align-items:center;padding:7px 10px;border-radius:14px;background:rgba(255,255,255,.72);box-shadow:inset 0 0 0 1.5px rgba(29,43,51,.16)}
+.rc-main{display:grid;min-width:0}
+.rc-main b{font-weight:900;font-size:15px}
+.rc-main small,.rc-meta small{font-size:12.5px;font-weight:700;color:var(--ink-soft);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rc-meta{display:grid;justify-items:end;text-align:right}
+.rc-meta b{font-family:var(--display);font-weight:400;font-size:18px}
+@media (max-width:820px){.top-body{grid-template-columns:minmax(0,1fr)}.pod .pod-pic{width:64px;height:64px}.pod.p1 .pod-pic{width:78px;height:78px}}
+
+/* Kartkorten: antal städer och en etikett för nya kartor */
+.map-art{position:relative}
+.map-count{position:absolute;left:8px;bottom:8px;padding:2px 9px;border-radius:99px;font:900 11.5px var(--body);color:#fff6dc;background:rgba(8,24,30,.74);box-shadow:0 0 0 1.5px rgba(242,191,63,.55)}
+.map-new{position:absolute;left:8px;top:8px;padding:3px 10px;border-radius:99px;font:900 12px var(--body);color:#fff;letter-spacing:.02em;
+  background:linear-gradient(180deg,#ff6b6b,#d63031);box-shadow:0 0 0 2px var(--ink),0 3px 0 2px var(--ink);transform:rotate(-6deg)}
+
+/* Turbannern när flera spelar på samma skärm */
+.turn-banner{position:absolute;left:50%;top:40%;z-index:12;display:flex;align-items:center;gap:16px;padding:10px 34px 10px 12px;border-radius:99px;pointer-events:none;opacity:0;color:#fff;
+  transform:translate(-50%,-50%) scale(.8);background:var(--pc);background:linear-gradient(90deg,color-mix(in srgb,var(--pc) 72%,#000),var(--pc) 70%);
+  box-shadow:0 0 0 3px var(--ink),0 0 0 6px rgba(255,250,235,.9),0 0 0 8.5px var(--ink),0 20px 44px rgba(0,0,0,.45)}
+.turn-banner.show{animation:turnban 1.6s cubic-bezier(.2,1.2,.3,1) .15s both}
+@keyframes turnban{0%{opacity:0;transform:translate(-50%,-50%) scale(.6)}14%{opacity:1;transform:translate(-50%,-50%) scale(1.05)}24%{transform:translate(-50%,-50%) scale(1)}80%{opacity:1;transform:translate(-50%,-50%) scale(1)}100%{opacity:0;transform:translate(-50%,-62%) scale(.96)}}
+.tb-pic{width:66px;height:66px;flex:none;border-radius:50%;display:grid;place-items:center;background:radial-gradient(circle at 50% 40%,#fff 0%,#fff 45%,rgba(255,255,255,.7) 100%);box-shadow:0 0 0 3px var(--ink)}
+.tb-pic img{width:92%;height:92%;object-fit:contain;filter:drop-shadow(0 4px 3px rgba(0,0,0,.3))}
+.tb-txt{display:grid;gap:2px;line-height:1}
+.tb-txt small{font:900 13px var(--body);text-transform:uppercase;letter-spacing:.16em;opacity:.9}
+.tb-txt b{font-family:var(--display);font-weight:400;font-size:42px;text-shadow:0 3px 0 rgba(0,0,0,.3)}
+@media (max-width:520px){.turn-banner{gap:10px;padding:8px 24px 8px 8px}.tb-pic{width:50px;height:50px}.tb-txt b{font-size:30px}}
+.calm .turn-banner.show{animation-duration:1.3s}
 </style>
 </head>
 <body>
@@ -997,12 +1202,18 @@ body:not(.table-mode) .storm-badge,body:not(.table-mode) .challenge-badge{top:ca
     <div class="load-card">
       <svg class="load-gem" viewBox="-50 -50 100 100" aria-hidden="true"><path d="M-30,-8L-17,-26L17,-26L30,-8L0,32Z" fill="#bff0ff" stroke="#1d2b33" stroke-width="5" stroke-linejoin="round"/><path d="M-30,-8H30M-17,-26L-9,-8L0,-26L9,-8L17,-26M-9,-8L0,32L9,-8" fill="none" stroke="#1d2b33" stroke-width="3.5" stroke-linejoin="round"/></svg>
       <p id="loadText">Packar resväskan …</p>
+      <div class="load-bar" aria-hidden="true"><i></i></div>
+      <p id="loadFact" class="load-fact"></p>
     </div>
   </div>
 
   <!-- Startskärm -->
   <section id="scrTitle" class="screen title-screen" hidden>
-    <button class="tool corner" id="tFull" type="button" aria-label="Helskärm" hidden></button>
+    <div class="title-tools">
+      <button class="tool" id="tTitleSettings" type="button" aria-label="Inställningar"></button>
+      <button class="tool" id="tTitleSound" type="button" aria-label="Ljud av eller på"></button>
+      <button class="tool" id="tFull" type="button" aria-label="Helskärm" hidden></button>
+    </div>
     <div class="title-card">
       <h1 class="logo-wrap">
         <svg class="logo" viewBox="0 0 1000 300" role="img" aria-label="Diamantjakten">
@@ -1050,15 +1261,18 @@ body:not(.table-mode) .storm-badge,body:not(.table-mode) .challenge-badge{top:ca
         <button id="bPlay" class="btn big primary glint" type="button">Nytt spel</button>
         <button id="bPhones" class="btn big green" type="button">Spela med mobiler</button>
         <div class="menu-tiles">
+          <button id="bFamily" class="tile" type="button" aria-label="Familjen">Familjen</button>
           <button id="bWorkshop" class="tile" type="button" aria-label="Pjäsverkstaden">Verkstaden</button>
           <button id="bPass" class="tile" type="button" aria-label="Passet">Passet</button>
           <button id="bTop" class="tile" type="button" aria-label="Topplistan">Topplistan</button>
           <button id="bChallenges" class="tile" type="button" aria-label="Utmaningar">Utmaningar</button>
           <button id="bRules" class="tile" type="button" aria-label="Så spelar man">Regler</button>
         </div>
+        <button class="title-progress" id="bProgress" type="button" hidden></button>
       </div>
     </div>
     <div class="title-glints" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+    <button class="title-foot" id="bNews" type="button"></button>
   </section>
 
   <!-- Nytt spel -->
@@ -1072,6 +1286,7 @@ body:not(.table-mode) .storm-badge,body:not(.table-mode) .challenge-badge{top:ca
       <div class="maps" id="mapCards"></div>
       <h3 class="step-title"><span>2</span> Vilka spelar? <button class="btn small blue invite" id="bInvite" type="button" aria-pressed="false"></button></h3>
       <div class="remote-host lobby" id="remoteHostSetup" hidden></div>
+      <div class="family-pick" id="familyPick" hidden></div>
       <div class="seats" id="seatCards"></div>
       <div class="length-row"><span>Speltid</span>
         <div class="seg" role="group" aria-label="Speltid" id="optLength">
@@ -1201,6 +1416,11 @@ body:not(.table-mode) .storm-badge,body:not(.table-mode) .challenge-badge{top:ca
   </section>
 
   <!-- Dialoger -->
+  <div id="dlgFamily" class="modal" hidden><div class="sheet family-sheet"><header class="sheet-head"><h2>Familjen</h2><button class="btn icon" id="bFamilyClose" type="button" aria-label="Stäng"></button></header>
+    <p class="note family-intro">Alla som spelar på den här enheten. Välj dem med ett tryck när ni startar ett nytt spel. Pjäsen och frågorna sparas till nästa gång.</p>
+    <div class="family-grid" id="familyGrid"></div>
+    <div class="family-progress" id="familyProgress"></div>
+  </div></div>
   <div id="dlgPiece" class="modal" hidden><div class="sheet small-sheet"><header class="sheet-head"><h2>Välj pjäs</h2><button class="btn icon" id="bPieceClose" type="button" aria-label="Stäng"></button></header><div class="piece-grid" id="pieceGrid"></div></div></div>
   <div id="dlgReveal" class="modal reveal" hidden>
     <div class="reveal-box" id="revealBox">
@@ -1255,6 +1475,7 @@ body:not(.table-mode) .storm-badge,body:not(.table-mode) .challenge-badge{top:ca
           <label class="opt"><span>Grafik</span><select id="sGfx"><option value="auto">Automatiskt (enkel på TV)</option><option value="3d">3D</option><option value="fast">3D, snabbare (äldre plattor)</option><option value="flat">Enkel 2D (för TV och svaga datorer)</option></select></label>
           <small class="opt-note" id="gfxNote" hidden></small>
           <label class="opt switch"><input type="checkbox" id="sTable"><span>Bordsläge (stor pekskärm)</span></label>
+          <label class="opt switch"><input type="checkbox" id="sCalm"><span>Mindre rörelser (lugnare menyer)</span></label>
           <button class="btn small" id="bCheck" type="button">Testa skärmen</button>
         </section>
       </div>
@@ -1331,7 +1552,14 @@ body:not(.table-mode) .storm-badge,body:not(.table-mode) .challenge-badge{top:ca
   <div id="dlgChallenges" class="modal" hidden><div class="sheet challenges-sheet"><header class="sheet-head"><h2>Utmaningar</h2><button class="btn icon" id="bChallengesClose" type="button" aria-label="Stäng"></button></header>
     <p class="note">Spela själv mot datorn och klara utmaningarna. Varje klarad utmaning sparas under ditt namn.</p>
     <label class="opt"><span>Vem spelar?</span><input type="text" id="challengeName" maxlength="14" placeholder="Ditt namn"></label>
+    <div class="family-pick" id="challengePick" hidden></div>
     <div class="challenge-list" id="challengeList"></div>
+  </div></div>
+  <div id="dlgNews" class="modal" hidden><div class="sheet news-sheet"><header class="sheet-head"><h2>Nytt i Diamantjakten</h2><button class="btn icon" id="bNewsClose" type="button" aria-label="Stäng"></button></header>
+    <p class="news-ver" id="newsVer"></p>
+    <ul class="news-list" id="newsList"></ul>
+    <section class="news-thanks"><h3>Tack till</h3><p>Kartorna bygger på Natural Earth. Skånes kust kommer från OpenStreetMap: kartdata © OpenStreetMap-bidragsgivare (licens ODbL). Musiken är gjord med Suno, 3D-modellerna är byggda i Blender och typsnitten heter Lilita One och Nunito.</p></section>
+    <div class="sheet-foot center"><button class="btn big primary" id="bNewsOk" type="button">Nu kör vi!</button></div>
   </div></div>
   <div id="dlgConfirm" class="modal" hidden><div class="sheet small-sheet center-sheet"><h2 id="confirmTitle"></h2><p id="confirmText"></p><div class="sheet-foot center"><button class="btn big" id="bConfirmNo" type="button">Nej</button><button class="btn big primary" id="bConfirmYes" type="button">Ja</button></div></div></div>
 </div>
@@ -3451,6 +3679,11 @@ const Sound = (() => {
     thunder(t) { noise(t, 1.8, .22, sfxBus, {f: 160, q: .6}); noise(t + .05, .5, .12, sfxBus, {f: 420, q: .7}); osc('sine', 55, t, 1.2, .12, sfxBus, {slide: .7}); },
     tick(t) { osc('square', 1400, t, .03, .04, sfxBus); },
     hit(t, k = .5) { osc('sine', 170 + Math.random() * 70, t, .07, .12 * k, sfxBus, {slide: .6}); noise(t, .025, .16 * k, sfxBus, {f: 2200 + Math.random() * 1800, q: 3}); }
+  };
+  // En lätt vibration på telefoner och plattor vid tärningsslag, brickor och vinst
+  A.buzz = pattern => {
+    if (Settings.haptics === false) return;
+    try { if (navigator.vibrate && matchMedia('(pointer: coarse)').matches) navigator.vibrate(pattern); } catch (e) { /* valfritt */ }
   };
   A.play = (name, ...args) => {
     if (Settings.sfx <= 0) return;
@@ -6735,6 +6968,8 @@ const Props = (() => {
 /* ================= Gränssnitt: skärmar, spelpanel och dialoger ================= */
 ICON_PATHS.back = '<path d="M15 5l-7 7 7 7"/>';
 Object.assign(ICON_PATHS, {
+  family: '<circle cx="8.5" cy="7.5" r="3"/><circle cx="16.5" cy="9" r="2.4"/><path d="M3 20c0-3.6 2.4-6.2 5.5-6.2S14 16.4 14 20"/><path d="M14.2 15.2c.7-.8 1.5-1.2 2.4-1.2 2.3 0 3.9 2.2 3.9 6"/>',
+  sparkle: '<path d="M12 3l1.9 5.6L19.5 10.5l-5.6 1.9L12 18l-1.9-5.6L4.5 10.5l5.6-1.9z"/><path d="M19 3v4M17 5h4"/>',
   phone: '<rect x="7" y="2.5" width="10" height="19" rx="2.5"/><path d="M11 18.5h2"/>',
   trophy: '<path d="M8 4h8v5a4 4 0 01-8 0z"/><path d="M8 6H5a3 3 0 003 4M16 6h3a3 3 0 01-3 4M12 13v4M8.5 20h7M10 17h4"/>',
   clock: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
@@ -6760,7 +6995,7 @@ const UI = (() => {
     set('bSetupBack', 'back'); set('bWsBack', 'back'); set('tMenu', 'pause'); set('tOverview', 'zoomout'); set('tNight', 'moon');
     set('bFill', 'fill'); set('bEraser', 'eraser'); set('bEyes', 'googly'); set('bEyes2', 'googly'); set('bUndo', 'undo'); set('bClear', 'trash');
     set('bPieceClose', 'close'); set('bSettingsClose', 'close'); set('bRulesClose', 'close'); set('bPassClose', 'close'); set('stampRead', 'voice');
-    set('bTopClose', 'close'); set('bRemoteClose', 'close'); set('bPostcardClose', 'close'); set('bChallengesClose', 'close'); set('bCheckClose', 'close'); set('tRemote', 'phone'); set('cardRead', 'voice'); set('quizRead', 'voice');
+    set('bTopClose', 'close'); set('bFamilyClose', 'close'); set('bNewsClose', 'close'); set('tTitleSettings', 'gear'); set('bRemoteClose', 'close'); set('bPostcardClose', 'close'); set('bChallengesClose', 'close'); set('bCheckClose', 'close'); set('tRemote', 'phone'); set('cardRead', 'voice'); set('quizRead', 'voice');
     const inv = $('bInvite'); if (inv) inv.innerHTML = icon('phone') + '<span>Bjud in mobiler</span>';
     document.querySelectorAll('[data-icon]').forEach(e => e.insertAdjacentHTML('afterbegin', icon(e.dataset.icon)));
     // Skjutreglagen fylls i guld fram till kulan
@@ -6772,10 +7007,20 @@ const UI = (() => {
     const lab = (id, name) => { const e = $(id); if (e) e.innerHTML = icon(name) + `<span>${e.textContent}</span>`; };
     lab('bPlay', 'play'); lab('bPhones', 'phone');
     const tile = (id, name) => { const e = $(id); if (e) e.innerHTML = `<span class="coin">${icon(name)}</span><span class="lbl">${e.textContent}</span>`; };
-    tile('bWorkshop', 'brush'); tile('bPass', 'stamp'); tile('bTop', 'trophy'); tile('bChallenges', 'crown'); tile('bRules', 'help');
+    tile('bFamily', 'family'); tile('bWorkshop', 'brush'); tile('bPass', 'stamp'); tile('bTop', 'trophy'); tile('bChallenges', 'crown'); tile('bRules', 'help');
     U.soundIcon();
   };
-  U.soundIcon = () => { $('tSound').innerHTML = icon(Settings.sfx > 0 || Settings.music > 0 ? 'sound' : 'mute'); };
+  U.soundIcon = () => { const ic = icon(Settings.sfx > 0 || Settings.music > 0 ? 'sound' : 'mute'); $('tSound').innerHTML = ic; if ($('tTitleSound')) $('tTitleSound').innerHTML = ic; };
+  // Startskärmen: familjens gemensamma resa och versionen längst ner
+  U.titleProgress = () => {
+    const b = $('bProgress'), pr = Family.progress();
+    b.hidden = !pr.n && !Family.list().length;
+    b.innerHTML = '';
+    b.append(h('span', {class: 'tp-ico', html: icon('stamp')}),
+      h('span', {class: 'tp-txt'}, h('b', {text: `Familjens pass: ${pr.n} ${pr.n === 1 ? 'stämpel' : 'stämplar'}`}), h('small', {text: Family.progressText(pr)})),
+      h('span', {class: 'tp-bar'}, h('i', {style: {width: Math.round(pr.frac * 100) + '%'}})));
+    $('bNews').innerHTML = icon('sparkle') + `<span>Version ${VERSION} · Nytt i spelet</span>`;
+  };
 
   /* ---------- Tärningen ---------- */
   const PIPS = {1: [5], 2: [1, 9], 3: [1, 5, 9], 4: [1, 3, 7, 9], 5: [1, 3, 5, 7, 9], 6: [1, 3, 4, 6, 7, 9]};
@@ -6797,7 +7042,16 @@ const UI = (() => {
     $('die').style.transform = `rotateX(${rx + 720 * spins}deg) rotateY(${ry + 360 * spins}deg)`;
     if (anim) { const s = document.querySelector('.die-stage'); s.classList.remove('rolling'); void s.offsetWidth; s.classList.add('rolling'); }
   };
-  U.rollDie = v => { U.showDie(v, true); Sound.play('dice'); };
+  // Turbannern: när flera spelar på samma skärm syns det tydligt vems tur det är
+  U.turnBanner = (p, thumb) => {
+    let el = $('turnBanner');
+    if (!el) { el = h('div', {id: 'turnBanner', class: 'turn-banner', 'aria-hidden': 'true'}); $('scrGame').append(el); }
+    el.innerHTML = '';
+    el.style.setProperty('--pc', p.color);
+    el.append(h('span', {class: 'tb-pic'}, thumb ? h('img', {src: thumb, alt: ''}) : ''), h('span', {class: 'tb-txt'}, h('small', {text: 'Din tur'}), h('b', {text: p.name})));
+    el.classList.remove('show'); void el.offsetWidth; el.classList.add('show');
+  };
+  U.rollDie = v => { U.showDie(v, true); Sound.play('dice'); Sound.buzz(28); };
   let dieHandler = null, lastFlick = null;
   U.dieReady = fn => { dieHandler = fn; $('dieBtn').classList.toggle('ready', !!fn); $('dieBtn').disabled = !fn; };
   U.onDie = flick => { if (dieHandler) { const f = dieHandler; lastFlick = flick || null; U.dieReady(null); Sound.unlock(); f(); } };
@@ -6942,6 +7196,7 @@ const UI = (() => {
 
   /* ---------- Brickan vänds ---------- */
   U.reveal = (b, kind, title, text, auto, seat) => new Promise(res => {
+    Sound.buzz(kind === 'star' ? [40, 40, 40, 40, 140] : kind === 'thief' ? 120 : /^gem/.test(kind) ? [22, 50, 34] : 18);
     $('flipDown').innerHTML = tokenSVG(tokenArtKey(b, 'back'));
     $('flipUp').innerHTML = tokenSVG(tokenArtKey(b, kind));
     $('revealTitle').textContent = title; $('revealText').textContent = text;
@@ -7019,6 +7274,7 @@ const UI = (() => {
 
   /* ---------- Vinst ---------- */
   U.win = (p, title, text, stats, thumb, ribbon = 'Vinnare') => {
+    Sound.buzz([80, 60, 160]);
     document.querySelector('#winBox .win-ribbon span').textContent = ribbon;
     $('winAvatar').style.setProperty('--pc', p.color);
     $('winAvatar').innerHTML = thumb ? `<img src="${thumb}" alt="">` : '';
@@ -7097,48 +7353,41 @@ const UI = (() => {
     b = b || buildBoardCached(MAP_ORDER[0]);
     const th = themeOf(b);
     const tok = kind => h('div', {class: 'rule-token', html: tokenSVG(tokenArtKey(b, kind))}, h('div', null, h('b', {text: kind === 'star' ? starName(b) : th[kind].name}), h('span', {text: kind === 'star' ? `Målet! Ta den till ${startNames(b)}.` : th[kind].effect})));
+    const P = t => h('p', {text: t});
+    // Reglerna som kort med en ikon, i den ordning man behöver dem
+    const SECTIONS = [
+      ['mal', 'gem', 'Målet', 'Målet', [P(`Hitta ${starName(b)} och ta den till en startstad (${startNames(b)}) före alla andra.`), P(`När skatten är hittad kan man också vinna med ett ${th.pass.name.toLowerCase()}: ta det till en startstad.`)]],
+      ['tur', 'dice', 'Så går en tur', 'Tur', [P('Tryck på tärningen och gå så många steg som den visar. Du får stanna i en stad även om du har steg kvar. De blinkande ringarna visar vart du kan gå.'),
+        P(`Kommer du till en stad med en bricka kan du betala ${kr(COST.flip)} och vända den direkt. Annars får du på nästa tur slå 4, 5 eller 6 för att vända den gratis, eller resa vidare.`)]],
+      ['resor', 'plane', 'Resor', 'Resor', [P(`Landvägar är gratis. Båten kostar ${kr(COST.boat)} (gratis om du är pank) och stannar i nästa hamn. Flyget kostar ${kr(COST.air)} och går direkt till nästa flygplats.`)]],
+      ['fallor', 'storm', 'Fällor och specialplatser', 'Fällor', [P('Hamnar du i en fälla (till exempel rövare, troll, snöstorm eller pirater) måste du slå 1 eller 2 för att komma loss. Specialplatser ger dubbelt värde, pengar till den som kommer först eller en extra tur. De syns med märken på kartan.')]],
+      ['brickor', 'coin', 'Brickorna på den här kartan', 'Brickor', [h('div', {class: 'rule-tokens'}, ['star', 'gem1', 'gem2', 'gem3', 'pass', 'thief', 'blank'].map(tok))], true],
+      ['kort', 'card', 'Äventyrskort', 'Kort', [P('Lila rutor med ett kort ger en överraskning när du stannar där: medvind, en envis kamel, en skattkarta som låter dig kika under en bricka, storm som stoppar båtarna, pengar, en gratis flygbiljett, en genväg, en extra tur, snabba skor eller en fråga. Kortet flyttar sedan till en ny ruta.')]],
+      ['fragor', 'help', 'Frågesport', 'Frågor', [P('Ibland får du en fråga om städerna. Rätt svar ger pengar. Varje spelare väljer lätta eller svåra frågor när spelet startas.')]],
+      ['expert', 'crown', 'Expertregler', 'Expert', [P(`För de vuxna: köp en ledtråd för ${kr(500)} och kika under valfri bricka. Står någon vid en bricka utan att vända den blir det auktion, och den som bjuder mest får vända den på distans. Vänder du rövaren kan du muta den med ${kr(1000)} så att den går till en annan spelare och tar hälften av hens pengar.`)]],
+      ['tillsammans', 'family', 'Tillsammans', 'Tillsammans', [P('Alla är i samma lag med en gemensam kassa, och rövaren tar bara hälften. Den som tar hem skatten vinner för hela laget, men bara om det sker innan rundorna tar slut.')]],
+      ['mobiler', 'phone', 'Spela med mobiler', 'Mobiler', [P('Tryck på Bjud in mobiler när du startar ett nytt spel. Alla som skannar QR-koden med sin mobil eller platta blir spelare. I mobilen kastar man tärningen, väljer väg på en liten karta, svarar på frågor och kikar i hemlighet. Man kan också rita sin egen pjäs direkt i mobilen. Den första som ansluter är spelledare och kan välja karta och starta spelet. Brädet kan visas på TV:n.')]],
+      ['tippa', 'eye', 'Tippa och hemliga uppdrag', 'Uppdrag', [P('Den som spelar med mobil kan tippa vad som händer när någon annan spelar, till exempel om slaget blir högt eller lågt eller vad som ligger under en bricka. Rätt gissning ger en stjärna. Varje mobilspelare får också ett hemligt uppdrag som bara syns i mobilen. Den som klarar sitt uppdrag får 3 000 kr.')]],
+      ['familjen', 'family', 'Familjen och passet', 'Familjen', [P('Alla som spelar sparas under Familjen med sin pjäs och sina frågor, så att man väljer spelare med ett tryck. Varje gång du kommer till en ny stad får du en stämpel i passet och lär dig något om platsen. Familjens stämplar låser upp nya pjäser: astronauten, vikingen, roboten och till sist guldpjäsen.')]],
+      ['marken', 'trophy', 'Märken, utmaningar och vykort', 'Märken', [P('Märken samlas under ditt namn, till exempel för första flygresan eller tio rätta svar, och låser upp tillbehör till pjäsen. Under Utmaningar spelar du själv mot datorn, till exempel för att vinna på högst tolv rundor. Efter varje parti kan ni göra ett vykort med resvägarna.')]],
+      ['kort-spel', 'clock', 'Kort spel och tärningen', 'Kort spel', [P('Välj Kort när du startar ett nytt spel. Då ligger brickorna bara i städerna närmast start, och ett parti tar ungefär en kvart.'),
+        P('Tryck på tärningen eller svep uppåt från den för att kasta den ut på brädet. Ju snabbare svep, desto hårdare kast.')]],
+      ['om', 'sparkle', 'Om spelet', 'Om', [h('p', {class: 'credits', text: `Version ${VERSION}. Kartorna bygger på Natural Earth. Skånes kust kommer från OpenStreetMap: kartdata © OpenStreetMap-bidragsgivare (licens ODbL, openstreetmap.org/copyright). Musiken är gjord med Suno.`})]]
+    ];
     const body = $('rulesBody');
     body.innerHTML = '';
-    body.append(
-      h('p', null, h('b', {text: 'Målet: '}), `hitta ${starName(b).toLowerCase() === starName(b) ? starName(b) : starName(b)} och ta den till en startstad (${startNames(b)}) före alla andra.`),
-      h('h3', {text: 'Så går en tur'}),
-      h('p', {text: 'Tryck på tärningen och gå så många steg som den visar. Du får stanna i en stad även om du har steg kvar. De blinkande ringarna visar vart du kan gå.'}),
-      h('p', {text: `Kommer du till en stad med en bricka kan du betala ${kr(COST.flip)} och vända den direkt. Annars får du på nästa tur slå 4, 5 eller 6 för att vända den gratis, eller resa vidare.`}),
-      h('h3', {text: 'Resor'}),
-      h('p', {text: `Landvägar är gratis. Båten kostar ${kr(COST.boat)} (gratis om du är pank) och stannar i nästa hamn. Flyget kostar ${kr(COST.air)} och går direkt till nästa flygplats.`}),
-      h('h3', {text: 'Brickorna på den här kartan'}),
-      h('div', {class: 'rule-tokens'}, ['star', 'gem1', 'gem2', 'gem3', 'pass', 'thief', 'blank'].map(tok)),
-      h('h3', {text: 'Fällor och specialplatser'}),
-      h('p', {text: 'Hamnar du i en fälla (till exempel rövare, troll, snöstorm eller pirater) måste du slå 1 eller 2 för att komma loss. Specialplatser ger dubbelt värde, pengar till den som kommer först eller en extra tur. De syns med märken på kartan.'}),
-      h('h3', {text: 'Äventyrskort'}),
-      h('p', {text: 'Lila rutor med ett kort ger en överraskning när du stannar där: medvind, en envis kamel, en skattkarta som låter dig kika under en bricka, storm som stoppar båtarna, pengar, en gratis flygbiljett, en genväg, en extra tur, snabba skor eller en fråga. Kortet flyttar sedan till en ny ruta.'}),
-      h('h3', {text: 'Frågesport'}),
-      h('p', {text: 'Ibland får du en fråga om städerna. Rätt svar ger pengar. Varje spelare väljer lätta eller svåra frågor när spelet startas.'}),
-      h('h3', {text: 'Expertregler'}),
-      h('p', {text: `För de vuxna: köp en ledtråd för ${kr(500)} och kika under valfri bricka. Står någon vid en bricka utan att vända den blir det auktion, och den som bjuder mest får vända den på distans. Vänder du rövaren kan du muta den med ${kr(1000)} så att den går till en annan spelare och tar hälften av hens pengar.`}),
-      h('h3', {text: 'Spela med mobiler'}),
-      h('p', {text: 'Tryck på Bjud in mobiler när du startar ett nytt spel. Alla som skannar QR-koden med sin mobil eller platta blir spelare. I mobilen kastar man tärningen, väljer väg på en liten karta, svarar på frågor och kikar i hemlighet. Man kan också rita sin egen pjäs direkt i mobilen. Den första som ansluter är spelledare och kan välja karta och starta spelet. Brädet kan visas på TV:n.'}),
-      h('h3', {text: 'Tippa och hemliga uppdrag'}),
-      h('p', {text: 'Den som spelar med mobil kan tippa vad som händer när någon annan spelar, till exempel om slaget blir högt eller lågt eller vad som ligger under en bricka. Rätt gissning ger en stjärna. Varje mobilspelare får också ett hemligt uppdrag som bara syns i mobilen. Den som klarar sitt uppdrag får 3 000 kr.'}),
-      h('h3', {text: 'Märken och tillbehör'}),
-      h('p', {text: 'Märken samlas under ditt namn, till exempel för första flygresan, fem båtresor eller tio rätta svar. Många märken låser upp ett tillbehör till pjäsen, som glasögon, halsduk eller en guldmedalj. Välj tillbehör när du startar ett spel. Märkena syns i passet.'}),
-      h('h3', {text: 'Utmaningar och vykort'}),
-      h('p', {text: 'Under Utmaningar kan du spela själv mot datorn, till exempel vinna på högst tolv rundor eller utan att flyga. Efter varje parti kan ni göra ett vykort med resvägarna.'}),
-      h('h3', {text: 'Nya pjäser och topplistan'}),
-      h('p', {text: 'Familjens stämplar i passen låser upp nya pjäser: astronauten, vikingen, roboten och till sist guldpjäsen. Topplistan visar flest vinster, snabbaste partiet och flest stämplar.'}),
-      h('h3', {text: 'Kort spel'}),
-      h('p', {text: 'Välj Kort när du startar ett nytt spel. Då ligger brickorna bara i städerna närmast start, och ett parti tar ungefär en kvart.'}),
-      h('h3', {text: 'Passet'}),
-      h('p', {text: 'Varje gång du kommer till en ny stad får du en stämpel i passet och lär dig något om platsen. Tryck på högtalaren för att få det uppläst. Passet sparas under ditt namn mellan spelen.'}),
-      h('h3', {text: 'Tärningen'}),
-      h('p', {text: 'Tryck på tärningen eller svep uppåt från den för att kasta den ut på brädet. Ju snabbare svep, desto hårdare kast.'}),
-      h('h3', {text: 'Vinna'}),
-      h('p', {text: `Den som först tar skatten till ${startNames(b)} vinner. När skatten är hittad kan man också vinna med ett ${th.pass.name.toLowerCase()}.`}),
-      h('p', {text: 'Spelar ni Tillsammans är alla i samma lag med en gemensam kassa. Den som tar hem skatten vinner för hela laget, men bara om det sker innan rundorna tar slut.'}),
-      h('h3', {text: 'Om spelet'}),
-      h('p', {class: 'credits', text: 'Kartorna bygger på Natural Earth. Skånes kust kommer från OpenStreetMap: kartdata © OpenStreetMap-bidragsgivare (licens ODbL, openstreetmap.org/copyright). Musiken är gjord med Suno.'})
-    );
+    const nav = h('nav', {class: 'rules-nav', 'aria-label': 'Hoppa till'});
+    SECTIONS.forEach(([id, , , short]) => {
+      const c = h('button', {type: 'button', class: 'rn-chip', text: short});
+      c.onclick = () => { const t = $('rule-' + id); if (t) t.scrollIntoView({behavior: document.body.classList.contains('calm') ? 'auto' : 'smooth', block: 'start'}); };
+      nav.append(c);
+    });
+    body.append(nav, ...SECTIONS.map(([id, ic, title, , kids, wide]) =>
+      h('section', {class: 'rule-card' + (wide ? ' wide' : ''), id: 'rule-' + id}, h('h3', {html: `<span class="rc-ico">${icon(ic)}</span><span>${title}</span>`}), ...kids)));
+    body.scrollTop = 0;
     U.modal('dlgRules', true);
+    const sheet = body.closest('.sheet');
+    if (sheet) sheet.scrollTop = 0;
   };
 
   /* ---------- Inställningar ---------- */
@@ -7151,7 +7400,7 @@ const UI = (() => {
     // Tärning i 3D och oskärpa finns inte i enkel grafik
     $('sDie3d').closest('label').hidden = FLAT; $('sDof').closest('label').hidden = FLAT;
     $('sDie3d').checked = Settings.die3d !== false; $('sDof').checked = Settings.dof !== false;
-    $('sCoach').checked = Settings.coach !== false; $('sXmas').value = Settings.xmas === 'on' ? 'jul' : Settings.xmas || 'auto';
+    $('sCoach').checked = Settings.coach !== false; $('sCalm').checked = !!Settings.calm; $('sXmas').value = Settings.xmas === 'on' ? 'jul' : Settings.xmas || 'auto';
     fillVoices();
     fillBirthdays();
     U.fillRanges();
@@ -7184,6 +7433,7 @@ const UI = (() => {
       Settings.voice = $('sVoice').checked; Settings.daynight = $('sDaynight').checked; Settings.follow = $('sFollow').checked;
       if (voiceOn) Sound.speak('Nu läser jag upp vad som händer.', 'happy');
       Settings.die3d = $('sDie3d').checked; Settings.dof = $('sDof').checked;
+      Settings.calm = $('sCalm').checked; document.body.classList.toggle('calm', !!Settings.calm);
       Settings.coach = $('sCoach').checked; Settings.xmas = $('sXmas').value; Settings.voiceId = $('sVoiceId').value || null;
       const tu = $('sTurnUrl').value.trim();
       Settings.turn = tu ? {url: tu, user: $('sTurnUser').value.trim(), pass: $('sTurnPass').value} : null;
@@ -7194,7 +7444,7 @@ const UI = (() => {
       if (t !== Settings.table) { Settings.table = t; Bus.emit('tableMode', t); }
       saveSettings(); Sound.setVolumes(); U.soundIcon();
     };
-    ['sMusic', 'sSfx', 'sVoice', 'sDaynight', 'sFollow', 'sTable', 'sDie3d', 'sDof', 'sCoach', 'sXmas', 'sVoiceId', 'sTurnUrl', 'sTurnUser', 'sTurnPass'].forEach(id => $(id).addEventListener('input', upd));
+    ['sMusic', 'sSfx', 'sVoice', 'sDaynight', 'sFollow', 'sTable', 'sDie3d', 'sDof', 'sCoach', 'sCalm', 'sXmas', 'sVoiceId', 'sTurnUrl', 'sTurnUser', 'sTurnPass'].forEach(id => $(id).addEventListener('input', upd));
     $('bVoiceTest').onclick = () => Sound.testVoice();
     // Byte av grafik gäller när spelet startar om (partiet sparas efter varje tur och kan fortsätta)
     $('sGfx').addEventListener('change', async () => {
@@ -8552,7 +8802,7 @@ const Game = (() => {
       v = await Promise.race([Dice.throw(target, flick, from), Flow.wait(6000, gen).then(() => 1 + Math.floor(Math.random() * 6))]);
       Flow.alive(gen);
       UI.showDie(v, false);
-      Sound.play('dice');
+      Sound.play('dice'); Sound.buzz(28);
     } else {
       v = 1 + Math.floor(Math.random() * 6);
       UI.rollDie(v);
@@ -8581,6 +8831,8 @@ const Game = (() => {
     setActive(p);
     const sp = SPEED();
     if (!p.bot) { Sound.play('turn'); Sound.say(Line.turn(p.name), 'normal'); }
+    // Inte på första turen: då har introt just visat vem som börjar
+    if (!p.bot && !(G.round === 1 && G.turn === 0) && !G.options.table && !Remote.has(p) && G.players.filter(q => !q.bot && !Remote.has(q)).length >= 2) UI.turnBanner(p, thumbs[p.i]);
     if (p.skip > 0) {
       p.skip--; UI.updateHUD();
       UI.prompt(`${p.name} står över den här gången.`, '', p);
@@ -9458,6 +9710,7 @@ const Setup = (() => {
   if (cfg.seats.length < 2) cfg.seats = DEF.seats.map(s => Object.assign({}, s));
   cfg.seats.forEach(s => { s.key = s.key || rid(); });
   let invite = false, localBackup = null;
+  const normN = v => String(v || '').trim().toLowerCase();
 
   S.init = () => {
     $('bSetupBack').onclick = () => { if (invite) setInvite(false); Bus.emit('toTitle'); };
@@ -9512,6 +9765,9 @@ const Setup = (() => {
       s.piece = {type: 'char', id: ch.id};
     });
   }
+  // Nya kartor får en etikett en tid efter att de kommit
+  const NEW_MAPS = {skane: '2026-11-01'};
+  const isNewMap = id => NEW_MAPS[id] && Date.now() < Date.parse(NEW_MAPS[id]);
   function renderMaps() {
     const box = $('mapCards');
     box.innerHTML = '';
@@ -9519,7 +9775,7 @@ const Setup = (() => {
       const m = MAPS[id];
       const art = MAP_ASSETS[id] && MAP_ASSETS[id].thumb;
       const b = h('button', {class: 'map-card', type: 'button', 'aria-pressed': String(cfg.mapId === id)},
-        h('span', {class: 'map-art'}, art ? h('img', {src: art, alt: ''}) : ''),
+        h('span', {class: 'map-art'}, art ? h('img', {src: art, alt: ''}) : '', h('span', {class: 'map-count', text: `${m.cities.length} städer`}), isNewMap(id) ? h('span', {class: 'map-new', text: 'Nytt!'}) : ''),
         h('span', {class: 'map-txt'}, h('span', {class: 'map-name', html: MAP_BADGES[id]}, h('b', {text: m.name})), h('small', {text: m.blurb})));
       b.onclick = () => { setMap(id); Sound.play('click'); };
       box.append(b);
@@ -9556,6 +9812,11 @@ const Setup = (() => {
       } else {
         const name = h('input', {type: 'text', id: 'seatName' + i, maxlength: 14, placeholder: pieceName(s.piece), value: s.name || ''});
         name.oninput = () => { s.name = name.value; changed(); };
+        // Skriver man namnet på någon i familjen tar spelaren hens pjäs och frågor
+        name.onchange = () => {
+          const m = Family.get(name.value);
+          if (m && !cfg.seats.some(x => x !== s && normN(x.name) === normN(m.name))) { applyMember(s, m); renderSeats(); changed(); }
+        };
         const who = h('select', {id: 'seatBot' + i, 'aria-label': 'Vem spelar'},
           ...[['0', 'Människa'], ['1', 'Dator: lätt'], ['2', 'Dator: lagom'], ['3', 'Dator: klurig']].map(([v, t]) => h('option', {value: v, text: t, selected: String(s.bot) === v})));
         who.onchange = () => { s.bot = +who.value; renderSeats(); changed(); };
@@ -9606,7 +9867,33 @@ const Setup = (() => {
       }
     }
     $('bStart').disabled = cfg.seats.length < 2;
+    Family.renderPick($('familyPick'), {chosen: cfg.seats.filter(x => !x.bot).map(seatName), onPick: (m, on) => on ? unpickMember(m) : pickMember(m),
+      pieceFor: n => { const s = cfg.seats.find(x => !x.bot && normN(x.name) === normN(n)); return s ? s.piece : null; }});
   }
+  // En familjemedlem tar en plats: namn, pjäs (om den är ledig), frågor och tillbehör
+  function applyMember(s, m) {
+    s.name = m.name; s.bot = 0; s.quiz = m.quiz || 'easy'; s.acc = m.acc || null;
+    const ref = Family.piece(m);
+    if (ref && !pieceLocked(ref) && !cfg.seats.some(x => x !== s && pieceKey(x.piece) === pieceKey(ref))) s.piece = ref;
+  }
+  function pickMember(m) {
+    let s = cfg.seats.find(x => !x.dev && !x.bot && !String(x.name || '').trim());
+    if (!s) {
+      if (cfg.seats.length >= 4) { UI.toast(null, 'Det får vara fyra spelare. Ta bort någon först.'); return; }
+      s = newSeat(0);
+      cfg.seats.push(s);
+    }
+    applyMember(s, m);
+    renderSeats(); changed();
+  }
+  function unpickMember(m) {
+    const s = cfg.seats.find(x => !x.dev && !x.bot && normN(x.name) === normN(m.name));
+    if (!s) return;
+    if (cfg.seats.length > 2) cfg.seats = cfg.seats.filter(x => x !== s);
+    else s.name = '';
+    renderSeats(); changed();
+  }
+  S.refreshFamily = () => { if (S.isOpen()) renderSeats(); };
   function removeSeat(key) {
     const s = cfg.seats.find(x => x.key === key);
     if (!s) return;
@@ -9654,6 +9941,7 @@ const Setup = (() => {
         quiz: s.bot ? (s.bot >= 2 ? 'hard' : 'easy') : (s.quiz || 'easy'), dev: s.dev || null,
         acc: !s.bot && s.acc && s.piece.type === 'char' && Badges.accessories(name).some(a => a.id === s.acc) ? s.acc : null};
     });
+    Family.remember(cfg.seats);
     Store.set('setup', Object.assign({}, cfg, {seats: cfg.seats.filter(s => !s.dev)}));
     Store.set('lastMap', cfg.mapId);
     const o = cfg.options;
@@ -9789,6 +10077,7 @@ const Passport = (() => {
     Object.values(data.players).forEach(pl => Object.keys(pl.cities).forEach(k => all.add(k)));
     return all.size;
   };
+  P.names = () => Object.keys(data.players).filter(k => Object.keys(data.players[k].cities || {}).length);
   P.counts = () => Object.entries(data.players).map(([name, pl]) => ({name, n: Object.keys(pl.cities).length})).filter(x => x.n).sort((a, b) => b.n - a.n);
   P.locked = ch => !!ch.unlock && P.familyCount() < ch.unlock;
 
@@ -10191,22 +10480,68 @@ const Top = (() => {
   T.open = () => {
     const body = $('topBody');
     body.innerHTML = '';
-    const col = (title, iconName, rows, empty) => {
-      const c = h('section', {class: 'top-col'}, h('h3', {html: icon(iconName) + `<span>${esc(title)}</span>`}));
-      if (!rows.length) c.append(h('p', {class: 'top-empty', text: empty}));
-      rows.forEach((r, i) => c.append(h('div', {class: 'top-row', style: {'--m': medal(i)}}, h('span', {class: 'top-place', text: String(i + 1)}), h('span', {class: 'top-name', text: r.name}), h('span', {class: 'top-val', text: r.val}), r.sub ? h('small', {class: 'top-sub', text: r.sub}) : '')));
-      return c;
+    // Pjäsen för ett namn: familjens pjäs, roboten för datorn, annars färgen från partiet
+    const avatar = (name, color) => {
+      if (name === 'Datorn') return {color: '#7d8a9c', thumb: Pieces.thumb({type: 'char', id: 'robot'}, '#7d8a9c')};
+      const m = Family.get(name);
+      if (m) return Family.avatar(m);
+      const c = CHARACTERS.find(x => x.color === color) || CHARACTERS[0];
+      return {color: c.color, thumb: Pieces.thumb({type: 'char', id: c.id}, c.color)};
     };
-    const w = wins().slice(0, 8).map(r => ({name: r.name, val: r.wins === 1 ? '1 vinst' : r.wins + ' vinster', sub: `${r.games} ${r.games === 1 ? 'parti' : 'partier'}`}));
-    const f = fastest().map(x => ({name: x.g.winner, val: x.g.rounds + ' rundor', sub: `${MAPS[x.map].name}${x.len === 'short' ? ', kort' : ''} · ${mins(x.g.ms)} min · ${dateStr(x.g.t)}`}));
-    const s = Passport.counts().slice(0, 8).map(r => ({name: r.name, val: r.n + (r.n === 1 ? ' stämpel' : ' stämplar')}));
-    body.append(
-      col('Flest vinster', 'trophy', w, 'Inga partier än. Spela klart ett parti så hamnar vinnaren här.'),
-      col('Snabbaste partiet', 'clock', f, 'Här syns den snabbaste vinsten på varje karta.'),
-      col('Flest stämplar', 'stamp', s, 'Varje ny stad ger en stämpel i passet.')
-    );
-    const fam = Passport.familyCount(), next = CHARACTERS.filter(c => c.unlock && c.unlock > fam).sort((a, b) => a.unlock - b.unlock)[0];
-    body.append(h('p', {class: 'top-note', text: next ? `Familjen har ${fam} olika stämplar. Vid ${next.unlock} låses ${next.name.toLowerCase()} upp!` : `Familjen har ${fam} olika stämplar och har låst upp alla pjäser!`}));
+    const pic = (a, cls = 'tp-pic') => h('span', {class: cls, style: {'--pc': a.color}}, a.thumb ? h('img', {src: a.thumb, alt: ''}) : '');
+    const colorOf = name => { for (let i = data.games.length - 1; i >= 0; i--) { const p = data.games[i].players.find(x => x.name === name && !x.bot); if (p) return p.color; } return null; };
+    const list = a => a.length > 1 ? a.slice(0, -1).join(', ') + ' och ' + a[a.length - 1] : a[0] || 'ingen';
+    const head = (ic, title) => h('h3', {html: `<span class="rc-ico">${icon(ic)}</span><span>${esc(title)}</span>`});
+    const row = (i, name, val, sub, a) => h('div', {class: 'top-row', style: {'--m': medal(i)}}, h('span', {class: 'top-place', text: String(i + 1)}), a ? pic(a) : '',
+      h('span', {class: 'top-name', text: name}), h('span', {class: 'top-val', text: val}), sub ? h('span', {class: 'top-sub', text: sub}) : '');
+
+    // Prispallen för flest vinster
+    const w = wins().filter(r => r.wins > 0);
+    const pod = h('section', {class: 'top-card podium-card'}, head('trophy', 'Flest vinster'));
+    if (!w.length) pod.append(h('p', {class: 'top-empty', text: 'Inga partier än. Spela klart ett parti så hamnar vinnaren på prispallen.'}));
+    else {
+      const stand = h('div', {class: 'podium'});
+      [1, 0, 2].forEach(i => {
+        const r = w[i];
+        if (!r) { stand.append(h('div', {class: 'pod pod-empty p' + (i + 1)})); return; }
+        stand.append(h('div', {class: 'pod p' + (i + 1)}, pic(avatar(r.name, colorOf(r.name)), 'pod-pic'), h('b', {class: 'pod-name', text: r.name}),
+          h('span', {class: 'pod-val', text: r.wins === 1 ? '1 vinst' : r.wins + ' vinster'}), h('span', {class: 'pod-step'}, h('span', {text: String(i + 1)}))));
+      });
+      pod.append(stand);
+      const rest = w.slice(3, 7);
+      if (rest.length) pod.append(h('div', {class: 'top-rows'}, ...rest.map((r, k) => row(k + 3, r.name, r.wins === 1 ? '1 vinst' : r.wins + ' vinster', `${r.games} ${r.games === 1 ? 'parti' : 'partier'}`, avatar(r.name, colorOf(r.name))))));
+    }
+    // Flest stämplar
+    const s = Passport.counts().slice(0, 6);
+    const stamps = h('section', {class: 'top-card'}, head('stamp', 'Flest stämplar'));
+    if (!s.length) stamps.append(h('p', {class: 'top-empty', text: 'Varje ny stad ger en stämpel i passet.'}));
+    else stamps.append(h('div', {class: 'top-rows'}, ...s.map((r, i) => row(i, r.name, r.n + (r.n === 1 ? ' stämpel' : ' stämplar'), '', avatar(r.name, colorOf(r.name))))));
+    const pr = Family.progress();
+    stamps.append(h('div', {class: 'top-progress'}, h('small', {text: `Familjen har ${pr.n} olika stämplar. ${Family.progressText(pr)}.`}), h('span', {class: 'tp-bar'}, h('i', {style: {width: Math.round(pr.frac * 100) + '%'}}))));
+
+    // Rekord på varje karta: färst rundor till vinst (vanligt och kort parti)
+    const f = fastest();
+    const recs = h('section', {class: 'top-card wide'}, head('clock', 'Snabbaste vinsten på varje karta'));
+    recs.append(h('div', {class: 'map-records'}, ...MAP_ORDER.map(id => {
+      const art = MAP_ASSETS[id] && MAP_ASSETS[id].thumb;
+      const line = len => { const x = f.find(y => y.map === id && y.len === len); return x ? h('span', {class: 'mr-line'}, h('b', {text: `${x.g.rounds} rundor`}), ` · ${len === 'short' ? 'kort, ' : ''}${x.g.winner}`) : null; };
+      const lines = [line('normal'), line('short')].filter(Boolean);
+      return h('div', {class: 'map-rec' + (lines.length ? '' : ' none')}, h('span', {class: 'mr-art'}, art ? h('img', {src: art, alt: ''}) : ''),
+        h('span', {class: 'mr-txt'}, h('span', {class: 'mr-name', html: (MAP_BADGES[id] || '') + `<b>${esc(MAPS[id].name)}</b>`}), ...(lines.length ? lines : [h('small', {text: 'Ingen vinst än'})])));
+    })));
+
+    // De senaste partierna
+    const last = data.games.slice(-6).reverse();
+    const recent = h('section', {class: 'top-card wide'}, head('map', 'Senaste partierna'));
+    if (!last.length) recent.append(h('p', {class: 'top-empty', text: 'Här syns de senaste partierna: vem som vann, på vilken karta och hur lång tid det tog.'}));
+    else recent.append(h('div', {class: 'recent'}, ...last.map(g => {
+      const winP = g.players.find(p => p.name === g.winner && !!p.bot === !!g.bot);
+      const a = avatar(g.bot ? 'Datorn' : g.winner, winP && winP.color);
+      return h('div', {class: 'rc-row'}, pic(a),
+        h('span', {class: 'rc-main'}, h('b', {text: g.bot ? `${g.winner} (datorn)` : g.winner}), h('small', {text: `vann på ${MAPS[g.map] ? MAPS[g.map].name : g.map}${g.short ? ' (kort parti)' : ''} mot ${list(g.players.filter(p => !(p.name === g.winner && !!p.bot === !!g.bot)).map(p => p.name))}`})),
+        h('span', {class: 'rc-meta'}, h('b', {text: `${g.rounds} rundor`}), h('small', {text: `${mins(g.ms)} min · ${dateStr(g.t)}`})));
+    })));
+    body.append(pod, stamps, recs, recent);
     UI.modal('dlgTop', true);
   };
   return T;
@@ -10832,6 +11167,8 @@ const Badges = (() => {
   ];
   B.list = LIST;
   const rec = name => (data.players[name] = data.players[name] || {got: {}, n: {}});
+  B.names = () => Object.keys(data.players);
+  B.countFor = name => Object.entries(data.players).filter(([k]) => k.trim().toLowerCase() === String(name || '').trim().toLowerCase()).reduce((n, [, r]) => n + Object.keys(r.got || {}).length, 0);
   B.has = (name, id) => !!(data.players[name] && data.players[name].got[id]);
   B.count = (name, k) => (data.players[name] && data.players[name].n[k]) || 0;
   // Ger ett märke och returnerar det om det är nytt
@@ -11212,6 +11549,7 @@ const Challenges = (() => {
     const names = Passport.counts().map(x => x.name);
     const name = (Store.get('challengeName', '') || names[0] || '').slice(0, 14);
     $('challengeName').value = name;
+    Family.renderPick($('challengePick'), {chosen: [name], label: 'Välj', onPick: m => { $('challengeName').value = m.name; Store.set('challengeName', m.name); C.open(); C.markTile(); }});
     const who = name.trim(), dly = C.dailyFor(C.today()), dDone = C.done(who, dly.id), streak = C.streak(who);
     const dArt = MAP_ASSETS[dly.map] && MAP_ASSETS[dly.map].thumb;
     const day = new Date().toLocaleDateString('sv-SE', {weekday: 'long', day: 'numeric', month: 'long'});
@@ -11239,8 +11577,12 @@ const Challenges = (() => {
     Store.set('challengeName', name);
     const board = buildBoardCached(ch.map);
     const used = [];
-    const human = {name, piece: {type: 'char', id: 'explorer'}, color: '#e5484d', dark: darken('#e5484d'), bot: 0, home: board.startIds[0], seat: 0, quiz: 'easy'};
-    used.push('explorer');
+    // Den som finns i familjen spelar med sin egen pjäs och sina frågor
+    const mem = Family.get(name), own = Family.piece(mem);
+    const piece = own && !pieceLocked(own) ? own : {type: 'char', id: 'explorer'}, pc = pieceColor(piece);
+    const human = {name, piece, color: pc, dark: darken(pc), bot: 0, home: board.startIds[0], seat: 0, quiz: (mem && mem.quiz) || 'easy'};
+    Family.remember([{name, bot: 0, piece, quiz: human.quiz}]);
+    used.push(piece.type === 'char' ? piece.id : 'explorer');
     const bots = ch.bots.map((lvl, i) => {
       const c = CHARACTERS.filter(x => !x.unlock && !used.includes(x.id))[i] || CHARACTERS[1];
       used.push(c.id);
@@ -11252,8 +11594,190 @@ const Challenges = (() => {
   return C;
 })();
 
+/* ---- 10k-family.js ---- */
+/* ================= Familjen: alla som spelar på den här enheten ================= */
+// Namnet är nyckeln, precis som i passet, topplistan och märkena. Pjäs, frågor och tillbehör sparas till nästa parti,
+// så att man väljer spelare med ett tryck i Nytt spel och i Utmaningar i stället för att skriva namnet varje gång.
+const Family = (() => {
+  const F = {};
+  const MONTHS = ['januari', 'februari', 'mars', 'april', 'maj', 'juni', 'juli', 'augusti', 'september', 'oktober', 'november', 'december'];
+  const norm = s => String(s || '').trim().toLowerCase();
+  F.isPerson = name => { const n = String(name || '').trim(); return !!n && norm(n) !== 'datorn' && !CHARACTERS.some(c => norm(c.name) === norm(n)); };
+  let list = Store.get('family', null);
+  const save = () => Store.set('family', list);
+  // Första gången: alla namn som redan finns i topplistan, passen, märkena och födelsedagarna
+  if (!Array.isArray(list)) {
+    const seen = new Map();
+    const add = (n, t) => { n = String(n || '').trim().slice(0, 14); if (F.isPerson(n) && !seen.has(norm(n))) seen.set(norm(n), {name: n, piece: null, quiz: 'easy', t: t || Date.now()}); };
+    try {
+      Top.games().forEach(g => g.players.forEach(p => { if (!p.bot) add(p.name, g.t); }));
+      Passport.names().forEach(n => add(n));
+      Badges.names().forEach(n => add(n));
+      Birthday.list().forEach(b => add(b.name));
+    } catch (e) { /* börja med en tom familj */ }
+    list = [...seen.values()];
+    try {
+      const color = {};
+      Top.games().forEach(g => g.players.forEach(p => { if (!p.bot && p.color) color[norm(p.name)] = p.color; }));
+      list.forEach(m => { const c = CHARACTERS.find(x => !x.unlock && x.color === color[norm(m.name)]); if (c && !list.some(o => o.piece && o.piece.id === c.id)) m.piece = {type: 'char', id: c.id}; });
+      list.forEach(m => { if (!m.piece) { const c = CHARACTERS.find(x => !x.unlock && !list.some(o => o.piece && o.piece.id === x.id)) || CHARACTERS[0]; m.piece = {type: 'char', id: c.id}; } });
+    } catch (e) { /* pjäserna väljs senare */ }
+    try { Top.games().forEach(g => g.players.forEach(p => { const m = !p.bot && list.find(x => norm(x.name) === norm(p.name)); if (m) m.last = Math.max(m.last || 0, g.t); })); } catch (e) { /* ingen historik */ }
+    save();
+  }
+  F.list = () => list.slice().sort((a, b) => (b.last || 0) - (a.last || 0) || a.name.localeCompare(b.name, 'sv'));
+  F.get = name => list.find(m => norm(m.name) === norm(name)) || null;
+  F.add = (name, props = {}) => {
+    name = String(name || '').trim().slice(0, 14);
+    if (!F.isPerson(name)) return null;
+    let m = F.get(name);
+    if (!m) { m = {name, piece: null, quiz: 'easy', t: Date.now()}; list.push(m); }
+    Object.assign(m, props);
+    save();
+    return m;
+  };
+  F.update = (name, props) => { const m = F.get(name); if (m) { Object.assign(m, props); save(); } return m; };
+  F.remove = name => { list = list.filter(m => norm(m.name) !== norm(name)); save(); };
+  // Ett parti startar: kom ihåg varje människas pjäs, frågor och tillbehör
+  F.remember = seats => {
+    const now = Date.now();
+    seats.forEach(s => { if (s.bot) return; const n = String(s.name || '').trim(); if (F.isPerson(n)) F.add(n, {piece: s.piece, quiz: s.quiz || 'easy', acc: s.acc || null, last: now}); });
+  };
+  // Pjäsen om den fortfarande finns (en egen ritad pjäs kan ha tagits bort i verkstaden)
+  F.piece = m => {
+    const p = m && m.piece;
+    if (!p) return null;
+    if (p.type === 'char') return CHARACTERS.some(c => c.id === p.id) ? p : null;
+    return PieceStore.get(p.id) ? p : null;
+  };
+  F.avatar = (m, fallback) => {
+    const ref = F.piece(m) || fallback || {type: 'char', id: 'explorer'};
+    const color = pieceColor(ref);
+    return {ref, color, thumb: Pieces.thumb(specOf(ref), color)};
+  };
+  F.birthday = name => { const b = Birthday.list().find(x => norm(x.name) === norm(name)); return b ? `${b.d} ${MONTHS[b.m - 1]}` : null; };
+  F.stats = name => {
+    const games = Top.games().filter(g => g.players.some(p => !p.bot && norm(p.name) === norm(name)));
+    const wins = games.filter(g => !g.bot && norm(g.winner) === norm(name)).length;
+    const maps = {};
+    games.forEach(g => { maps[g.map] = (maps[g.map] || 0) + 1; });
+    const fav = Object.entries(maps).sort((a, b) => b[1] - a[1])[0];
+    return {games: games.length, wins, stamps: Passport.countFor(name), badges: Badges.countFor(name), fav: fav && MAPS[fav[0]] ? MAPS[fav[0]].name : null};
+  };
+  // Familjens gemensamma resa: olika stämplar och nästa pjäs som låses upp
+  F.progress = () => {
+    const n = Passport.familyCount(), next = CHARACTERS.filter(c => c.unlock && c.unlock > n).sort((a, b) => a.unlock - b.unlock)[0];
+    const prev = CHARACTERS.filter(c => c.unlock && c.unlock <= n).reduce((m, c) => Math.max(m, c.unlock), 0);
+    return {n, next, frac: next ? Math.max(0, Math.min(1, (n - prev) / (next.unlock - prev))) : 1};
+  };
+  F.progressText = pr => pr.next ? `${pr.next.unlock - pr.n} ${pr.next.unlock - pr.n === 1 ? 'stämpel' : 'stämplar'} kvar till ${pr.next.name.toLowerCase()}` : 'Alla pjäser är upplåsta!';
+
+  /* ---------- Snabbval: familjens knappar i Nytt spel och Utmaningar ---------- */
+  F.renderPick = (box, {chosen = [], onPick, label = 'Snabbval', pieceFor = null} = {}) => {
+    if (!box) return;
+    box.innerHTML = '';
+    const members = F.list();
+    box.hidden = !members.length;
+    if (!members.length) return;
+    box.append(h('span', {class: 'fp-label', text: label}));
+    members.forEach(m => {
+      const on = chosen.some(n => norm(n) === norm(m.name));
+      const seatRef = pieceFor && pieceFor(m.name);
+      const av = seatRef ? F.avatar({piece: seatRef}) : F.avatar(m);
+      const b = h('button', {class: 'fp-chip' + (on ? ' on' : ''), type: 'button', 'aria-pressed': String(on)},
+        h('span', {class: 'fp-pic', style: {'--pc': av.color}}, av.thumb ? h('img', {src: av.thumb, alt: ''}) : ''),
+        h('span', {class: 'fp-name', text: m.name}),
+        on ? h('span', {class: 'fp-check', html: icon('check')}) : '');
+      b.onclick = () => { Sound.play(on ? 'click' : 'pop'); onPick(m, on); };
+      box.append(b);
+    });
+  };
+
+  /* ---------- Familjedialogen ---------- */
+  function freePiece() {
+    const taken = list.map(m => m.piece && m.piece.type === 'char' ? m.piece.id : null);
+    const c = CHARACTERS.find(x => !Passport.locked(x) && !taken.includes(x.id)) || CHARACTERS[0];
+    return {type: 'char', id: c.id};
+  }
+  // Pjäsväljaren (samma ruta som i Nytt spel) för en familjemedlem
+  function pickPiece(m) {
+    const grid = $('pieceGrid');
+    grid.innerHTML = '';
+    const fam = Passport.familyCount(), cur = F.piece(m);
+    const addOpt = (ref, label, color, thumb, lock) => {
+      const sel = cur && cur.type === ref.type && cur.id === ref.id;
+      const b = h('button', {class: 'piece-opt' + (lock ? ' locked' : '') + (sel ? ' selected' : ''), type: 'button', disabled: !!lock},
+        h('span', {class: 'pic', style: {'--pc': color}}, thumb ? h('img', {src: thumb, alt: ''}) : '', lock ? h('span', {class: 'lock', html: icon('lock')}) : ''),
+        label, lock ? h('small', {text: `${lock - fam} stämplar kvar`}) : '');
+      b.onclick = () => { F.update(m.name, {piece: ref}); Sound.play('pop'); UI.modal('dlgPiece', false); render(); };
+      grid.append(b);
+    };
+    CHARACTERS.forEach(c => addOpt({type: 'char', id: c.id}, c.name, c.color, Pieces.thumb({type: 'char', id: c.id}, c.color), Passport.locked(c) ? c.unlock : 0));
+    PieceStore.list.forEach(p => addOpt({type: 'custom', id: p.id}, p.name, p.color, Pieces.thumb({type: 'custom', piece: p}, p.color), 0));
+    UI.modal('dlgPiece', true);
+  }
+  function render() {
+    const grid = $('familyGrid');
+    grid.innerHTML = '';
+    F.list().forEach(m => {
+      const av = F.avatar(m), st = F.stats(m.name), bd = F.birthday(m.name);
+      const pic = h('button', {class: 'mem-pic', type: 'button', style: {'--pc': av.color}, 'aria-label': `Byt pjäs för ${m.name}`},
+        av.thumb ? h('img', {src: av.thumb, alt: ''}) : '', h('span', {class: 'mem-edit', html: icon('brush')}));
+      pic.onclick = () => { Sound.play('click'); pickPiece(m); };
+      const quiz = h('div', {class: 'seg small', role: 'group', 'aria-label': 'Frågor'}, ...[['easy', 'Lätta frågor'], ['hard', 'Svåra frågor']].map(([v, t]) => {
+        const b = h('button', {type: 'button', 'aria-pressed': String((m.quiz || 'easy') === v), text: t});
+        b.onclick = () => { F.update(m.name, {quiz: v}); Sound.play('click'); render(); };
+        return b;
+      }));
+      const x = h('button', {class: 'mem-x', type: 'button', 'aria-label': `Ta bort ${m.name}`, html: icon('close')});
+      x.onclick = async () => {
+        if (await UI.confirm(`Ta bort ${m.name}?`, 'Namnet försvinner ur snabbvalet. Passet, märkena och topplistan finns kvar.')) { F.remove(m.name); render(); }
+      };
+      const stat = (n, one, many) => h('span', {class: 'mem-stat'}, h('b', {text: String(n)}), h('small', {text: n === 1 ? one : many}));
+      const sub = [bd ? `Fyller år ${bd}` : null, st.fav ? `Favoritkarta: ${st.fav}` : null].filter(Boolean).join(' · ') || (st.games ? '' : 'Har inte spelat än');
+      grid.append(h('article', {class: 'member'}, x, pic,
+        h('div', {class: 'mem-txt'}, h('b', {class: 'mem-name', text: m.name}), sub ? h('small', {class: 'mem-sub', text: sub}) : ''),
+        h('div', {class: 'mem-stats'}, stat(st.wins, 'vinst', 'vinster'), stat(st.games, 'parti', 'partier'), stat(st.stamps, 'stämpel', 'stämplar'), stat(st.badges, 'märke', 'märken')),
+        quiz));
+    });
+    // Ny medlem
+    const inp = h('input', {type: 'text', maxlength: 14, placeholder: 'Namn', 'aria-label': 'Namn på den nya spelaren', autocomplete: 'off'});
+    const add = h('button', {class: 'btn small primary', type: 'button', html: icon('plus') + '<span>Lägg till</span>'});
+    const doAdd = () => {
+      const n = inp.value.trim();
+      if (!n) { inp.focus(); return; }
+      if (!F.isPerson(n)) { UI.toast(null, 'Välj ett eget namn och inte en pjäs.'); return; }
+      if (F.get(n)) { UI.toast(null, `${n} finns redan i familjen.`); return; }
+      F.add(n, {piece: freePiece(), last: Date.now()});
+      Sound.play('pop');
+      render();
+    };
+    add.onclick = doAdd;
+    inp.onkeydown = e => { if (e.key === 'Enter') doAdd(); };
+    grid.append(h('article', {class: 'member add'}, h('span', {class: 'mem-pic add', html: icon('plus')}),
+      h('div', {class: 'mem-txt'}, h('b', {class: 'mem-name', text: 'Ny i familjen'}), h('small', {class: 'mem-sub', text: 'Skriv namnet och välj pjäs sedan.'})),
+      h('div', {class: 'mem-add-row'}, inp, add)));
+    const pr = F.progress(), box = $('familyProgress');
+    box.innerHTML = '';
+    box.append(h('span', {class: 'fprog-ico', html: icon('stamp')}),
+      h('span', {class: 'fprog-txt'}, h('b', {text: `Familjens pass: ${pr.n} ${pr.n === 1 ? 'stämpel' : 'stämplar'}`}), h('small', {text: F.progressText(pr)})),
+      h('span', {class: 'fprog-bar'}, h('i', {style: {width: Math.round(pr.frac * 100) + '%'}})));
+  }
+  F.open = () => { render(); UI.modal('dlgFamily', true); };
+  return F;
+})();
+
 /* ---- 11-main.js ---- */
 /* ================= Start: laddning, knappar och tangentbord ================= */
+const VERSION = '3.12';
+// Visas en gång efter en uppdatering, och alltid under "Nytt i spelet" på startsidan
+const NEWS = [
+  ['family', 'Familjen', 'Alla som spelar sparas med sin pjäs och sina frågor. Välj spelare med ett tryck i Nytt spel och i Utmaningar.'],
+  ['map', 'Skåne på riktigt', 'Kusten kommer från OpenStreetMap, med Ven, Hanö och Falsterbonäset. Nya orten Höllviken och en egen låt.'],
+  ['trophy', 'Ny topplista', 'Prispall med pjäserna, rekord på varje karta och de senaste partierna.'],
+  ['help', 'Så spelar man', 'Reglerna i tydliga kort med bilder, och snabbknappar till varje del.'],
+  ['gear', 'Finare menyer', 'Inställningar och ljud direkt på startsidan, reglage i spelets stil och en inställning för lugnare menyer.']
+];
 const LOAD_TEXTS = ['Packar resväskan …', 'Vecklar ut kartan …', 'Putsar diamanten …', 'Stämmer kalimban …', 'Planterar träd …', 'Väcker trollen …'];
 
 // Kartor laddas en i taget. En förhandsvisning som hunnit bli inaktuell hoppas över.
@@ -11263,7 +11787,15 @@ function ensureMap(board, preview) {
   const job = mapChain.then(async () => {
     if ((preview && latestPreview !== board) || S3.board() === board) return;
     const L = $('loading');
-    const t = setTimeout(() => { $('loadText').textContent = pick(LOAD_TEXTS); L.classList.remove('done'); }, 180);
+    const t = setTimeout(() => {
+      $('loadText').textContent = pick(LOAD_TEXTS);
+      // Ett faktum om en av kartans städer medan kartan laddas
+      const facts = board.map.cities.filter(c => FACTS[c.id]);
+      const c = facts.length ? pick(facts) : null;
+      $('loadFact').innerHTML = '';
+      if (c) $('loadFact').append(h('b', {text: 'Visste du? '}), FACTS[c.id]);
+      L.classList.remove('done');
+    }, 180);
     try { await S3.loadMap(board); }
     finally { clearTimeout(t); L.classList.add('done'); }
   });
@@ -11285,8 +11817,18 @@ function toTitle() {
   if (ok) $('bContinue').innerHTML = icon('play') + `<span>Fortsätt spelet <small>${MAPS[s.config.mapId].name}</small></span>`;
   UI.show('scrTitle');
   UI.birthdayBanner();
+  UI.titleProgress();
   Sound.mood('menu');
 }
+
+function openNews() {
+  $('newsVer').textContent = `Version ${VERSION}`;
+  const list = $('newsList');
+  list.innerHTML = '';
+  NEWS.forEach(([ic, title, text]) => list.append(h('li', null, h('span', {class: 'news-ico', html: icon(ic)}), h('span', null, h('b', {text: title}), h('span', {text: text})))));
+  UI.modal('dlgNews', true);
+}
+function closeNews() { UI.modal('dlgNews', false); Store.set('seenVersion', VERSION); }
 
 function openPause() {
   if (!Game.state() || $('scrGame').hidden) return;
@@ -11343,6 +11885,14 @@ function bind() {
   on('bWinMenu', () => toTitle());
   on('bWinAgain', () => { UI.modal('dlgWin', false); Game.again(); });
   on('tFull', toggleFullscreen);
+  on('tTitleSettings', () => { Sound.unlock(); Sound.play('click'); UI.settings(); });
+  on('tTitleSound', toggleSound);
+  on('bFamily', () => { Sound.play('click'); Family.open(); });
+  on('bProgress', () => { Sound.play('click'); Family.open(); });
+  on('bFamilyClose', () => { UI.modal('dlgFamily', false); UI.titleProgress(); Setup.refreshFamily(); });
+  on('bNews', () => { Sound.play('click'); openNews(); });
+  on('bNewsClose', closeNews);
+  on('bNewsOk', () => { Sound.play('click'); closeNews(); });
   $('sDaynight').addEventListener('input', () => { if (Game.state()) Game.refreshNight(); });
 
   Bus.on('toTitle', toTitle);
@@ -11436,6 +11986,9 @@ async function boot(hot) {
   }
   // På TV:n: lättare grafik och lobbyn med QR-koden direkt
   document.body.classList.toggle('lite', FLAT);
+  // Mindre rörelser: följer telefonens eller datorns inställning tills man väljer själv
+  if (Settings.calm === undefined) { try { Settings.calm = matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) { Settings.calm = false; } }
+  document.body.classList.toggle('calm', !!Settings.calm);
   Bus.on('slow', () => UI.toast(null, 'Spelet går trögt här. Välj Enkel 2D under Inställningar → Grafik, så går det lättare.'));
   if (IS_TV) {
     document.body.classList.add('tv');
@@ -11490,6 +12043,12 @@ async function boot(hot) {
   const last = Store.get('lastMap', 'afrika');
   await ensureMap(buildBoardCached(MAPS[last] ? last : 'afrika'));
   toTitle();
+  // Nyheterna visas en gång efter en uppdatering (inte för den som spelar för första gången)
+  if (Store.get('seenVersion', null) !== VERSION) {
+    const played = Top.games().length > 0 || Family.list().length > 0;
+    if (played && !navigator.webdriver && !IS_TV) setTimeout(() => { if (!$('scrTitle').hidden && !document.querySelector('.modal:not([hidden])')) openNews(); }, 1600);
+    else Store.set('seenVersion', VERSION);
+  }
   if (IS_TV && !Store.get('save')) Setup.open({invite: true});
   else if (IS_TV) setTimeout(() => { try { $('bContinue').focus(); } catch (e) { /* ignorera */ } }, 300);
 }
