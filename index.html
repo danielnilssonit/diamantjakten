@@ -1564,6 +1564,7 @@ body:not(.table-mode) .storm-badge,body:not(.table-mode) .challenge-badge{top:ca
           <label class="opt"><span>Musik</span><input type="range" id="sMusic" min="0" max="1" step="0.05"></label>
           <label class="opt"><span>Ljudeffekter</span><input type="range" id="sSfx" min="0" max="1" step="0.05"></label>
           <label class="opt switch"><input type="checkbox" id="sVoice"><span>Läs upp vad som händer</span></label>
+          <label class="opt switch"><input type="checkbox" id="sBarks"><span>Pjäserna pratar med egna röster</span></label>
           <div class="opt voice-opt"><span>Berättarröst</span><div class="voice-row"><select id="sVoiceId"></select><button class="btn small" id="bVoiceTest" type="button">Testa</button></div><small class="opt-note" id="voiceNote" hidden></small></div>
         </section>
         <section class="opt-group"><h3 data-icon="gear">Skärm och grafik</h3>
@@ -3819,9 +3820,9 @@ const Sound = (() => {
     .replace(/\s+/g, ' ').trim();
   A.spokenText = s => spoken(s);
   let speakT = 0;
-  function utter(text, mood) {
-    // Den inspelade berättaren om just den här texten finns inspelad
-    if (Voice.enabled() && Voice.has(text)) { Voice.play(text); return; }
+  function utter(text, mood, sc) {
+    // Den inspelade berättaren om just den här texten finns inspelad (sc: en röstlåda, annars den som gäller just nu)
+    if (Voice.enabled() && Voice.has(text, sc)) { Voice.play(text, null, sc); return; }
     Voice.stop();
     const t = spoken(text);
     if (!hasSpeech || !t) return;
@@ -3842,7 +3843,7 @@ const Sound = (() => {
     } catch (e) { /* uppläsning är valfri */ }
   }
   // Läser upp oavsett inställning (när man trycker på en uppläsningsknapp)
-  A.speak = (text, mood = 'calm') => utter(text, mood);
+  A.speak = (text, mood = 'calm', sc) => utter(text, mood, sc);
   // Berättaren i spelet, bara när uppläsningen är påslagen
   A.say = (text, mood) => { if (Settings.voice) utter(text, mood); };
   // Berättaren med en inspelad replik om någon av dem finns, annars texten med namn för webbläsarens röst
@@ -3851,10 +3852,20 @@ const Sound = (() => {
     const rec = Voice.enabled() ? (variants || []).filter(t => Voice.has(t)) : [];
     utter(rec.length ? pick(rec) : fallback, mood);
   };
+  // Pjäsen säger något med sin egen röst och sedan berättaren (om den är påslagen och har något att säga)
+  A.react = (p, event, variants, fallback, mood) => {
+    const bark = Settings.barks !== false && Voice.enabled() ? Narration.bark(p, event) : null;
+    if (bark) {
+      const narr = Settings.voice && event !== 'turn' ? (variants || []).filter(t => Voice.has(t)) : [];
+      Voice.play(narr.length ? [bark, pick(narr)] : [bark]);
+      return;
+    }
+    if (variants || fallback) A.sayRec(variants, fallback, mood);
+  };
   // Flera repliker efter varandra, oavsett inställning (uppläsningsknappar)
-  A.speakSeq = (texts, mood = 'calm') => {
-    if (Voice.enabled() && texts.every(t => Voice.has(t))) { Voice.play(texts); return; }
-    utter(texts.join(' '), mood);
+  A.speakSeq = (texts, mood = 'calm', sc) => {
+    if (Voice.enabled() && texts.every(t => Voice.has(t, sc))) { Voice.play(texts, null, sc); return; }
+    utter(texts.join(' '), mood, sc);
   };
   A.testVoice = () => utter(pick(['Hej! Jag är er berättare. Nu jagar vi diamanten!', 'Hallå där, äventyrare! Är ni redo att resa?', 'Wow, titta! En rubin! Den är värd fem tusen kronor!']), 'happy');
   A._dbg = () => ({ctx, master, musicBus});
@@ -4028,9 +4039,11 @@ const MusicThemes = kit => {
 /* ================= Inspelad berättare och riktiga ljudeffekter (gjorda med ElevenLabs) ================= */
 // Varje inspelad replik heter som en kod som räknas fram ur texten (samma kod i tools/make-voice.mjs).
 // Spelet frågar "finns den här texten inspelad?" och spelar klippet, annars läser webbläsarens röst som förut.
+// Röstlådor: Skånekartan har en egen berättare (skånska) och varje pjäs har sin egen röst. En replik i en låda
+// heter som "låda|text", och finns den inte i lådan används berättarens vanliga klipp.
 const Voice = (() => {
   const V = {};
-  let index = null, loading = null, cur = null, queue = [];
+  let index = null, loading = null, cur = null, queue = [], scope = null;
   V.norm = s => String(s || '').replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{2B50}\u{FE0F}]/gu, '').replace(/\s+/g, ' ').trim();
   // FNV-1a på texten, plus längden (så att två olika texter i praktiken aldrig får samma namn)
   V.key = s => {
@@ -4039,10 +4052,20 @@ const Voice = (() => {
     for (let i = 0; i < t.length; i++) { h ^= t.charCodeAt(i); h = Math.imul(h, 0x01000193) >>> 0; }
     return h.toString(36) + t.length.toString(36);
   };
+  V.keyIn = (text, sc) => sc ? V.key(sc + '|' + V.norm(text)) : V.key(text);
+  V.scopeFor = mapId => mapId === 'skane' ? 'skane' : null;
+  V.setScope = s => { scope = s || null; };
   V.load = () => loading || (loading = fetch('voice/index.json').then(r => r.ok ? r.json() : []).then(list => { index = new Set(Array.isArray(list) ? list : []); })
     .catch(() => { index = new Set(); }));
   V.ready = () => !!index && index.size > 0;
-  V.has = text => !!index && index.has(V.key(text));
+  // Klippet för en text: först i lådan, annars berättarens vanliga (pjäsernas repliker finns bara i deras egna lådor)
+  V.find = (text, sc = scope) => {
+    if (!index || !text) return null;
+    if (sc) { const k = V.keyIn(text, sc); if (index.has(k)) return k; if (sc.startsWith('char:')) return null; }
+    const k0 = V.key(text);
+    return index.has(k0) ? k0 : null;
+  };
+  V.has = (text, sc) => !!V.find(text, sc);
   // Den inspelade berättaren används om den finns och ingen annan röst är vald i inställningarna
   V.enabled = () => V.ready() && (!Settings.voiceId || Settings.voiceId === 'rec');
   V.busy = () => !!cur;
@@ -4050,8 +4073,8 @@ const Voice = (() => {
     queue = [];
     if (cur) { const a = cur; cur = null; try { a.pause(); } catch (e) { /* redan stoppad */ } Sound.duck(false); }
   };
-  function playOne(text, done) {
-    const a = new Audio('voice/' + V.key(text) + '.mp3');
+  function playOne(k, done) {
+    const a = new Audio('voice/' + k + '.mp3');
     cur = a;
     Sound.duck(true);
     const end = () => { if (cur !== a) return; cur = null; if (queue.length) playOne(queue.shift(), done); else { Sound.duck(false); if (done) done(); } };
@@ -4059,14 +4082,15 @@ const Voice = (() => {
     a.onerror = end;
     a.play().catch(end);
   }
-  // En eller flera repliker efter varandra (till exempel "Ny stämpel i passet!" och sedan faktat om staden)
-  V.play = (texts, done) => {
-    const list = (Array.isArray(texts) ? texts : [texts]).filter(Boolean);
-    if (!list.length) return false;
+  // En eller flera repliker efter varandra. En replik kan vara text (i lådan sc) eller {text, scope} (till exempel pjäsens röst först och sedan berättaren)
+  V.play = (texts, done, sc) => {
+    const keys = (Array.isArray(texts) ? texts : [texts]).filter(Boolean)
+      .map(t => typeof t === 'object' ? V.find(t.text, t.scope) : V.find(t, sc)).filter(Boolean);
+    if (!keys.length) return false;
     V.stop();
     try { if ('speechSynthesis' in window) speechSynthesis.cancel(); } catch (e) { /* ingen uppläsning */ }
-    queue = list.slice(1);
-    playOne(list[0], done);
+    queue = keys.slice(1);
+    playOne(keys[0], done);
     return true;
   };
   return V;
@@ -7652,7 +7676,7 @@ const UI = (() => {
     // Tärning i 3D och oskärpa finns inte i enkel grafik
     $('sDie3d').closest('label').hidden = FLAT; $('sDof').closest('label').hidden = FLAT;
     $('sDie3d').checked = Settings.die3d !== false; $('sDof').checked = Settings.dof !== false;
-    $('sCoach').checked = Settings.coach !== false; $('sCalm').checked = !!Settings.calm; $('sXmas').value = Settings.xmas === 'on' ? 'jul' : Settings.xmas || 'auto';
+    $('sCoach').checked = Settings.coach !== false; $('sCalm').checked = !!Settings.calm; $('sBarks').checked = Settings.barks !== false; $('sXmas').value = Settings.xmas === 'on' ? 'jul' : Settings.xmas || 'auto';
     fillVoices();
     fillBirthdays();
     U.fillRanges();
@@ -7687,6 +7711,7 @@ const UI = (() => {
       Settings.voice = $('sVoice').checked; Settings.daynight = $('sDaynight').checked; Settings.follow = $('sFollow').checked;
       if (voiceOn) Sound.speak('Nu läser jag upp vad som händer.', 'happy');
       Settings.die3d = $('sDie3d').checked; Settings.dof = $('sDof').checked;
+      Settings.barks = $('sBarks').checked;
       Settings.calm = $('sCalm').checked; document.body.classList.toggle('calm', !!Settings.calm);
       Settings.coach = $('sCoach').checked; Settings.xmas = $('sXmas').value; Settings.voiceId = $('sVoiceId').value || null;
       const tu = $('sTurnUrl').value.trim();
@@ -7698,7 +7723,7 @@ const UI = (() => {
       if (t !== Settings.table) { Settings.table = t; Bus.emit('tableMode', t); }
       saveSettings(); Sound.setVolumes(); U.soundIcon();
     };
-    ['sMusic', 'sSfx', 'sVoice', 'sDaynight', 'sFollow', 'sTable', 'sDie3d', 'sDof', 'sCoach', 'sCalm', 'sXmas', 'sVoiceId', 'sTurnUrl', 'sTurnUser', 'sTurnPass'].forEach(id => $(id).addEventListener('input', upd));
+    ['sMusic', 'sSfx', 'sVoice', 'sDaynight', 'sFollow', 'sTable', 'sDie3d', 'sDof', 'sCoach', 'sCalm', 'sBarks', 'sXmas', 'sVoiceId', 'sTurnUrl', 'sTurnUser', 'sTurnPass'].forEach(id => $(id).addEventListener('input', upd));
     $('bVoiceTest').onclick = () => Sound.testVoice();
     // Byte av grafik gäller när spelet startar om (partiet sparas efter varje tur och kan fortsätta)
     $('sGfx').addEventListener('change', async () => {
@@ -8738,6 +8763,7 @@ const Game = (() => {
     const gen = Flow.gen;
     UI.modal('dlgWin', false);
     board = buildBoardCached(config.mapId);
+    Voice.setScope(Voice.scopeFor(board.map.id));   // Skåne har en egen berättare
     await ensureMap(board);
     if (gen !== Flow.gen) return;
     G = newGameState(board, config.seats, config.options);
@@ -9085,7 +9111,7 @@ const Game = (() => {
     p.clueUsed = false;
     setActive(p);
     const sp = SPEED();
-    if (!p.bot) { Sound.play('turn'); Sound.sayRec(Narration.turn(p), Line.turn(p.name), 'normal'); }
+    if (!p.bot) { Sound.play('turn'); Sound.react(p, 'turn', Narration.turn(p), Line.turn(p.name), 'normal'); }
     // Inte på första turen: då har introt just visat vem som börjar
     if (!p.bot && !(G.round === 1 && G.turn === 0) && !G.options.table && !Remote.has(p) && G.players.filter(q => !q.bot && !Remote.has(q)).length >= 2) UI.turnBanner(p, thumbs[p.i]);
     if (p.skip > 0) {
@@ -9226,7 +9252,7 @@ const Game = (() => {
       pass: [`${a[0].toUpperCase() + a.slice(1)}! Bra att ha, ${p.name}.`, `${p.name} fick ${a}! Det kan bli viktigt.`],
       blank: [out.text]
     };
-    Sound.sayRec(Narration.outcome(board, kind, out), pick(lines[kind] || [`${out.title} ${out.text}`]), kind === 'thief' && out.money ? 'sad' : kind === 'blank' ? 'calm' : 'happy');
+    Sound.react(p, kind, Narration.outcome(board, kind, out), pick(lines[kind] || [`${out.title} ${out.text}`]), kind === 'thief' && out.money ? 'sad' : kind === 'blank' ? 'calm' : 'happy');
   }
   function phoneMap(p, opts, pathOf = o => o.path) {
     const xy = id => { const n = board.nodes[id]; return [Math.round(n.x), Math.round(n.y)]; };
@@ -9286,7 +9312,7 @@ const Game = (() => {
     const pc = pieces[p.i], sp = SPEED(), sea = mode === 'sea';
     pc.moving = true; pc.setActive(false);
     pc.setVehicle(sea ? 'boat' : 'walk');
-    if (sea) Sound.play('boat');
+    if (sea) { Sound.play('boat'); Sound.react(p, 'boat'); }
     if (follows()) S3.follow(() => ({x: pc.outer.position.x, z: pc.outer.position.z}));
     let prev = pc.outer.position.clone(), wakeT = 0;
     try {
@@ -9342,7 +9368,7 @@ const Game = (() => {
     else { p.freeFlight = false; UI.toast(p, `${p.name} flyger på sin gratisbiljett!`); }
     const pc = pieces[p.i], c = airCurveDir(board, p.node, to), fromId = p.node;
     pc.moving = true; pc.setActive(false); pc.setVehicle('plane');
-    Sound.play('plane');
+    Sound.play('plane'); Sound.react(p, 'fly');
     if (follows()) S3.follow(() => ({x: pc.outer.position.x, z: pc.outer.position.z, d: S3.cam.dRef * .6}));
     const from = S3.nodePos(p.node), dest = S3.nodePos(to);
     let lx = from.x, lz = from.z;
@@ -9404,7 +9430,7 @@ const Game = (() => {
       emote(p, 'scared');
       UI.toast(p, `${p.name} ${trap.caught}!`);
       UI.prompt(`${p.name} ${trap.caught}!`, 'Slå 1 eller 2 nästa tur för att komma loss.', p);
-      Sound.sayRec([Narration.trap(trap)], Line.trap(p.name, trap.caught), 'sad');
+      Sound.react(p, 'trap', [Narration.trap(trap)], Line.trap(p.name, trap.caught), 'sad');
       UI.updateHUD();
       await waitP(SPEED().think + 700, gen);
       return;
@@ -9819,7 +9845,7 @@ const Game = (() => {
       Sound.sayRec(['Hurra! Ni klarade det tillsammans!'], `Hurra! Ni klarade det tillsammans! ${p.name} tog hem skatten.`, 'happy');
       UI.prompt('Ni vann tillsammans!', how, p);
     } else {
-      Sound.sayRec([Narration.win(how)], Line.win(p.name, how), 'happy');
+      Sound.react(p, 'win', [Narration.win(how)], Line.win(p.name, how), 'happy');
       UI.prompt(`${p.name} vann!`, how, p);
     }
     Bus.emit('gameOver', p);
@@ -10376,11 +10402,11 @@ const Passport = (() => {
     void card.offsetWidth;
     card.classList.add('in');
     if (res.isNew) setTimeout(() => Sound.play('stamp'), 250);
-    $('stampRead').onclick = e => { e.stopPropagation(); Sound.speak(`${res.city.name}. ${res.fact}`); };
+    $('stampRead').onclick = e => { e.stopPropagation(); Sound.speak(Narration.fact(res.city.name, res.fact), 'calm', Voice.scopeFor(res.mapId)); };
     card.onclick = () => P.hideCard();
     clearTimeout(hideT);
     hideT = setTimeout(P.hideCard, res.isNew ? 9000 : 6000);
-    if (res.isNew && Settings.voice) setTimeout(() => Sound.speakSeq([Narration.stamp, Narration.fact(res.city.name, res.fact)]), 400);
+    if (res.isNew && Settings.voice) setTimeout(() => Sound.speakSeq([Narration.stamp, Narration.fact(res.city.name, res.fact)], 'calm', Voice.scopeFor(res.mapId)), 400);
   };
   P.hideCard = () => { const card = $('stampCard'); card.classList.remove('in'); clearTimeout(hideT); hideT = setTimeout(() => { card.hidden = true; }, 350); };
 
@@ -10432,7 +10458,7 @@ const Passport = (() => {
         f.innerHTML = '';
         f.append(h('b', {text: c.name + (rec ? '' : ' (inte besökt än)')}), ' ', FACTS[c.id] || '');
         const rd = h('button', {class: 'btn small', type: 'button', html: icon('voice') + '<span>Läs upp</span>'});
-        rd.onclick = () => Sound.speak(`${c.name}. ${FACTS[c.id] || ''}`);
+        rd.onclick = () => Sound.speak(Narration.fact(c.name, FACTS[c.id] || ''), 'calm', Voice.scopeFor(showMap));
         f.append(rd);
       };
       grid.append(b);
@@ -12139,25 +12165,98 @@ const Narration = (() => {
     board.map.cities.forEach(c => { out.push(N.arrive(c.name)); if (FACTS[c.id]) out.push(N.fact(c.name, FACTS[c.id])); });
     return out;
   };
+  // Pjäsernas egna repliker, var och en med sin egen röst. [taggar] styr uttrycket i ElevenLabs v3 och syns inte i texten.
+  N.BARKS = {
+    explorer: {
+      turn: ['[excited] Äventyret väntar!', 'Nu kör vi, framåt!'], gem: ['[excited] Oj, en skatt! Den tar jag!', 'Wow, vad den glittrar!'],
+      star: ['[shouts] Jag hittade den! Diamanten!'], thief: ['[gasps] Nej! Mina pengar!'], trap: ['Aj då, det här blev krångligt.'],
+      blank: ['Äsch, tomt. Vidare!'], win: ['[laughs] Jag vann! Vilket äventyr!'], fly: ['Upp i luften, hej hopp!'], boat: ['Ut på havet, äventyr!']
+    },
+    captain: {
+      turn: ['Ahoj! Full fart framåt!', 'Hissa seglen, nu är det min tur!'], gem: ['[laughs] Minsann, en riktig skatt!', 'Den här tar jag med ombord!'],
+      star: ['[shouts] Land i sikte! Skatten är min!'], thief: ['Kors i taket! Vart tog pengarna vägen?'], trap: ['Tusan också, vi har gått på grund!'],
+      blank: ['Bara sand och sjögräs.'], win: ['[laughs] Ahoj! Kaptenen vinner!'], fly: ['Flyga? Jag föredrar båt, men okej!'], boat: ['[happy] Äntligen till sjöss!']
+    },
+    pilot: {
+      turn: ['Klar för start!', 'Piloten redo, nu flyger vi!'], gem: ['Perfekt landning, och en ädelsten!', 'Snyggt, en ädelsten!'],
+      star: ['[excited] Diamanten! Kursen är satt mot hemmet!'], thief: ['Mayday, mayday! Pengarna är borta!'], trap: ['Oj, turbulens! Vi står still ett tag.'],
+      blank: ['Ingen last här. Vi fortsätter!'], win: ['[excited] Mjuklandning, och seger!'], fly: ['[excited] Äntligen, upp i skyn!'], boat: ['En båt? Nåja, den flyter i alla fall.']
+    },
+    detective: {
+      turn: ['Hmm, låt mig undersöka saken.', 'Ledtrådarna pekar åt det här hållet.'], gem: ['Precis som jag misstänkte. En ädelsten!', 'Aha! Ett fynd!'],
+      star: ['[whispers] Fallet är löst. Diamanten är här!'], thief: ['En tjuv! Det här fallet ska jag lösa.'], trap: ['Intressant, en fälla. Det här måste utredas.'],
+      blank: ['Inga spår här. Men jag ger inte upp.'], win: ['[laughs] Elementärt! Jag vann.'], fly: ['Flyget, snabbaste vägen till nästa ledtråd.'], boat: ['Över havet, på jakt efter spår.']
+    },
+    queen: {
+      turn: ['Nu är det drottningens tur. Stig åt sidan!', 'Hovet väntar, vi reser vidare.'], gem: ['En juvel till min krona! Utmärkt.', 'Hur förtjusande!'],
+      star: ['[excited] Diamanten! Den passar perfekt i min krona!'], thief: ['[gasps] Vilken fräckhet! Vakter!'], trap: ['Detta är inte värdigt en drottning.'],
+      blank: ['Tomt? Hur ohövligt.'], win: ['[laughs] Som sig bör. Drottningen vinner!'], fly: ['Kungligt flyg, tack så mycket.'], boat: ['Till den kungliga båten!']
+    },
+    chef: {
+      turn: ['Dags att röra i grytan!', 'Nu lagar vi till en resa!'], gem: ['Mmm, en riktig läckerbit!', 'Den här är som grädden på tårtan!'],
+      star: ['[excited] Diamanten! Grädden på moset!'], thief: ['Nej! Nu blir det bara vatten och bröd.'], trap: ['Oj då, nu har det kokat över.'],
+      blank: ['Tomt som ett skafferi på söndag.'], win: ['[laughs] Segern smakar ljuvligt!'], fly: ['Flygmat, här kommer jag!'], boat: ['Fiskelycka på havet!']
+    },
+    astronaut: {
+      turn: ['Nedräkning. Tre, två, ett, start!', 'Uppdraget fortsätter.'], gem: ['En stjärnsten! Otroligt.', 'Ett fynd från rymden!'],
+      star: ['[excited] Diamanten lokaliserad! Uppdraget lyckades!'], thief: ['Houston, vi har ett problem. Pengarna är borta.'], trap: ['Vi har tappat kontakten. Väntar på signal.'],
+      blank: ['Tomt, som rymden.'], win: ['Ett litet steg för mig, ett stort steg för familjen!'], fly: ['Flyget är ingen rymdraket, men okej.'], boat: ['Havet ser ut som en ny planet.']
+    },
+    viking: {
+      turn: ['[laughs] Vikingen kommer, se upp!', 'Mot nästa stad, framåt!'], gem: ['[laughs] Byte! En skatt åt vikingen!', 'Glänsande! Den tar jag.'],
+      star: ['[shouts] Diamanten! Vikingen har hittat skatten!'], thief: ['Vad? Någon stal från en viking?'], trap: ['Grr, nu sitter jag fast!'],
+      blank: ['Tomt! Inte ens ett mynt.'], win: ['[laughs] Seger! Vikingen firar med saft!'], fly: ['En viking som flyger? Häftigt!'], boat: ['[excited] Till skeppet! Ro, ro, ro!']
+    },
+    robot: {
+      turn: ['Bip bop. Min tur. Beräknar väg.', 'Laddar. Klar. Kör!'], gem: ['Bip! Ädelsten upptäckt. Värde: högt.', 'Fynd registrerat. Bip!'],
+      star: ['[excited] Diamant hittad! Glädjeprotokoll aktiverat!'], thief: ['Fel, fel! Pengar saknas.'], trap: ['Systemet har fastnat. Startar om.'],
+      blank: ['Noll objekt hittade.'], win: ['Seger beräknad. Hundra procent glädje!'], fly: ['Flygläge aktiverat.'], boat: ['Vattentät? Jag hoppas det.']
+    },
+    gold: {
+      turn: ['Guldpjäsen glänser. Nu är det min tur!', 'Allt jag rör vid blir till guld!'], gem: ['Ännu mer glans! Underbart.', 'Guld och ädelstenar, perfekt!'],
+      star: ['[excited] Diamanten och guldet, äntligen tillsammans!'], thief: ['Ingen tar guldet ifrån mig! Eller jo, visst.'], trap: ['Även guld kan fastna ibland.'],
+      blank: ['Inget guld här.'], win: ['[laughs] Guld är guld, och jag vann!'], fly: ['Ett gyllene flyg!'], boat: ['Guld flyter inte, men båten gör det!']
+    }
+  };
+  const plain = s => String(s || '').replace(/\[[^\]]*\]\s*/g, '').trim();
+  // En inspelad replik för pjäsen, eller null (egna ritade pjäser och sådant som inte är inspelat)
+  N.bark = (p, event) => {
+    const id = p && p.piece && p.piece.type === 'char' ? p.piece.id : null, set = id && N.BARKS[id] && N.BARKS[id][event];
+    if (!set) return null;
+    const sc = 'char:' + id, rec = set.map(plain).filter(t => Voice.has(t, sc));
+    return rec.length ? {text: pick(rec), scope: sc} : null;
+  };
+  N.barkPlain = plain;
   N.all = () => {
-    const texts = [...N.misc, ...CHARACTERS.flatMap(c => N.turn({piece: {type: 'char', id: c.id}})), ...N.turn(null)];
-    MAP_ORDER.forEach(id => texts.push(...N.forBoard(buildBoardCached(id))));
-    Challenges.list().forEach(ch => { if (MAPS[ch.map]) texts.push(`${MAPS[ch.map].name}! ${ch.name}. ${ch.text}`); });
-    const seen = new Set();
-    return texts.filter(t => t && !seen.has(Voice.key(t)) && seen.add(Voice.key(t))).map(t => ({key: Voice.key(t), text: Voice.norm(t), spoken: Sound.spokenText(t)}));
+    const out = [], seen = new Set();
+    const add = (t, scope, spoken) => {
+      if (!t) return;
+      const key = Voice.keyIn(t, scope);
+      if (seen.has(key)) return;
+      seen.add(key);
+      out.push({key, text: Voice.norm(t), spoken: spoken || Sound.spokenText(t), scope: scope || null});
+    };
+    const generic = [...N.misc, ...CHARACTERS.flatMap(c => N.turn({piece: {type: 'char', id: c.id}})), ...N.turn(null)];
+    generic.forEach(t => add(t));
+    // Varje karta, i sin egen röstlåda om den har en egen berättare (då även det allmänna)
+    MAP_ORDER.forEach(id => { const sc = Voice.scopeFor(id); N.forBoard(buildBoardCached(id)).forEach(t => add(t, sc)); if (sc) generic.forEach(t => add(t, sc)); });
+    Challenges.list().forEach(ch => { if (MAPS[ch.map]) add(`${MAPS[ch.map].name}! ${ch.name}. ${ch.text}`, Voice.scopeFor(ch.map)); });
+    // Pjäsernas egna repliker
+    Object.entries(N.BARKS).forEach(([id, evs]) => Object.values(evs).flat().forEach(line => add(plain(line), 'char:' + id, line)));
+    return out;
   };
   return N;
 })();
 
 /* ---- 11-main.js ---- */
 /* ================= Start: laddning, knappar och tangentbord ================= */
-const VERSION = '3.14';
+const VERSION = '3.15';
 // Visas en gång efter en uppdatering, och alltid under "Nytt i spelet" på startsidan
 const NEWS = [
-  ['voice', 'En riktig berättare', 'En svensk berättare läser upp fakta om alla städer, korten, brickorna och vinsten. Slå på Läs upp vad som händer under Inställningar om den är avstängd.'],
-  ['sound', 'Riktiga ljud', 'Tärningen, mynten, ädelstenarna, rövaren, båten och flyget låter på riktigt.'],
+  ['voice', 'Pjäserna pratar', 'Varje pjäs har en egen röst: Kaptenen ropar ahoj, Roboten piper och Vikingen skrattar när de hittar skatter, blir rånade eller vinner.'],
+  ['map', 'Skånsk berättare', 'På Skånekartan berättar Martin på skånska, och fakta om Skånes städer läses på skånska även i passet.'],
+  ['sound', 'En riktig berättare', 'En svensk berättare läser upp fakta om alla städer, korten, brickorna och vinsten. Slå på Läs upp vad som händer under Inställningar om den är avstängd.'],
   ['family', 'Egen profil', 'Tryck på ett namn under Familjen: märken, passet för varje karta, rekord och tillbehör.'],
-  ['play', 'Fortsätt och paus', 'Fortsätt-knappen visar kartan, rundan och pjäserna, och pausen visar ställningen.'],
   ['phone', 'Gå med med ett tryck', 'Mobilerna visar familjens namn. Tryck på ditt namn så är du med, med din pjäs och dina frågor.']
 ];
 const LOAD_TEXTS = ['Packar resväskan …', 'Vecklar ut kartan …', 'Putsar diamanten …', 'Stämmer kalimban …', 'Planterar träd …', 'Väcker trollen …'];
@@ -12187,6 +12286,7 @@ function ensureMap(board, preview) {
 
 function toTitle() {
   Game.clear();
+  Voice.setScope(null);
   document.querySelectorAll('.modal').forEach(m => { m.hidden = true; });
   document.body.classList.remove('table-mode');
   $('scrGame').append($('dock'));
