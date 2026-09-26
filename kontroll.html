@@ -308,6 +308,44 @@ html,body{background:radial-gradient(120% 70% at 50% 0%,#23525e 0%,#0c242c 55%,#
 .fam-av img{width:94%;height:94%;object-fit:contain}
 .fam-or{margin:4px 0 0;display:flex;align-items:center;gap:10px;font-weight:800;font-size:14px;color:var(--ink-soft)}
 .fam-or::before,.fam-or::after{content:"";flex:1;height:2px;background:rgba(29,43,51,.15);border-radius:2px}
+
+/* På distans (3.17): kartan stor, det som händer och ljudet i den här enheten */
+.feed .feed-head{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.feed .toggle.small{padding:6px 10px;font-size:13px;min-height:0}
+.feed-list{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.feed-list li{padding:7px 10px 7px 13px;border-radius:10px;background:#fff;box-shadow:inset 5px 0 0 var(--pc),0 0 0 1.5px rgba(29,43,51,.18);font-weight:800;font-size:15px;line-height:1.35}
+.feed-list li.empty{box-shadow:none;background:transparent;color:var(--ink-soft);font-weight:700;padding-left:0}
+.feed-list li.new{animation:feedIn .35s ease-out}
+.feed-list li:nth-child(n+4){opacity:.72}
+@keyframes feedIn{from{transform:translateY(-6px);opacity:0}}
+.lm-tok{opacity:.95}
+.far-inv{align-self:center}
+@media (min-width:900px){
+  body.far #app{max-width:1240px}
+  body.far #vGame{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(340px,1fr);column-gap:18px;row-gap:10px;align-items:start;align-content:start}
+  body.far #vGame > *{grid-column:2}
+  body.far #vGame > #farMap{grid-column:1;grid-row:1 / span 30;position:sticky;top:10px}
+  body.far #farMap .livemap{max-height:calc(100dvh - 150px)}
+}
+
+/* Pjäsens röst i mobilen (3.17) */
+.d-voice{display:grid;gap:8px}
+.dv-row{display:grid;grid-template-columns:52px minmax(0,1fr) 42px 42px;gap:10px;align-items:center;padding:8px 10px 8px 8px;border-radius:16px;background:#fff;box-shadow:0 0 0 2.5px var(--line),0 3px 0 2.5px var(--line)}
+.dv-row.rec{background:#fff1ee}
+.dv-rec{width:52px;height:52px;border-radius:50%;border:0;display:grid;place-items:center;color:#fff;padding:0;background:radial-gradient(circle at 35% 30%,#ff9b8f,#e5484d 55%,#a8242a);box-shadow:0 0 0 2.5px var(--line),0 3px 0 2.5px var(--line)}
+.dv-rec svg{width:26px;height:26px}
+.dv-rec:disabled{opacity:.4}
+.dv-rec.on{animation:dvpulse 1s ease-in-out infinite}
+@keyframes dvpulse{50%{box-shadow:0 0 0 2.5px var(--line),0 3px 0 2.5px var(--line),0 0 0 10px rgba(229,72,77,.22)}}
+.dv-txt{min-width:0}
+.dv-txt b{display:block;font-family:var(--display);font-weight:400;font-size:18px;line-height:1.1}
+.dv-txt span{display:block;font-size:13px;font-weight:700;color:var(--ink-soft);line-height:1.3}
+.dv-row.has .dv-txt b::after{content:" \2713";color:var(--leaf)}
+.dv-btn{width:42px;height:42px;border-radius:50%;border:0;background:#fff;display:grid;place-items:center;padding:0;color:var(--ink);box-shadow:0 0 0 2.5px var(--line),0 2px 0 2.5px var(--line)}
+.dv-btn svg{width:20px;height:20px}
+.dv-btn:disabled{opacity:.3}
+.dv-meter{height:8px;border-radius:4px;background:rgba(29,43,51,.14);overflow:hidden;margin-top:5px}
+.dv-meter i{display:block;height:100%;background:linear-gradient(90deg,var(--leaf),var(--sun),var(--coral));transform-origin:left;transform:scaleX(0)}
 </style>
 </head>
 <body>
@@ -368,6 +406,8 @@ html,body{background:radial-gradient(120% 70% at 50% 0%,#23525e 0%,#0c242c 55%,#
       <div class="seg" id="quizSeg" role="group" aria-label="Frågor"><button type="button" data-v="easy">Lätta frågor</button><button type="button" data-v="hard">Svåra frågor</button></div>
       <h2>Uppläsning</h2>
       <div class="toggles"><button type="button" class="toggle" id="readToggle" aria-pressed="false">Läs upp allt för mig</button></div>
+      <h2>Var är du?</h2>
+      <div class="toggles"><button type="button" class="toggle" id="farToggle" aria-pressed="false">Jag är inte i samma rum och vill höra berättaren här</button></div>
       <button id="bDrawOpen" class="btn blue wide" type="button">Rita eller fota en egen pjäs</button>
       <button id="bJoin" class="btn big primary wide" type="button">Gå med!</button>
       <p class="err" id="joinErr"></p>
@@ -394,6 +434,9 @@ html,body{background:radial-gradient(120% 70% at 50% 0%,#23525e 0%,#0c242c 55%,#
       <label class="btn small file-btn">Fota en teckning<input type="file" id="dPhoto" accept="image/*" capture="environment"></label>
       <h2>Färg på foten</h2>
       <div class="d-colors" id="dBase"></div>
+      <h2>Pjäsens röst</h2>
+      <p class="sub">Om du vill: spela in vad pjäsen säger i spelet. Tryck på mikrofonen, prata och tryck igen.</p>
+      <div class="d-voice" id="dVoice"></div>
       <p class="err" id="drawErr"></p>
       <button id="dDone" class="btn big primary wide" type="button">Använd pjäsen!</button>
       <button id="dCancel" class="btn wide" type="button">Tillbaka</button>
@@ -414,6 +457,7 @@ html,body{background:radial-gradient(120% 70% at 50% 0%,#23525e 0%,#0c242c 55%,#
       </div>
       <p id="lobbyWait" class="note"></p>
       <button id="bEdit" class="btn small" type="button">Byt namn eller pjäs</button>
+      <button id="bFarInvite" class="btn small far-inv" type="button">Bjud in någon som inte är här</button>
     </section>
 
     <section id="vClaim" class="view" hidden>
@@ -438,6 +482,8 @@ html,body{background:radial-gradient(120% 70% at 50% 0%,#23525e 0%,#0c242c 55%,#
       <div class="turn" id="gTurn"></div>
       <div class="talk"><p class="prompt" id="gPrompt"></p><p class="sub" id="gSub"></p></div>
       <div class="panel" id="gPanel" hidden></div>
+      <div class="box livemap-box far-map" id="farMap" hidden></div>
+      <div class="box feed" id="feedBox" hidden></div>
       <div class="idle" id="gIdle">
         <div class="box tipbox" id="tipBox" hidden></div>
         <div class="box mission" id="missionBox" hidden></div>
@@ -1098,6 +1144,107 @@ const Cutout = (() => {
 })();
 </script>
 <script>
+/* ================= Inspelning med mikrofonen (delas med mobilsidan) ================= */
+// Spelar in en kort replik, klipper bort tystnaden i början och slutet, jämnar ut nivån (starkaste 50 ms mot -14 dB, toppen
+// högst -1 dB) och gör en liten WAV-fil (22 kHz, mono) som data-URL. Används av Pjäsverkstaden och av mobilsidan.
+const Recorder = (() => {
+  const R = {};
+  R.MAX_MS = 4000;
+  const MAX_MS = R.MAX_MS;
+  R.supported = () => !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia && window.MediaRecorder);
+  // Mikrofonen är på bara medan man spelar in. iPhone och iPad spelar annars upp ljudet tyst i luren, så ljudsessionen
+  // ställs om medan mikrofonen används och tillbaka efteråt.
+  let stream = null, session = null;
+  async function mic() {
+    if (stream && stream.getTracks().some(t => t.readyState === 'live')) return stream;
+    try { if (navigator.audioSession && navigator.audioSession.type !== 'play-and-record') { session = navigator.audioSession.type; navigator.audioSession.type = 'play-and-record'; } } catch (e) { /* stöds inte */ }
+    try { stream = await navigator.mediaDevices.getUserMedia({audio: {echoCancellation: true, noiseSuppression: true, autoGainControl: true}}); }
+    catch (e) { micOff(); throw e; }
+    return stream;
+  }
+  function micOff() {
+    if (stream) stream.getTracks().forEach(t => t.stop());
+    stream = null;
+    try { if (session != null && navigator.audioSession) navigator.audioSession.type = session; } catch (e) { /* stöds inte */ }
+    session = null;
+  }
+  // ctx: ljudmotorn (för nivåmätaren och avkodningen), eller null
+  async function start(ctx) {
+    const s = await mic();
+    const type = ['audio/webm;codecs=opus', 'audio/mp4', 'audio/webm', 'audio/ogg;codecs=opus'].find(t => MediaRecorder.isTypeSupported && MediaRecorder.isTypeSupported(t));
+    const mr = new MediaRecorder(s, type ? {mimeType: type} : undefined), chunks = [];
+    mr.ondataavailable = e => { if (e.data && e.data.size) chunks.push(e.data); };
+    const stopped = new Promise(res => { mr.onstop = () => res(new Blob(chunks, {type: mr.mimeType || type || 'audio/webm'})); });
+    mr.start(100);
+    // Nivåmätaren medan man pratar (ljudet går till en tyst utgång, så att det inte hörs i högtalarna)
+    let an = null, src = null, sink = null, buf = null;
+    if (ctx) {
+      try {
+        src = ctx.createMediaStreamSource(s); an = ctx.createAnalyser(); an.fftSize = 1024; sink = ctx.createGain(); sink.gain.value = 0;
+        src.connect(an); an.connect(sink); sink.connect(ctx.destination); buf = new Float32Array(an.fftSize);
+      } catch (e) { an = null; }
+    }
+    return {
+      level() { if (!an) return 0; an.getFloatTimeDomainData(buf); let q = 0; for (let i = 0; i < buf.length; i++) q += buf[i] * buf[i]; return Math.sqrt(q / buf.length); },
+      async stop() {
+        try { if (mr.state !== 'inactive') mr.stop(); } catch (e) { /* redan stoppad */ }
+        const blob = await stopped;
+        [src, an, sink].forEach(n => { try { if (n) n.disconnect(); } catch (e) { /* frikopplad */ } });
+        micOff();
+        return clean(blob, ctx);
+      }
+    };
+  }
+  async function clean(blob, ctx) {
+    ctx = ctx || new (window.AudioContext || window.webkitAudioContext)();
+    const ab = await blob.arrayBuffer();
+    const buf = await new Promise((res, rej) => { const p = ctx.decodeAudioData(ab, res, rej); if (p && p.then) p.then(res, rej); });
+    const n = buf.length, sr = buf.sampleRate, d = new Float32Array(n);
+    for (let c = 0; c < buf.numberOfChannels; c++) { const x = buf.getChannelData(c); for (let i = 0; i < n; i++) d[i] += x[i] / buf.numberOfChannels; }
+    let peak = 0;
+    for (let i = 0; i < n; i++) { const v = Math.abs(d[i]); if (v > peak) peak = v; }
+    if (peak < .02) return null;   // inget hördes
+    const w = Math.max(1, Math.floor(sr / 100)), th = Math.max(.01, peak * .08);
+    const loud = s => { for (let i = s, e = Math.min(n, s + w); i < e; i++) if (Math.abs(d[i]) > th) return true; return false; };
+    let a = 0, b = n;
+    while (a < n && !loud(a)) a += w;
+    while (b > a && !loud(Math.max(0, b - w))) b -= w;
+    a = Math.max(0, a - w * 6);
+    b = Math.min(n, b + w * 15, a + Math.floor(sr * MAX_MS / 1000));
+    if (b - a < sr * .15) return null;
+    const w50 = Math.floor(sr / 20);
+    let best = 0, q = 0, pk = 0;
+    for (let i = a; i < b; i++) { q += d[i] * d[i]; if (i - a >= w50) q -= d[i - w50] * d[i - w50]; if (q > best) best = q; pk = Math.max(pk, Math.abs(d[i])); }
+    const rms = Math.sqrt(Math.max(0, best) / Math.min(w50, b - a)), gain = Math.min(.2 / Math.max(rms, 1e-4), .89 / pk, 16);
+    // Ner till 22 050 Hz med webbläsarens egen omräkning (räcker gott för en röst och blir en liten fil)
+    const OUT = 22050, len = Math.max(1, Math.ceil((b - a) * OUT / sr));
+    const off = new (window.OfflineAudioContext || window.webkitOfflineAudioContext)(1, len, OUT);
+    const seg = off.createBuffer(1, b - a, sr);
+    seg.getChannelData(0).set(d.subarray(a, b));
+    const s = off.createBufferSource(), g = off.createGain();
+    s.buffer = seg; g.gain.value = gain; s.connect(g); g.connect(off.destination); s.start();
+    const out = await new Promise((res, rej) => { const p = off.startRendering(); if (p && p.then) p.then(res, rej); else off.oncomplete = e => res(e.renderedBuffer); });
+    return wav(out.getChannelData(0), OUT);
+  }
+  function wav(x, sr) {
+    const n = x.length, fi = Math.floor(sr * .008), fo = Math.floor(sr * .03);
+    const ab = new ArrayBuffer(44 + n * 2), v = new DataView(ab);
+    const str = (o, s) => { for (let i = 0; i < s.length; i++) v.setUint8(o + i, s.charCodeAt(i)); };
+    str(0, 'RIFF'); v.setUint32(4, 36 + n * 2, true); str(8, 'WAVE'); str(12, 'fmt '); v.setUint32(16, 16, true); v.setUint16(20, 1, true); v.setUint16(22, 1, true);
+    v.setUint32(24, sr, true); v.setUint32(28, sr * 2, true); v.setUint16(32, 2, true); v.setUint16(34, 16, true); str(36, 'data'); v.setUint32(40, n * 2, true);
+    for (let i = 0; i < n; i++) { const f = Math.min(1, i / fi, (n - 1 - i) / fo); v.setInt16(44 + i * 2, Math.round(Math.max(-1, Math.min(1, x[i] * f)) * 32767), true); }
+    const u = new Uint8Array(ab);
+    let s = '';
+    for (let i = 0; i < u.length; i += 32768) s += String.fromCharCode.apply(null, u.subarray(i, i + 32768));
+    return 'data:audio/wav;base64,' + btoa(s);
+  }
+
+  R.start = start;
+  R.off = micOff;
+  return R;
+})();
+</script>
+<script>
 /* ================= Diamantjakten i mobilen: tärning, val, frågor och hemligheter ================= */
 // Mobilen ansluter till skärmen med brädet (TV, platta eller dator) med koden i QR-koden.
 (() => {
@@ -1132,12 +1279,17 @@ const Cutout = (() => {
   let peer = null, conn = null, connected = false, retryT = 0, openT = 0, lastMsg = 0;
   let st = null, offer = null, thumbs = {}, known = [], stamps = [], profile = store.get('profile', {name: '', piece: null, quiz: 'easy'}), boardMap = null;
   let tip = null, tipTimer = 0, pendingAcc, postcard = null;
+  // På distans: länken har ?distans, eller så har man valt det själv
+  let far = /[?&]distans\b/.test(location.search) || !!store.get('far', false), farMuted = !!store.get('farMuted', false);
+  document.body.classList.toggle('far', far);
   let editing = false, joinedOnce = false, dieBusy = false, armed = null, selected = null, quizPicked = null, bidTimer = 0, pendingPiece = null, pendingQuiz = null, pendingName = null;
 
   // Adressen kan ha en TURN-server efter ~ (om värden har en inställd)
   let turn = null;
   try { const t = location.hash.split('~')[1]; if (t) turn = JSON.parse(decodeURIComponent(escape(atob(t)))); } catch (e) { turn = null; }
-  const iceServers = () => [{urls: 'stun:stun.l.google.com:19302'}, {urls: 'stun:stun.cloudflare.com:3478'}].concat(turn && turn.url ? [{urls: turn.url, username: turn.user || undefined, credential: turn.pass || undefined}] : []);
+  // PeerJS egna TURN-servrar skickar vidare när en direkt anslutning inte går (till exempel på distans via mobilnätet)
+  const PEER_TURN = {urls: ['turn:eu-0.turn.peerjs.com:3478', 'turn:us-0.turn.peerjs.com:3478'], username: 'peerjs', credential: 'peerjsp'};
+  const iceServers = () => [{urls: 'stun:stun.l.google.com:19302'}, {urls: 'stun:stun.cloudflare.com:3478'}, PEER_TURN].concat(turn && turn.url ? [{urls: turn.url, username: turn.user || undefined, credential: turn.pass || undefined}] : []);
   function parseCode() {
     const m = (location.hash.slice(1).split('~')[0] || new URLSearchParams(location.search).get('kod') || store.get('code') || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
     return m.length >= 4 ? m.slice(0, 8) : null;
@@ -1178,14 +1330,14 @@ const Cutout = (() => {
     const c = peer.connect(PREFIX + code, {reliable: true});
     conn = c;
     clearTimeout(openT);
-    openT = setTimeout(() => { if (conn === c && !connected) { setConn('off', 'Får ingen kontakt. Är mobilen på samma wifi som den stora skärmen?'); try { c.close(); } catch (e) { /* stängd */ } retry(2500); } }, 14000);
+    openT = setTimeout(() => { if (conn === c && !connected) { setConn('off', far ? 'Får ingen kontakt än. Kontrollera internet, jag försöker igen …' : 'Får ingen kontakt. Är mobilen på samma wifi som den stora skärmen?'); try { c.close(); } catch (e) { /* stängd */ } retry(2500); } }, far ? 20000 : 14000);
     c.on('open', () => {
       if (conn !== c) return;
       clearTimeout(openT);
       connected = true; lastMsg = Date.now();
       store.set('code', code);
       setConn('on');
-      c.send({t: 'hello', dev});
+      c.send({t: 'hello', dev, far});
     });
     c.on('data', m => { if (conn === c) { lastMsg = Date.now(); onMsg(m); } });
     c.on('close', () => { if (conn !== c) return; connected = false; setConn('off', 'Tappade kontakten, ansluter igen …'); retry(1200); });
@@ -1231,10 +1383,13 @@ const Cutout = (() => {
         }
         break;
       case 'event': onEvent(m); break;
+      case 'say': farStats.say++; farVoice(m.clips, m.text); break;
+      case 'sfx': farStats.sfx++; farSfx(m.name); break;
+      case 'feed': addFeed(m.text, m.color); break;
       case 'error': toast(m.text); $('joinErr').textContent = m.text; $('drawErr').textContent = m.text; $('dDone').disabled = false; break;
       case 'drawnOk':
         // Pjäsen är redan vald åt spelaren på den stora skärmen
-        drawing = false; editing = false; pendingPiece = null; $('dDone').disabled = false;
+        drawing = false; editing = false; pendingPiece = null; $('dDone').disabled = false; dVoice = {};
         profile.piece = pieceRef(m.key); store.set('profile', profile);
         toast('Din pjäs är klar!', 'Den finns nu på den stora skärmen.'); render(); break;
       case 'kicked': toast(m.text || 'Du är inte med i spelet längre.'); editing = false; break;
@@ -1614,14 +1769,79 @@ const Cutout = (() => {
     const eyes = dEyes.map(e => ({x: (e.x * cv.width - (b.x0 - pad)) / w, y: (e.y * cv.height - (b.y0 - pad)) / hh, r: e.r * cv.width / w}));
     return {data: fin.toDataURL('image/png'), eyes};
   }
-  $('bDrawOpen').onclick = () => { drawing = true; $('drawErr').textContent = ''; drawUI(); setCut(cutTool); show('vDraw'); tap(); };
-  $('dCancel').onclick = () => { drawing = false; render(); };
+  $('bDrawOpen').onclick = () => { drawing = true; $('drawErr').textContent = ''; drawUI(); setCut(cutTool); renderVoice(); show('vDraw'); tap(); };
+  $('dCancel').onclick = () => { stopVoice(true); if (typeof Recorder !== 'undefined') Recorder.off(); drawing = false; render(); };
   $('dDone').onclick = () => {
     const s = sticker();
     if (!s) { $('drawErr').textContent = 'Rita något först!'; return; }
+    stopVoice(true);
+    if (typeof Recorder !== 'undefined') Recorder.off();
     $('dDone').disabled = true;
-    send({t: 'drawn', data: s.data, eyes: s.eyes, name: ($('nameInput').value.trim() || profile.name || 'Min figur').slice(0, 14), color: dBase});
+    send({t: 'drawn', data: s.data, eyes: s.eyes, name: ($('nameInput').value.trim() || profile.name || 'Min figur').slice(0, 14), color: dBase, voice: Object.keys(dVoice).length ? dVoice : null});
   };
+
+  /* ---------- Pjäsens röst: spelas in i mobilen och följer med pjäsen till den stora skärmen ---------- */
+  const VOICE_SLOTS = [{k: 'turn', label: 'Min tur', hint: 'Till exempel: Nu kör jag!'}, {k: 'good', label: 'En skatt', hint: 'Till exempel: Jippi, en skatt!'},
+    {k: 'sad', label: 'Otur', hint: 'Till exempel: Åh nej!'}, {k: 'win', label: 'Vinst', hint: 'Till exempel: Jag vann!'}];
+  const SVG = p => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">${p}</svg>`;
+  const MIC = SVG('<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0013 0M12 17.5V21M9 21h6"/>'), STOP = SVG('<rect x="7" y="7" width="10" height="10" rx="2" fill="currentColor"/>');
+  const PLAY = SVG('<path d="M8 5l11 7-11 7z" fill="currentColor"/>'), TRASH = SVG('<path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/>');
+  let dVoice = {}, vRec = null, vRecK = null, vBusyK = null, vRaf = 0;
+  function renderVoice() {
+    const box = $('dVoice');
+    box.innerHTML = '';
+    if (typeof Recorder === 'undefined' || !Recorder.supported()) { box.append(h('p', {class: 'sub', text: 'Den här webbläsaren kan inte spela in ljud.'})); return; }
+    VOICE_SLOTS.forEach(s => {
+      const has = !!dVoice[s.k], on = vRecK === s.k, busy = vBusyK === s.k;
+      const rec = h('button', {class: 'dv-rec' + (on ? ' on' : ''), type: 'button', disabled: busy || (!!vRecK && !on), 'aria-label': on ? 'Stoppa inspelningen' : 'Spela in: ' + s.label, html: on ? STOP : MIC});
+      rec.onclick = () => { tap(); if (on) stopVoice(); else startVoice(s.k); };
+      const play = h('button', {class: 'dv-btn', type: 'button', 'aria-label': 'Lyssna', html: PLAY, disabled: !has || on || busy});
+      play.onclick = () => { tap(); playClip(dVoice[s.k]); };
+      const del = h('button', {class: 'dv-btn', type: 'button', 'aria-label': 'Ta bort inspelningen', html: TRASH, disabled: !has || on || busy});
+      del.onclick = () => { tap(); delete dVoice[s.k]; renderVoice(); };
+      const txt = h('div', {class: 'dv-txt'}, h('b', {text: s.label}), h('span', {text: on ? 'Prata nu … tryck igen när du är klar.' : busy ? 'Gör i ordning ljudet …' : has ? 'Inspelad! Tryck på mikrofonen för att göra om.' : s.hint}));
+      if (on) txt.append(h('div', {class: 'dv-meter'}, h('i')));
+      box.append(h('div', {class: 'dv-row' + (has ? ' has' : '') + (on ? ' rec' : ''), 'data-k': s.k}, rec, txt, play, del));
+    });
+  }
+  function playClip(url) {
+    unlockAudio();
+    if (!actx || !url) return;
+    fetch(url).then(r => r.arrayBuffer()).then(b => new Promise((res, rej) => { const q = actx.decodeAudioData(b, res, rej); if (q && q.then) q.then(res, rej); }))
+      .then(buf => { const s = actx.createBufferSource(); s.buffer = buf; s.connect(actx.destination); s.start(); }).catch(() => { /* inget ljud */ });
+  }
+  async function startVoice(k) {
+    $('drawErr').textContent = '';
+    unlockAudio();
+    try { vRec = await Recorder.start(actx); }
+    catch (e) { $('drawErr').textContent = e && (e.name === 'NotAllowedError' || e.name === 'SecurityError') ? 'Mikrofonen är inte tillåten. Tillåt mikrofonen för sidan och försök igen.' : 'Hittar ingen mikrofon.'; return; }
+    vRecK = k;
+    renderVoice();
+    const t0 = performance.now();
+    const tick = () => {
+      if (!vRec || vRecK !== k) return;
+      const bar = document.querySelector(`#dVoice .dv-row[data-k="${k}"] .dv-meter i`);
+      if (bar) bar.style.transform = `scaleX(${Math.min(1, vRec.level() * 7).toFixed(3)})`;
+      if (performance.now() - t0 >= Recorder.MAX_MS) { stopVoice(); return; }
+      vRaf = requestAnimationFrame(tick);
+    };
+    vRaf = requestAnimationFrame(tick);
+  }
+  async function stopVoice(discard) {
+    cancelAnimationFrame(vRaf);
+    const r = vRec, k = vRecK;
+    vRec = null; vRecK = null;
+    if (!r) return;
+    if (discard) { r.stop().catch(() => {}); return; }
+    vBusyK = k;
+    renderVoice();
+    let url = null;
+    try { url = await r.stop(); } catch (e) { url = null; }
+    vBusyK = null;
+    if (url) { dVoice[k] = url; playClip(url); }
+    else $('drawErr').textContent = 'Det hördes inget. Prata lite närmare mikrofonen och försök igen.';
+    renderVoice();
+  }
 
   /* ---------- Lobbyn ---------- */
   function renderLobby(lob, mine) {
@@ -1673,6 +1893,7 @@ const Cutout = (() => {
 
   /* ---------- Under spelet ---------- */
   function renderGame(g) {
+    renderFeed();
     const turn = g.players[g.turn], mine = g.turn === g.me;
     const t = $('gTurn');
     t.innerHTML = '';
@@ -1769,9 +1990,11 @@ const Cutout = (() => {
   $('bFan').onclick = () => { tap(); becomeFan($('nameInput').value || profile.name); };
   $('bFanClaim').onclick = () => { tap(); becomeFan($('fanNameInput').value); };
   $('bUnfan').onclick = () => { tap(); send({t: 'unfan'}); };
-  // Hela kartan med alla pjäser, för hejarklacken och den som vill se var alla är
+  // Hela kartan med alla pjäser och brickorna som är kvar, för hejarklacken och den som vill se var alla är.
+  // På distans ligger kartan överst (bredvid allt annat på en platta eller dator).
   function renderLive(g) {
-    const box = $('liveMap');
+    const box = far ? $('farMap') : $('liveMap');
+    (far ? $('liveMap') : $('farMap')).hidden = true;
     if (!boardMap || !g.players.every(p => p.pos)) { box.hidden = true; return; }
     box.hidden = false;
     const W = boardMap.W, H = boardMap.H, R = Math.max(W, H) / 70;
@@ -1784,14 +2007,127 @@ const Cutout = (() => {
       svg.append(sv('image', {href: boardMap.src, x: 0, y: 0, width: W, height: H, preserveAspectRatio: 'none'}), sv('g', {class: 'lm-dots'}));
       box.append(svg);
     }
-    const dots = svg.querySelector('.lm-dots'), at = {};
+    const dots = svg.querySelector('.lm-dots'), at = {}, defs = sv('defs', {});
     dots.innerHTML = '';
+    dots.append(defs);
+    // Brickorna som inte är vända: en röd bricka med frågetecken snett ovanför staden
+    (g.tokens || []).forEach(([x, y]) => {
+      const tx = x + R * .8, ty = y - R * .8;
+      dots.append(sv('circle', {cx: tx, cy: ty, r: R * .62, fill: '#c8413a', stroke: '#fff', 'stroke-width': R * .16, class: 'lm-tok'}));
+      const q = sv('text', {x: tx, y: ty + R * .33, 'text-anchor': 'middle', 'font-size': R * .95, 'font-weight': 900, fill: '#fff', 'font-family': 'Nunito, Arial, sans-serif'});
+      q.textContent = '?';
+      dots.append(q);
+    });
     g.players.forEach(p => {
-      const key = p.pos.join(','), k = at[key] = (at[key] || 0) + 1, x = p.pos[0] + (k - 1) * R * 1.3, y = p.pos[1];
-      if (p.i === g.turn) dots.append(sv('circle', {cx: x, cy: y, r: R * 2, fill: 'none', stroke: '#fff', 'stroke-width': R * .4, class: 'lm-ring'}));
-      dots.append(sv('circle', {cx: x, cy: y, r: R, fill: p.color, stroke: '#1d2b33', 'stroke-width': R * .3}));
+      const key = p.pos.join(','), k = at[key] = (at[key] || 0) + 1, x = p.pos[0] + (k - 1) * R * 1.8, y = p.pos[1], r = R * 1.25;
+      if (p.i === g.turn) dots.append(sv('circle', {cx: x, cy: y, r: R * 2.1, fill: 'none', stroke: '#fff', 'stroke-width': R * .4, class: 'lm-ring'}));
+      dots.append(sv('circle', {cx: x, cy: y, r, fill: p.color, stroke: '#1d2b33', 'stroke-width': R * .3}));
+      // Pjäsens bild i pricken
+      const src = thumbs['player:' + p.i];
+      if (src) {
+        const id = 'lmc' + p.i;
+        const cp = sv('clipPath', {id});
+        cp.append(sv('circle', {cx: x, cy: y, r: r * .82}));
+        defs.append(cp);
+        dots.append(sv('image', {href: src, x: x - r * .82, y: y - r * .82, width: r * 1.64, height: r * 1.64, 'clip-path': `url(#${id})`, preserveAspectRatio: 'xMidYMid slice'}));
+      }
     });
   }
+
+  /* ---------- På distans: berättaren, ljuden och det som händer ---------- */
+  // Den som inte är i samma rum hör samma inspelade berättare och ljudeffekter som den stora skärmen (filerna ligger bredvid
+  // sidan, i voice/ och sfx/) och ser det som skrivs på skärmen i en lista.
+  const bufs = new Map();
+  function audioBuf(url) {
+    if (!actx) return Promise.reject(new Error('inget ljud'));
+    if (bufs.has(url)) return bufs.get(url);
+    const p = fetch(url).then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.arrayBuffer(); })
+      .then(b => new Promise((res, rej) => { const q = actx.decodeAudioData(b, res, rej); if (q && q.then) q.then(res, rej); }));
+    if (!/^data:/.test(url)) { bufs.set(url, p); p.catch(() => bufs.delete(url)); }
+    return p;
+  }
+  let vGen = 0, vSrc = null;
+  const farStats = {say: 0, sfx: 0, played: 0};
+  function farVoice(clips, text) {
+    if (!far || farMuted) return;
+    const gen = ++vGen;
+    if (vSrc) { try { vSrc.stop(); } catch (e) { /* redan slut */ } vSrc = null; }
+    if (!clips || !clips.length) { if (text) speak(text, true); return; }
+    try { if (canSpeak) speechSynthesis.cancel(); } catch (e) { /* ingen uppläsning */ }
+    unlockAudio();
+    const next = async i => {
+      if (gen !== vGen || i >= clips.length) return;
+      const c = clips[i];
+      try {
+        const buf = await audioBuf(c.url || 'voice/' + c.k + '.mp3');
+        if (gen !== vGen) return;
+        const s = actx.createBufferSource(), g = actx.createGain();
+        s.buffer = buf; g.gain.value = Math.pow(10, (+c.db || 0) / 20);
+        s.connect(g); g.connect(actx.destination);
+        s.onended = () => { if (vSrc === s) { vSrc = null; next(i + 1); } };
+        vSrc = s; s.start(); farStats.played++;
+      } catch (e) { next(i + 1); }
+    };
+    next(0);
+  }
+  // Ljudeffekterna jämnas ut som på den stora skärmen (de starkaste 50 ms mot samma nivå) och blandas med samma styrka
+  const SFX_GAIN = {dice: .8, coin: .7, pay: .7, gem: 1, star: 1, thief: .9, trap: 1, win: 1, bonus: .9, blank: .85, stamp: .75, boat: .8, plane: .8, turn: .6, flip: .7, pass: .75, splash: .6, thunder: .8};
+  const sfxNorm = new Map();
+  function normOf(buf) {
+    const d = buf.getChannelData(0), n = d.length, w = Math.max(1, Math.min(n, Math.floor(buf.sampleRate / 20)));
+    let peak = 0, q = 0, best = 0;
+    for (let i = 0; i < n; i++) { const v = d[i]; if (Math.abs(v) > peak) peak = Math.abs(v); q += v * v; if (i >= w) q -= d[i - w] * d[i - w]; if (q > best) best = q; }
+    return peak < .003 ? 0 : Math.max(.2, Math.min(8, .178 / Math.max(Math.sqrt(Math.max(0, best) / w), 1e-4), .9 / peak));
+  }
+  function farSfx(name) {
+    if (!far || farMuted || !SFX_GAIN[name] || !actx || actx.state !== 'running') return;
+    audioBuf('sfx/' + name + '.mp3').then(buf => {
+      if (!sfxNorm.has(name)) sfxNorm.set(name, normOf(buf));
+      const s = actx.createBufferSource(), g = actx.createGain();
+      s.buffer = buf; g.gain.value = sfxNorm.get(name) * SFX_GAIN[name] * .8;
+      s.connect(g); g.connect(actx.destination); s.start();
+    }).catch(() => { /* ljudet får vara */ });
+  }
+  const feed = [];
+  function addFeed(text, color) {
+    if (!text) return;
+    feed.unshift({text: String(text), color});
+    feed.length = Math.min(feed.length, 30);
+    renderFeed(true);
+  }
+  function renderFeed(fresh) {
+    const box = $('feedBox');
+    box.hidden = !far || !st || st.phase !== 'game';
+    if (box.hidden) return;
+    box.innerHTML = '';
+    const snd = h('button', {class: 'toggle small', type: 'button', 'aria-pressed': String(!farMuted), text: farMuted ? 'Ljudet är av' : 'Ljudet är på'});
+    snd.onclick = () => { tap(); farMuted = !farMuted; store.set('farMuted', farMuted); unlockAudio(); if (farMuted && vSrc) { try { vSrc.stop(); } catch (e) { /* slut */ } } renderFeed(); };
+    box.append(h('div', {class: 'feed-head'}, h('h3', {text: 'Det här händer'}), snd));
+    const list = h('ol', {class: 'feed-list'});
+    if (!feed.length) list.append(h('li', {class: 'empty', text: 'Här syns det som händer på den stora skärmen.'}));
+    feed.slice(0, 7).forEach((f, i) => list.append(h('li', {class: i === 0 && fresh ? 'new' : '', style: {'--pc': f.color || '#9aa7ad'}, text: f.text})));
+    box.append(list);
+  }
+  function setFar(on) {
+    far = on;
+    store.set('far', on);
+    document.body.classList.toggle('far', on);
+    $('farToggle').setAttribute('aria-pressed', String(on));
+    send({t: 'far', on});
+    if (on) unlockAudio();
+    if (st && st.game) { renderLive(st.game); renderFeed(); }
+  }
+  $('farToggle').onclick = () => { tap(); setFar(!far); };
+  $('farToggle').setAttribute('aria-pressed', String(far));
+  // Bjud in någon som inte är här: länken till samma spel, för distans
+  function farLink() { return location.origin + location.pathname + '?distans#' + code + (location.hash.includes('~') ? '~' + location.hash.split('~')[1] : ''); }
+  $('bFarInvite').onclick = async () => {
+    tap();
+    const url = farLink();
+    if (navigator.share) { try { await navigator.share({title: 'Diamantjakten', text: 'Kom och spela Diamantjakten med oss! Öppna länken så är du med.', url}); return; } catch (e) { if (e && e.name === 'AbortError') return; } }
+    try { await navigator.clipboard.writeText(url); toast('Länken är kopierad!', 'Skicka den till den som ska vara med.'); }
+    catch (e) { toast('Skicka den här länken:', url); }
+  };
 
   /* ---------- Frågor från skärmen ---------- */
   function pickOffer(k, extra) { if (!offer) return; send(Object.assign({t: 'pick', id: offer.id, k}, extra || {})); }
@@ -2181,7 +2517,8 @@ const Cutout = (() => {
     buzz(delta > 0 ? 30 : [60, 40, 60]);
   }
 
-  window.DJC = {state: () => st, offer: () => offer, tip: () => tip, send, dev: () => dev, connected: () => connected, throwDie, pickOffer, map: () => boardMap, offerText, setRead};
+  window.DJC = {state: () => st, offer: () => offer, tip: () => tip, send, dev: () => dev, connected: () => connected, throwDie, pickOffer, map: () => boardMap, offerText, setRead,
+    far: () => far, feed: () => feed, farStats: () => farStats};
   connect();
 })();
 </script>
