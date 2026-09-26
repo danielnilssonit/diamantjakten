@@ -3815,7 +3815,7 @@ const Sound = (() => {
   A.naturalVoice = () => { const v = voiceOf(); return !!(v && NATURAL.test(v.name)); };
   const MOODS = {happy: [1.06, 1.16], sad: [.9, .9], calm: [.97, 1.03], normal: [1.02, 1.08]};
   const spoken = s => String(s || '')
-    .replace(/(\d)\s?kr\b/g, '$1 kronor').replace(/\bkr\b/g, 'kronor')
+    .replace(/(\d)\s?kr\b/g, '$1 kronor').replace(/\bkr\b/g, 'kronor').replace(/\bS:t\s/g, 'Sankt ')
     .replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{2B50}\u{FE0F}]/gu, '')
     .replace(/\s+/g, ' ').trim();
   A.spokenText = s => spoken(s);
@@ -4043,7 +4043,7 @@ const MusicThemes = kit => {
 // heter som "låda|text", och finns den inte i lådan används berättarens vanliga klipp.
 const Voice = (() => {
   const V = {};
-  let index = null, loading = null, cur = null, queue = [], scope = null;
+  let index = null, loading = null, cur = null, queue = [], scope = null, levels = {};
   V.norm = s => String(s || '').replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{2B50}\u{FE0F}]/gu, '').replace(/\s+/g, ' ').trim();
   // FNV-1a på texten, plus längden (så att två olika texter i praktiken aldrig får samma namn)
   V.key = s => {
@@ -4055,8 +4055,12 @@ const Voice = (() => {
   V.keyIn = (text, sc) => sc ? V.key(sc + '|' + V.norm(text)) : V.key(text);
   V.scopeFor = mapId => mapId === 'skane' ? 'skane' : null;
   V.setScope = s => { scope = s || null; };
-  V.load = () => loading || (loading = fetch('voice/index.json').then(r => r.ok ? r.json() : []).then(list => { index = new Set(Array.isArray(list) ? list : []); })
-    .catch(() => { index = new Set(); }));
+  V.load = () => loading || (loading = Promise.all([
+    fetch('voice/index.json').then(r => r.ok ? r.json() : []).then(list => { index = new Set(Array.isArray(list) ? list : []); }).catch(() => { index = new Set(); }),
+    // Nivån per klipp i dB (tools/analyze-voice.mjs), så att berättarna och pjäserna låter lika starka
+    fetch('voice/levels.json').then(r => r.ok ? r.json() : {}).then(l => { if (l && typeof l === 'object' && !Array.isArray(l)) levels = l; }).catch(() => { /* alla klipp som de är */ })
+  ]));
+  V.level = k => +levels[k] || 0;
   V.ready = () => !!index && index.size > 0;
   // Klippet för en text: först i lådan, annars berättarens vanliga (pjäsernas repliker finns bara i deras egna lådor)
   V.find = (text, sc = scope) => {
@@ -4071,13 +4075,25 @@ const Voice = (() => {
   V.busy = () => !!cur;
   V.stop = () => {
     queue = [];
-    if (cur) { const a = cur; cur = null; try { a.pause(); } catch (e) { /* redan stoppad */ } Sound.duck(false); }
+    if (cur) { const a = cur; cur = null; try { a.pause(); } catch (e) { /* redan stoppad */ } release(a); Sound.duck(false); }
   };
+  // Klippets nivå: genom ljudmotorn när den är igång (då kan ett svagt klipp också bli starkare), annars bara volymen (högst 1)
+  function level(a, k) {
+    const db = V.level(k);
+    if (!db) return;
+    const lin = Math.pow(10, db / 20), ctx = Sound.ctx();
+    if (ctx && ctx.state === 'running' && ctx.createMediaElementSource) {
+      try { const src = ctx.createMediaElementSource(a), g = ctx.createGain(); g.gain.value = lin; src.connect(g); g.connect(ctx.destination); a._nodes = [src, g]; return; } catch (e) { /* vanlig uppspelning */ }
+    }
+    try { a.volume = Math.min(1, lin); } catch (e) { /* iPhone bestämmer volymen själv */ }
+  }
+  function release(a) { (a._nodes || []).forEach(n => { try { n.disconnect(); } catch (e) { /* redan frikopplad */ } }); a._nodes = null; }
   function playOne(k, done) {
     const a = new Audio('voice/' + k + '.mp3');
     cur = a;
+    level(a, k);
     Sound.duck(true);
-    const end = () => { if (cur !== a) return; cur = null; if (queue.length) playOne(queue.shift(), done); else { Sound.duck(false); if (done) done(); } };
+    const end = () => { if (cur !== a) return; cur = null; release(a); if (queue.length) playOne(queue.shift(), done); else { Sound.duck(false); if (done) done(); } };
     a.onended = end;
     a.onerror = end;
     a.play().catch(end);
@@ -4098,23 +4114,46 @@ const Voice = (() => {
 
 // Ljudeffekterna som filer (sfx/<namn>.mp3). Första gången en effekt behövs hämtas den, och tills dess hörs det tecknade ljudet.
 const Samples = (() => {
-  const S = {}, bufs = {}, pending = {}, lead = {};
+  const S = {}, bufs = {}, pending = {}, lead = {}, norm = {}, dud = {};
   // Tystnaden i början av ett klipp hoppas över, så att ljudet kommer precis när något händer
-  function firstSound(buf) {
-    const d = buf.getChannelData(0), lim = Math.min(d.length, Math.floor(buf.sampleRate * .4));
-    for (let i = 0; i < lim; i++) if (Math.abs(d[i]) > .02) return Math.max(0, i / buf.sampleRate - .005);
+  function firstSound(buf, peak) {
+    const d = buf.getChannelData(0), lim = Math.min(d.length, Math.floor(buf.sampleRate * .4)), th = Math.max(.004, peak * .08);
+    for (let i = 0; i < lim; i++) if (Math.abs(d[i]) > th) return Math.max(0, i / buf.sampleRate - .005);
     return 0;
   }
+  // Effekterna är inspelade olika starkt (upp till 30 dB isär). Varje effekt mäts när den laddas: toppen och de starkaste
+  // 50 millisekunderna. Sedan jämnas den ut mot samma nivå (utan att toppen slår i taket), och GAIN blandar dem.
+  const TARGET = .178;   // -15 dB för de starkaste 50 ms
+  function levelOf(buf) {
+    const d = buf.getChannelData(0), n = d.length, w = Math.max(1, Math.min(n, Math.floor(buf.sampleRate / 20)));
+    let peak = 0, q = 0, best = 0;
+    for (let i = 0; i < n; i++) {
+      const v = d[i], av = v < 0 ? -v : v;
+      if (av > peak) peak = av;
+      q += v * v;
+      if (i >= w) q -= d[i - w] * d[i - w];
+      if (q > best) best = q;
+    }
+    return {peak, rms: Math.sqrt(Math.max(0, best) / w)};
+  }
   const files = typeof SFX_FILES !== 'undefined' ? SFX_FILES : [];
-  // Lite olika styrka per effekt så att de ligger jämnt mot varandra
-  const GAIN = {click: .55, pop: .6, tick: .5, step: .45, hit: .9, coin: .8, whoosh: .7, turn: .7, thunder: .9, win: .85};
-  S.has = name => files.includes(name + '.mp3');
+  // Blandningen: små ljud i gränssnittet svagt, stora ögonblick (skatten, fällan, vinsten) starkast
+  const GAIN = {click: .35, tick: .4, step: .4, pop: .5, whoosh: .55, hop: .6, turn: .6, photo: .6, splash: .6, coin: .7, pay: .7, flip: .7,
+    hit: .75, stamp: .75, pass: .75, dice: .8, boat: .8, plane: .8, thunder: .8, blank: .85, bonus: .9, thief: .9, trap: 1, gem: 1, star: 1, win: 1};
+  S.has = name => files.includes(name + '.mp3') && !dud[name];
+  S.gain = name => (norm[name] || 1) * (GAIN[name] || .8);
   function load(name) {
     if (bufs[name] || pending[name] || !S.has(name)) return;
     const ctx = Sound.ctx();
     if (!ctx) return;
     pending[name] = fetch('sfx/' + name + '.mp3').then(r => { if (!r.ok) throw new Error(r.status); return r.arrayBuffer(); })
-      .then(b => ctx.decodeAudioData(b)).then(buf => { bufs[name] = buf; lead[name] = firstSound(buf); }).catch(() => { /* det tecknade ljudet får räcka */ });
+      .then(b => ctx.decodeAudioData(b)).then(buf => {
+        const l = levelOf(buf);
+        if (l.peak < .003) { dud[name] = true; return; }   // nästan tyst fil: det tecknade ljudet tar över
+        norm[name] = Math.max(.2, Math.min(8, TARGET / Math.max(l.rms, 1e-4), .9 / l.peak));
+        lead[name] = firstSound(buf, l.peak);
+        bufs[name] = buf;
+      }).catch(() => { /* det tecknade ljudet får räcka */ });
   }
   S.preload = () => files.forEach(f => load(f.replace(/\.mp3$/, '')));
   S.play = (name, ...args) => {
@@ -4129,7 +4168,7 @@ const Samples = (() => {
     let rate = .96 + Math.random() * .08;
     if (name === 'step') rate *= 1 + ((args[0] || 0) % 4) * .04;
     src.playbackRate.value = rate;
-    g.gain.value = (GAIN[name] || .8) * (name === 'hit' ? Math.min(1, Math.max(.15, args[0] == null ? .5 : args[0])) : 1);
+    g.gain.value = S.gain(name) * (name === 'hit' ? Math.min(1, Math.max(.15, args[0] == null ? .5 : args[0])) : 1);
     src.connect(g); g.connect(bus);
     src.start(0, lead[name] || 0);
     return true;
@@ -12203,12 +12242,12 @@ const Narration = (() => {
       blank: ['Tomt, som rymden.'], win: ['Ett litet steg för mig, ett stort steg för familjen!'], fly: ['Flyget är ingen rymdraket, men okej.'], boat: ['Havet ser ut som en ny planet.']
     },
     viking: {
-      turn: ['[laughs] Vikingen kommer, se upp!', 'Mot nästa stad, framåt!'], gem: ['[laughs] Byte! En skatt åt vikingen!', 'Glänsande! Den tar jag.'],
+      turn: ['[laughs] Vikingen kommer, se upp!', 'Mot nästa stad, framåt!'], gem: ['[laughs] En skatt! Den tar vikingen!', 'Glänsande! Den tar jag.'],
       star: ['[shouts] Diamanten! Vikingen har hittat skatten!'], thief: ['Vad? Någon stal från en viking?'], trap: ['Grr, nu sitter jag fast!'],
-      blank: ['Tomt! Inte ens ett mynt.'], win: ['[laughs] Seger! Vikingen firar med saft!'], fly: ['En viking som flyger? Häftigt!'], boat: ['[excited] Till skeppet! Ro, ro, ro!']
+      blank: ['Tomt! Inte ens ett mynt.'], win: ['[laughs] Seger! Nu firar vi med saft!'], fly: ['En viking som flyger? Häftigt!'], boat: ['[excited] Till skeppet! Ro, ro, ro!']
     },
     robot: {
-      turn: ['Bip bop. Min tur. Beräknar väg.', 'Laddar. Klar. Kör!'], gem: ['Bip! Ädelsten upptäckt. Värde: högt.', 'Fynd registrerat. Bip!'],
+      turn: ['Bip bop. Min tur. Beräknar väg.', 'Laddar. Klar. Kör!'], gem: ['Bip! Ädelsten upptäckt. Värde: högt.', 'Skatt hittad! Sparar i minnet.'],
       star: ['[excited] Diamant hittad! Glädjeprotokoll aktiverat!'], thief: ['Fel, fel! Pengar saknas.'], trap: ['Systemet har fastnat. Startar om.'],
       blank: ['Noll objekt hittade.'], win: ['Seger beräknad. Hundra procent glädje!'], fly: ['Flygläge aktiverat.'], boat: ['Vattentät? Jag hoppas det.']
     },
@@ -12250,9 +12289,10 @@ const Narration = (() => {
 
 /* ---- 11-main.js ---- */
 /* ================= Start: laddning, knappar och tangentbord ================= */
-const VERSION = '3.15';
+const VERSION = '3.16';
 // Visas en gång efter en uppdatering, och alltid under "Nytt i spelet" på startsidan
 const NEWS = [
+  ['sound', 'Jämnare ljud', 'Rösterna och ljudeffekterna är utjämnade: pjäserna ropar inte längre över berättaren, och inget ljud försvinner. Roboten har fått en tydligare röst.'],
   ['voice', 'Pjäserna pratar', 'Varje pjäs har en egen röst: Kaptenen ropar ahoj, Roboten piper och Vikingen skrattar när de hittar skatter, blir rånade eller vinner.'],
   ['map', 'Skånsk berättare', 'På Skånekartan berättar Martin på skånska, och fakta om Skånes städer läses på skånska även i passet.'],
   ['sound', 'En riktig berättare', 'En svensk berättare läser upp fakta om alla städer, korten, brickorna och vinsten. Slå på Läs upp vad som händer under Inställningar om den är avstängd.'],
