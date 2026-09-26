@@ -296,6 +296,18 @@ html,body{background:radial-gradient(120% 70% at 50% 0%,#23525e 0%,#0c242c 55%,#
 .postcard{display:grid;gap:10px;width:100%}
 .postcard img{width:100%;height:auto;border-radius:12px;box-shadow:0 0 0 2.5px var(--ink)}
 @media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+
+/* Familjen: tryck på ditt namn */
+.fam-pick{display:grid;gap:10px}
+.fam-q{margin:0;font-weight:800;color:var(--ink-soft)}
+.fam-chips{display:flex;flex-wrap:wrap;gap:10px}
+.fam-chip{display:inline-flex;align-items:center;gap:10px;border:3px solid var(--line);border-radius:999px;padding:4px 18px 4px 4px;background:#fff;font:900 18px var(--body,inherit);color:var(--ink,#1d2b33);box-shadow:0 4px 0 var(--line)}
+.fam-chip:active{transform:translateY(3px);box-shadow:0 1px 0 var(--line)}
+.fam-chip[aria-pressed="true"]{background:#fff3c4}
+.fam-av{width:46px;height:46px;border-radius:50%;background:var(--pc,#eee);border:3px solid var(--line);display:grid;place-items:center;overflow:hidden;flex:none}
+.fam-av img{width:94%;height:94%;object-fit:contain}
+.fam-or{margin:4px 0 0;display:flex;align-items:center;gap:10px;font-weight:800;font-size:14px;color:var(--ink-soft)}
+.fam-or::before,.fam-or::after{content:"";flex:1;height:2px;background:rgba(29,43,51,.15);border-radius:2px}
 </style>
 </head>
 <body>
@@ -343,6 +355,11 @@ html,body{background:radial-gradient(120% 70% at 50% 0%,#23525e 0%,#0c242c 55%,#
 
     <section id="vJoin" class="view" hidden>
       <h1>Vem är du?</h1>
+      <div class="fam-pick" id="famPick" hidden>
+        <p class="fam-q">Tryck på ditt namn så är du med direkt</p>
+        <div class="fam-chips" id="famChips"></div>
+        <p class="fam-or"><span>eller skriv ett nytt namn</span></p>
+      </div>
       <input id="nameInput" class="name-input" maxlength="14" placeholder="Skriv ditt namn" autocomplete="off" aria-label="Namn">
       <h2>Välj pjäs</h2>
       <div id="pieceGrid" class="pieces"></div>
@@ -1304,6 +1321,26 @@ const Cutout = (() => {
 
   /* ---------- Gå med: namn, pjäs och frågor ---------- */
   function renderJoin(lob, mine) {
+    // Familjen från den stora skärmen: ett tryck på sitt namn och man är med med sin pjäs och sina frågor
+    const fam = (lob.family || []).filter(m => !m.taken || (mine && mine.name === m.name));
+    $('famPick').hidden = !fam.length;
+    const chips = $('famChips');
+    chips.innerHTML = '';
+    fam.forEach(m => {
+      const on = !!mine && mine.name === m.name;
+      const piece = m.piece && lob.pieces.find(p => p.key === m.piece);
+      const b = h('button', {class: 'fam-chip', type: 'button', 'aria-pressed': String(on)}, avatar(m.piece || '', piece ? piece.color : '#f2bf3f', 'fam-av'), h('span', {text: m.name}));
+      b.onclick = () => {
+        unlockAudio(); tap();
+        const free = piece && !piece.taken && !piece.locked;
+        profile = {name: m.name, piece: free ? pieceRef(m.piece) : profile.piece, quiz: m.quiz || 'easy', read: !!profile.read};
+        store.set('profile', profile);
+        joinedOnce = true; editing = false; pendingPiece = null; pendingQuiz = null; pendingName = null;
+        send({t: 'join', name: profile.name, piece: profile.piece, quiz: profile.quiz});
+        wake();
+      };
+      chips.append(b);
+    });
     const name = $('nameInput');
     if (document.activeElement !== name) name.value = pendingName != null ? pendingName : mine ? mine.name : profile.name || '';
     const cur = mine ? mine.piece : profile.piece ? profile.piece.type + ':' + profile.piece.id : null;

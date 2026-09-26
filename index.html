@@ -1192,6 +1192,27 @@ body:not(.table-mode) .storm-badge,body:not(.table-mode) .challenge-badge{top:ca
 .tb-txt b{font-family:var(--display);font-weight:400;font-size:42px;text-shadow:0 3px 0 rgba(0,0,0,.3)}
 @media (max-width:520px){.turn-banner{gap:10px;padding:8px 24px 8px 8px}.tb-pic{width:50px;height:50px}.tb-txt b{font-size:30px}}
 .calm .turn-banner.show{animation-duration:1.3s}
+
+/* Vinstskärmen: flikar för priser, resedagbok och pengar */
+.win-tabs{justify-self:center;margin:8px auto 4px}
+.win-tabs button{padding:8px 16px;font-size:14px}
+.win-sheet .awards > h3,.win-sheet .diary > h3{display:none}
+.win-chart{display:grid;gap:8px;padding:10px 8px 6px;border-radius:18px;background:rgba(255,255,255,.6);box-shadow:inset 0 0 0 1.5px rgba(29,43,51,.14)}
+.win-chart[hidden]{display:none}
+.money-chart{width:100%;height:auto;display:block}
+.mc-grid{stroke:rgba(29,43,51,.12);stroke-width:1.5}
+.mc-lbl{font:800 12px var(--body);fill:#6b5a3a}
+.mc-axis{font-weight:900}
+.mc-star{stroke:#c98a14;stroke-width:2;stroke-dasharray:5 5}
+.mc-starlbl{fill:#b07a22}
+.mc-back{fill:none;stroke:#1d2b33;stroke-width:7.5;stroke-linejoin:round;stroke-linecap:round;opacity:.8}
+.mc-line{fill:none;stroke-width:4.5;stroke-linejoin:round;stroke-linecap:round}
+.mc-dot{stroke:#1d2b33;stroke-width:2.5}
+.chart-legend{display:flex;flex-wrap:wrap;gap:6px 18px;justify-content:center;font-size:14px}
+.cl-item{display:inline-flex;align-items:center;gap:6px;font-weight:800;color:var(--ink-soft)}
+.cl-item b{color:var(--ink);font-weight:900}
+.cl-item i{width:14px;height:14px;border-radius:50%;box-shadow:0 0 0 2px var(--ink)}
+.chart-empty{margin:8px;text-align:center;font-weight:800;color:var(--ink-soft)}
 </style>
 </head>
 <body>
@@ -1439,8 +1460,10 @@ body:not(.table-mode) .storm-badge,body:not(.table-mode) .challenge-badge{top:ca
       <h2 id="winTitle"></h2>
       <p id="winText"></p>
       <div class="stats" id="winStats"></div>
+      <div class="seg win-tabs" id="winTabs" role="group" aria-label="Efter partiet"><button type="button" data-tab="winAwards" aria-pressed="true">Priser</button><button type="button" data-tab="winDiary" aria-pressed="false">Resedagbok</button><button type="button" data-tab="winChart" aria-pressed="false">Pengar</button></div>
       <div class="awards" id="winAwards"></div>
       <div class="diary" id="winDiary"></div>
+      <div class="win-chart" id="winChart" hidden></div>
       <div class="sheet-foot center">
         <button class="btn big" id="bWinReplay" type="button">Visa resan</button>
         <button class="btn big" id="bWinPostcard" type="button">Vykort</button>
@@ -3277,7 +3300,7 @@ function tokenOutcome(board, G, p, cityId) {
   p.stats.flips++;
   switch (kind) {
     case 'star':
-      p.star = true; G.starFound = true;
+      p.star = true; G.starFound = true; if (G.starRound == null) G.starRound = G.round;
       out.title = starName(board) + '!';
       out.text = `${p.name} hittade ${starShort(board)}! Ta den till ${startNames(board)} för att vinna.`;
       p.stats.found.push('star');
@@ -7245,6 +7268,35 @@ const UI = (() => {
   };
 
   // Priser till alla, under vinnarens siffror
+  // Flikarna på vinstskärmen: priser, resedagbok och pengar
+  U.winTab = id => {
+    $('winTabs').querySelectorAll('button').forEach(b => { b.setAttribute('aria-pressed', String(b.dataset.tab === id)); b.onclick = () => { Sound.play('click'); U.winTab(b.dataset.tab); }; });
+    ['winAwards', 'winDiary', 'winChart'].forEach(k => { $(k).hidden = k !== id; });
+  };
+  // Pengarna under partiet: en linje per spelare, runda för runda
+  U.moneyChart = G => {
+    const box = $('winChart');
+    box.innerHTML = '';
+    const hist = (G.hist || []).filter(Array.isArray);
+    if (hist.length < 2) { box.append(h('p', {class: 'chart-empty', text: 'Diagrammet visas när ett parti har pågått minst en runda.'})); return; }
+    // På en smal skärm ritas diagrammet smalare så att siffrorna går att läsa
+    const small = window.innerWidth < 560, W = small ? 380 : 640, H = small ? 240 : 250, L = small ? 52 : 64, R = small ? 12 : 18, T = 16, B = 34, n = hist.length - 1;
+    const max = Math.max(5000, ...hist.flat()), step = max > 40000 ? 10000 : 5000, top = Math.ceil(max / step) * step;
+    const X = i => L + (W - L - R) * i / n, Y = v => T + (H - T - B) * (1 - Math.max(0, v) / top);
+    let svg = `<svg viewBox="0 0 ${W} ${H}" class="money-chart" role="img" aria-label="Pengar under partiet">`;
+    for (let v = 0; v <= top; v += step) svg += `<line x1="${L}" x2="${W - R}" y1="${Y(v)}" y2="${Y(v)}" class="mc-grid"/><text x="${L - 8}" y="${Y(v) + 4}" text-anchor="end" class="mc-lbl">${v.toLocaleString('sv-SE')}</text>`;
+    const every = Math.max(1, Math.ceil(n / (small ? 5 : 8)));
+    for (let i = 0; i <= n; i += every) svg += `<text x="${X(i)}" y="${H - 12}" text-anchor="middle" class="mc-lbl">${i}</text>`;
+    svg += `<text x="${W - R}" y="${H - 12}" text-anchor="end" class="mc-lbl mc-axis">runda</text>`;
+    if (G.starRound != null && G.starRound - .5 <= n) { const sx = X(Math.max(0, G.starRound - .5)); const right = sx > L + (W - L - R) * .6; svg += `<line x1="${sx}" x2="${sx}" y1="${T}" y2="${H - B}" class="mc-star"/><text x="${right ? sx - 6 : sx + 6}" y="${T + 12}" text-anchor="${right ? 'end' : 'start'}" class="mc-lbl mc-starlbl">skatten hittad</text>`; }
+    G.players.forEach((p, k) => {
+      const pts = hist.map((row, i) => `${X(i).toFixed(1)},${Y(row[k] || 0).toFixed(1)}`).join(' ');
+      svg += `<polyline points="${pts}" class="mc-back"/><polyline points="${pts}" class="mc-line" style="stroke:${p.color}"/>`;
+    });
+    G.players.forEach((p, k) => { svg += `<circle cx="${X(n)}" cy="${Y(hist[n][k] || 0)}" r="6.5" class="mc-dot" style="fill:${p.color}"/>`; });
+    box.innerHTML = svg + '</svg>';
+    box.append(h('div', {class: 'chart-legend'}, ...G.players.map((p, k) => h('span', {class: 'cl-item'}, h('i', {style: {background: p.color}}), h('b', {text: p.name}), h('span', {text: kr(hist[n][k] || 0)})))));
+  };
   U.awards = (list, players) => {
     const box = $('winAwards');
     box.innerHTML = '';
@@ -8498,6 +8550,7 @@ const Game = (() => {
       G.players.forEach(p => { p.money = purse; p.stats.maxMoney = purse; });
       G.coopLimit = coopLimit(board, G.options.length, n);
     }
+    if (!Array.isArray(G.hist) || !G.hist.length) G.hist = [G.players.map(q => q.money)];
     if (!saved) Missions.assign(G, board);
     for (const p of G.players) {
       p.spec = await specFor(p, saved);
@@ -8611,7 +8664,7 @@ const Game = (() => {
     const players = G.players.map(p => { const o = Object.assign({}, p); delete o.spec; delete o.flyTo; return o; });
     Store.set('save', {v: 3, config: G.config, when: Date.now(), custom, customEyes,
       G: {startedAt: G.startedAt, turn: G.turn, round: G.round, coopLimit: G.coopLimit, tokens: G.tokens, starFound: G.starFound, bonusTaken: G.bonusTaken, extraTaken: G.extraTaken, options: G.options, players,
-        cards: G.cards, storm: G.storm, trails: G.trails}});
+        cards: G.cards, storm: G.storm, trails: G.trails, hist: G.hist, starRound: G.starRound}});
   }
   Gm.save = save;
   // Avbryt allt som pågår och plocka bort pjäserna (spelet ligger kvar sparat)
@@ -8713,7 +8766,7 @@ const Game = (() => {
         const p = G.players[G.turn];
         if (p.extraTurn) { p.extraTurn = false; UI.toast(p, `${p.name} får en extra tur!`); save(); continue; }
         G.turn = (G.turn + 1) % G.players.length;
-        if (G.turn === 0) G.round++;
+        if (G.turn === 0) { G.round++; (G.hist = G.hist || []).push(G.players.map(q => q.money)); }
         if (G.options.coop && G.round > G.coopLimit) { await coopLost(gen); return; }
         if (G.storm > 0) {
           G.storm--;
@@ -9630,6 +9683,10 @@ const Game = (() => {
     UI.awards(G.awards, G.players);
     UI.diary(diaryRows(p));
     UI.diaryFans();
+    const cur = G.players.map(q => q.money), last = (G.hist || [])[(G.hist || []).length - 1];
+    if (!last || last.some((v, k) => v !== cur[k])) (G.hist = G.hist || []).push(cur);
+    UI.moneyChart(G);
+    UI.winTab(G.awards && G.awards.length ? 'winAwards' : 'winDiary');
     Bus.emit('hud');
   }
   // Allas resvägar ritas på kartan och kameran flyger längs vinnarens väg
@@ -9986,7 +10043,10 @@ const Setup = (() => {
       cards: cfg.options.cards !== false, quiz: cfg.options.quiz !== false,
       seats: cfg.seats.map(s => ({key: s.key, name: seatName(s), color: pieceColor(s.piece), piece: pieceKey(s.piece), bot: s.bot || 0, remote: !!s.dev, online: s.dev ? Remote.online(s.dev) : true, me: !!dev && s.dev === dev, quiz: s.quiz || 'easy', acc: s.acc || null})),
       accs: (() => { const s = cfg.seats.find(x => x.dev === dev); return s ? Badges.accessories(seatName(s)).map(a => ({id: a.id, name: a.name})) : []; })(),
-      pieces, full: cfg.seats.length >= 4 && !cfg.seats.some(s => s.dev === dev), canStart: cfg.seats.length >= 2
+      pieces, full: cfg.seats.length >= 4 && !cfg.seats.some(s => s.dev === dev), canStart: cfg.seats.length >= 2,
+      // Familjen: mobilen visar namnen så att man går med med ett tryck
+      family: Family.list().slice(0, 12).map(m => { const ref = Family.piece(m); return {name: m.name, piece: ref ? pieceKey(ref) : null, quiz: m.quiz || 'easy',
+        taken: cfg.seats.some(s => s.dev !== dev && normN(seatName(s)) === normN(m.name))}; })
     };
   };
   S.hasDev = dev => cfg.seats.some(s => s.dev === dev);
@@ -11769,14 +11829,14 @@ const Family = (() => {
 
 /* ---- 11-main.js ---- */
 /* ================= Start: laddning, knappar och tangentbord ================= */
-const VERSION = '3.12';
+const VERSION = '3.13';
 // Visas en gång efter en uppdatering, och alltid under "Nytt i spelet" på startsidan
 const NEWS = [
+  ['phone', 'Gå med med ett tryck', 'Mobilerna visar familjens namn. Tryck på ditt namn så är du med, med din pjäs och dina frågor.'],
+  ['trophy', 'Statistik efter partiet', 'Vinstskärmen har flikar för priser, resedagbok och ett diagram över allas pengar runda för runda.'],
   ['family', 'Familjen', 'Alla som spelar sparas med sin pjäs och sina frågor. Välj spelare med ett tryck i Nytt spel och i Utmaningar.'],
-  ['map', 'Skåne på riktigt', 'Kusten kommer från OpenStreetMap, med Ven, Hanö och Falsterbonäset. Nya orten Höllviken och en egen låt.'],
-  ['trophy', 'Ny topplista', 'Prispall med pjäserna, rekord på varje karta och de senaste partierna.'],
-  ['help', 'Så spelar man', 'Reglerna i tydliga kort med bilder, och snabbknappar till varje del.'],
-  ['gear', 'Finare menyer', 'Inställningar och ljud direkt på startsidan, reglage i spelets stil och en inställning för lugnare menyer.']
+  ['crown', 'Ny topplista', 'Prispall med pjäserna, rekord på varje karta och de senaste partierna.'],
+  ['map', 'Skåne på riktigt', 'Kusten kommer från OpenStreetMap, med Ven, Hanö och Falsterbonäset. Nya orten Höllviken och en egen låt.']
 ];
 const LOAD_TEXTS = ['Packar resväskan …', 'Vecklar ut kartan …', 'Putsar diamanten …', 'Stämmer kalimban …', 'Planterar träd …', 'Väcker trollen …'];
 
